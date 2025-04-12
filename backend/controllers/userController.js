@@ -56,8 +56,34 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+
+// Get user by email
+const getUserByEmail = async (req, res) => {
+  const { email } = req.params;  // El email se pasa como parámetro de la ruta
+
+  try {
+    const user = await User.findOne({ email });  // Busca al usuario por el email
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });  // Si no lo encuentra, responde con 404
+    }
+
+    // Si lo encuentra, devuelve la información del usuario
+    res.status(200).json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      createdLists: user.createdLists,
+      following: user.following
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });  // En caso de error, responde con 500
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
-  getAllUsers,  // Export the new function
+  getAllUsers,
+  getUserByEmail,  // Export the new function
 };
