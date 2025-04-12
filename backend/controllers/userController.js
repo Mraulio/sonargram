@@ -20,6 +20,26 @@ const registerUser = async (req, res) => {
   }
 };
 
+const deleteUser = async (req,res) => {
+  const { email } = req.params;
+  try {
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      return res.status(400).json({ message: 'User does not exist, can\'t delete.' });
+    }
+    // Eliminar el usuario
+    await User.deleteOne({ email });
+
+    // Responder con éxito
+    res.status(200).json({ message: 'User successfully deleted' });
+
+  } catch (error) {
+    // Manejo de errores
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
 // Login user and return JWT
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -85,5 +105,6 @@ module.exports = {
   registerUser,
   loginUser,
   getAllUsers,
+  deleteUser,
   getUserByEmail,  // Export the new function
 };
