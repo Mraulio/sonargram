@@ -10,6 +10,7 @@ function App() {
   const [listName, setListName] = useState('');
   const [songs, setSongs] = useState('');
   const [creator, setCreator] = useState('');
+  const [token, setToken] = useState('');  // Para almacenar el token JWT
 
   // Load users
   useEffect(() => {
@@ -49,12 +50,28 @@ function App() {
         name: listName,
         songs: songArray,
         creator
+      }, {
+        headers: { Authorization: `Bearer ${token}` }  // Enviar el token en los headers
       });
       alert('List created');
       setListName('');
       setSongs('');
     } catch (err) {
       alert('Error creating list');
+    }
+  };
+
+  const loginUser = async () => {
+    try {
+      const res = await axios.post('http://localhost:5000/api/users/login', {
+        email: userEmail,
+        password: userPassword
+      });
+      setToken(res.data.token);  // Guardar el token en el estado
+      alert('Logged in successfully');
+    } catch (err) {
+      alert('Error logging in');
+      console.error(err);
     }
   };
 
@@ -115,6 +132,24 @@ function App() {
           <li key={l._id}>{l.name}</li>
         ))}
       </ul>
+
+      <hr />
+
+      <h2>🔐 Login</h2>
+      <input
+        placeholder="Email"
+        value={userEmail}
+        onChange={e => setUserEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={userPassword}
+        onChange={e => setUserPassword(e.target.value)}
+      />
+      <button onClick={loginUser}>Login</button>
+
+      {token && <p>Token: {token}</p>} {/* Mostrar el token cuando esté disponible */}
     </div>
   );
 }
