@@ -11,7 +11,7 @@ const createList = async (req, res) => {
 };
 
 const getLists = async (req, res) => {
-  const listas = await List.find().populate('creador');
+  const listas = await List.find().populate('creator');
   res.json(listas);
 };
 
