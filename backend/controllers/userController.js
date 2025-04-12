@@ -40,7 +40,7 @@ const deleteUser = async (req,res) => {
   }
 }
 
-// Login user and return JWT
+
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -55,12 +55,17 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    // Generate JWT
-    const token = jwt.sign({ userId: user._id }, 'your_secret_key', {
-      expiresIn: '1h'
-    });
+    // Generar JWT con el ID y el rol del usuario
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },  // Aquí estamos agregando el rol
+      'your_secret_key',                      // Clave secreta
+      { expiresIn: '1h' }                    // Tiempo de expiración
+    );
 
-    res.status(200).json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    res.status(200).json({
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
