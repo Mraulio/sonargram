@@ -58,7 +58,7 @@ const loginUser = async (req, res) => {
     // Generar JWT con el ID y el rol del usuario
     const token = jwt.sign(
       { userId: user._id, role: user.role },  // Aquí estamos agregando el rol
-      'your_secret_key',                      // Clave secreta
+      process.env.JWT_SECRET_KEY,             // Clave secreta
       { expiresIn: '1h' }                    // Tiempo de expiración
     );
 

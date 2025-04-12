@@ -17,6 +17,9 @@ app.use(morgan('dev'));
 const usuariosRoutes = require('./routes/usersRoutes');
 const listasRoutes = require('./routes/listRoutes');
 
+// Accede al secret key
+const secretKey = process.env.JWT_SECRET_KEY;
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB conectado'))
   .catch((err) => console.error(err));
