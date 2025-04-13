@@ -3,53 +3,46 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { UserProvider, UserContext } from './context/UserContext';
 
+// MUI imports
+import {
+  Button,
+  TextField,
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  Divider,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl
+} from '@mui/material';
+
 function App() {
   const [users, setUsers] = useState([]);
   const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState(''); // Crear usuario - Email
-  const [userPassword, setUserPassword] = useState(''); // Crear usuario - Password
-  const [loginEmail, setLoginEmail] = useState(''); // Login - Email
-  const [loginPassword, setLoginPassword] = useState(''); // Login - Password
+  const [userEmail, setUserEmail] = useState('');
+  const [userPassword, setUserPassword] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [lists, setLists] = useState([]);
   const [listName, setListName] = useState('');
   const [songs, setSongs] = useState('');
   const [creator, setCreator] = useState('');
 
-  // Aquí ya no necesitas guardar el token y rol en el estado local de este componente
   const { token, role, login, logout } = useContext(UserContext);
 
-  const [isReady, setIsReady] = useState(false);  // Flag de carga
-
-  // Cargar usuarios
   useEffect(() => {
     axios.get('http://localhost:5000/api/users')
       .then(res => setUsers(res.data))
       .catch(err => console.error(err));
   }, []);
 
-  // Cargar listas
   useEffect(() => {
     axios.get('http://localhost:5000/api/lists')
       .then(res => setLists(res.data))
       .catch(err => console.error(err));
   }, []);
-
-  // Este useEffect se ejecutará al recargar la página
-  useEffect(() => {
-    if (isReady) {
-      if (token && role) {
-        alert(`You are logged in! Role: ${role}, Token: ${token}`);
-      } else {
-        alert('You are not logged in');
-      }
-    }
-  }, [isReady, token, role]);
-
-  useEffect(() => {
-    if (token && role) {
-      setIsReady(true); // Marca el estado como listo para evitar el "parpadeo"
-    }
-  }, [token, role]);
 
   const createUser = async () => {
     try {
@@ -71,7 +64,7 @@ function App() {
   const createList = async () => {
     try {
       const songArray = songs.split(',').map(s => s.trim());
-      const res = await axios.post('http://localhost:5000/api/lists', {
+      await axios.post('http://localhost:5000/api/lists', {
         name: listName,
         songs: songArray,
         creator
@@ -89,114 +82,156 @@ function App() {
   const loginUser = async () => {
     try {
       const res = await axios.post('http://localhost:5000/api/users/login', {
-        email: loginEmail, // Usar el email para login
-        password: loginPassword // Usar la contraseña para login
+        email: loginEmail,
+        password: loginPassword
       });
 
       const { token } = res.data;
       const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;  // Extraemos el rol del token
-
-      login(token, userRole); // Usar el método de login del contexto
-      alert(`Logged in successfully. Role: ${userRole}`);
+      login(token, decodedToken.role);
+      //alert(`Logged in successfully. Role: ${decodedToken.role}`);
     } catch (err) {
       alert('Error logging in');
-      console.error(err);
     }
   };
 
-  const handleLogout = () => {
-    logout();  // Llamamos a la función logout del contexto
-    alert('Logged out successfully');
-  };
-
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h2>🔐 Login</h2>
-      <input
-        placeholder="Email"
-        value={loginEmail} // Este es el email para login
-        onChange={e => setLoginEmail(e.target.value)} // Solo actualiza el email de login
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={loginPassword} // Este es el password para login
-        onChange={e => setLoginPassword(e.target.value)} // Solo actualiza la contraseña de login
-      />
-      <button onClick={loginUser}>Login</button>
+    <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
 
-      <button onClick={handleLogout}>Logout</button>
+            {/* Estado de sesión */}
+      <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
+        <CardContent>
+          <Typography variant="h6" sx={{ color: token ? 'green' : 'red' }}>
+            {token ? `🟢 Usuario logueado (Rol: ${role})` : '🔴 No hay ningún usuario logueado'}
+          </Typography>
+          {token && (
+            <Button variant="outlined" onClick={logout} sx={{ mt: 1 }}>
+              Logout
+            </Button>
+          )}
+        </CardContent>
+      </Card>
 
-      {token && <p>Token: {token}</p>} {/* Mostrar el token cuando esté disponible */}
-
-      <hr />
-      
-      {role === 'admin' && (  // Solo mostrar la sección si el rol es "admin"
-        <>
-          <h2>👤 Create User</h2>
-          <input
-            placeholder="Name"
-            value={userName}
-            onChange={e => setUserName(e.target.value)}
-          />
-          <input
-            placeholder="Email"
-            value={userEmail} // Este es el email para crear usuario
-            onChange={e => setUserEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={userPassword} // Este es el password para crear usuario
-            onChange={e => setUserPassword(e.target.value)}
-          />
-          <button onClick={createUser}>Create User</button>
-
-          <h3>Existing Users:</h3>
-          <ul>
-            {users.map(u => (
-              <li key={u._id}>{u.name} ({u.email})</li>
-            ))}
-          </ul>
-          <hr />
-        </>
+      {/* Login solo si NO hay token */}
+      {!token && (
+        <Card sx={{ mb: 4 }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>🔐 Login</Typography>
+            <TextField
+              fullWidth
+              label="Email"
+              value={loginEmail}
+              onChange={e => setLoginEmail(e.target.value)}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              type="password"
+              label="Password"
+              value={loginPassword}
+              onChange={e => setLoginPassword(e.target.value)}
+              margin="normal"
+            />
+            <Button variant="contained" onClick={loginUser} sx={{ mt: 2 }}>
+              Login
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
+      {role === 'admin' && (
+        <Card sx={{ mb: 4 }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>👤 Create User</Typography>
+            <TextField
+              fullWidth
+              label="Name"
+              value={userName}
+              onChange={e => setUserName(e.target.value)}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              value={userEmail}
+              onChange={e => setUserEmail(e.target.value)}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              type="password"
+              label="Password"
+              value={userPassword}
+              onChange={e => setUserPassword(e.target.value)}
+              margin="normal"
+            />
+            <Button variant="contained" onClick={createUser} sx={{ mt: 2 }}>
+              Create User
+            </Button>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="h6">Existing Users</Typography>
+            <ul>
+              {users.map(u => (
+                <li key={u._id}>{u.name} ({u.email})</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
-      <h2>🎵 Create List</h2>
-      <input
-        placeholder="List name"
-        value={listName}
-        onChange={e => setListName(e.target.value)}
-      />
-      <input
-        placeholder="Song IDs (comma-separated)"
-        value={songs}
-        onChange={e => setSongs(e.target.value)}
-      />
-      <select value={creator} onChange={e => setCreator(e.target.value)}>
-        <option value="">Select a creator</option>
-        {users.map(u => (
-          <option key={u._id} value={u._id}>
-            {u.name}
-          </option>
-        ))}
-      </select>
-      <button onClick={createList}>Create List</button>
+      <Card>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>🎵 Create List</Typography>
+          <TextField
+            fullWidth
+            label="List Name"
+            value={listName}
+            onChange={e => setListName(e.target.value)}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="Song IDs (comma-separated)"
+            value={songs}
+            onChange={e => setSongs(e.target.value)}
+            margin="normal"
+          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Creator</InputLabel>
+            <Select
+              value={creator}
+              label="Creator"
+              onChange={e => setCreator(e.target.value)}
+            >
+              <MenuItem value="">Select a creator</MenuItem>
+              {users.map(u => (
+                <MenuItem key={u._id} value={u._id}>{u.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button variant="contained" onClick={createList} sx={{ mt: 2 }}>
+            Create List
+          </Button>
 
-      <h3>Existing Lists:</h3>
-      <ul>
-        {lists.map(l => (
-          <li key={l._id}>{l.name}</li>
-        ))}
-      </ul>
-     
-    </div>
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="h6">Existing Lists</Typography>
+          <ul>
+            {lists.map(l => (
+              <li key={l._id}>{l.name}</li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+
+      {token && (
+        <Typography sx={{ mt: 4 }} fontSize="small" color="text.secondary">
+          Token: {token}
+        </Typography>
+      )}
+    </Box>
   );
 }
 
-// Envuelve la aplicación con UserProvider para que todos los componentes puedan acceder al contexto
 export default function AppWrapper() {
   return (
     <UserProvider>
