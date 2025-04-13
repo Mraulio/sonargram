@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import {jwtDecode } from 'jwt-decode';  // Importar la librería para decodificar JWT
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -67,13 +68,25 @@ function App() {
         email: userEmail,
         password: userPassword
       });
-      setToken(res.data.token);  // Guardar el token en el estado
-      alert('Logged in successfully');
+  
+      const { token } = res.data;
+      setToken(token);  // Guardamos el token en el estado para que se use inmediatamente
+      
+      // Decodificar el token para obtener el rol del usuario
+      const decodedToken = jwtDecode(token);
+      const userRole = decodedToken.role;  // Extraemos el rol del token
+  
+      // Guardamos tanto el token como el rol en sessionStorage
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('role', userRole);  // Guardamos el rol en sessionStorage
+  
+      alert(`Logged in successfully. Role: ${userRole}` );
     } catch (err) {
       alert('Error logging in');
       console.error(err);
     }
   };
+  
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>

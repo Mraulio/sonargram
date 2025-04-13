@@ -72,12 +72,12 @@ const loginUser = async (req, res) => {
     const token = jwt.sign(
       { userId: user._id, role: user.role },  // Aquí estamos agregando el rol
       process.env.JWT_SECRET_KEY,             // Clave secreta
-      { expiresIn: '1h' }                    // Tiempo de expiración
+      { expiresIn: '2h' }                    // Tiempo de expiración
     );
 
     res.status(200).json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+      user: { id: user._id, name: user.name, username: user.username, email: user.email, role: user.role }
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
