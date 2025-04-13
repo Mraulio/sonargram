@@ -2,10 +2,30 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },  // Agregamos el campo de rol
+  name: { 
+    type: String, 
+    required: [true, 'Name is required'] 
+  },
+  email: { 
+    type: String, 
+    required: [true, 'Email is required'], 
+    unique: true, 
+    match: [/\S+@\S+\.\S+/, 'Please use a valid email address']
+  },
+  username: { 
+    type: String, 
+    required: [true, 'Username is required'], 
+    unique: true 
+  },
+  password: { 
+    type: String, 
+    required: [true, 'Password is required']
+  },
+  role: { 
+    type: String, 
+    enum: ['user', 'admin'], 
+    default: 'user' 
+  },
   createdLists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'List' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });

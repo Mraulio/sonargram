@@ -3,15 +3,28 @@ const jwt = require('jsonwebtoken');
 
 // Register a new user
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-  console.log('Received data:', req.body); // Muestra los datos recibidos en la consola
+  const { name, username, email, password, role } = req.body;
+
+  // Validar que todos los campos requeridos estén presentes
+  if (!name || !username || !email || !password) {
+    return res.status(400).json({ message: 'Name, Username, email, and password are required' });
+  }
+
   try {
+    
+    // Comprobar si el nombre de usuario ya está tomado
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ message: 'Username is already taken' });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Email is already registered' });
     }
 
-    const newUser = new User({ name, email, password });
+
+    const newUser = new User({ name, username, email, password, role });
     await newUser.save();
 
     res.status(201).json({ message: 'User registered successfully' });
