@@ -1,31 +1,55 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import {jwtDecode } from 'jwt-decode';  // Importar la librería para decodificar JWT
+import { jwtDecode } from 'jwt-decode';
+import { UserProvider, UserContext } from './context/UserContext';
 
 function App() {
   const [users, setUsers] = useState([]);
   const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-  const [userPassword, setUserPassword] = useState('');
+  const [userEmail, setUserEmail] = useState(''); // Crear usuario - Email
+  const [userPassword, setUserPassword] = useState(''); // Crear usuario - Password
+  const [loginEmail, setLoginEmail] = useState(''); // Login - Email
+  const [loginPassword, setLoginPassword] = useState(''); // Login - Password
   const [lists, setLists] = useState([]);
   const [listName, setListName] = useState('');
   const [songs, setSongs] = useState('');
   const [creator, setCreator] = useState('');
-  const [token, setToken] = useState('');  // Para almacenar el token JWT
 
-  // Load users
+  // Aquí ya no necesitas guardar el token y rol en el estado local de este componente
+  const { token, role, login, logout } = useContext(UserContext);
+
+  const [isReady, setIsReady] = useState(false);  // Flag de carga
+
+  // Cargar usuarios
   useEffect(() => {
     axios.get('http://localhost:5000/api/users')
       .then(res => setUsers(res.data))
       .catch(err => console.error(err));
   }, []);
 
-  // Load lists
+  // Cargar listas
   useEffect(() => {
     axios.get('http://localhost:5000/api/lists')
       .then(res => setLists(res.data))
       .catch(err => console.error(err));
   }, []);
+
+  // Este useEffect se ejecutará al recargar la página
+  useEffect(() => {
+    if (isReady) {
+      if (token && role) {
+        alert(`You are logged in! Role: ${role}, Token: ${token}`);
+      } else {
+        alert('You are not logged in');
+      }
+    }
+  }, [isReady, token, role]);
+
+  useEffect(() => {
+    if (token && role) {
+      setIsReady(true); // Marca el estado como listo para evitar el "parpadeo"
+    }
+  }, [token, role]);
 
   const createUser = async () => {
     try {
@@ -52,7 +76,7 @@ function App() {
         songs: songArray,
         creator
       }, {
-        headers: { Authorization: `Bearer ${token}` }  // Enviar el token en los headers
+        headers: { Authorization: `Bearer ${token}` }
       });
       alert('List created');
       setListName('');
@@ -65,28 +89,26 @@ function App() {
   const loginUser = async () => {
     try {
       const res = await axios.post('http://localhost:5000/api/users/login', {
-        email: userEmail,
-        password: userPassword
+        email: loginEmail, // Usar el email para login
+        password: loginPassword // Usar la contraseña para login
       });
-  
+
       const { token } = res.data;
-      setToken(token);  // Guardamos el token en el estado para que se use inmediatamente
-      
-      // Decodificar el token para obtener el rol del usuario
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;  // Extraemos el rol del token
-  
-      // Guardamos tanto el token como el rol en sessionStorage
-      sessionStorage.setItem('token', token);
-      sessionStorage.setItem('role', userRole);  // Guardamos el rol en sessionStorage
-  
-      alert(`Logged in successfully. Role: ${userRole}` );
+
+      login(token, userRole); // Usar el método de login del contexto
+      alert(`Logged in successfully. Role: ${userRole}`);
     } catch (err) {
       alert('Error logging in');
       console.error(err);
     }
   };
-  
+
+  const handleLogout = () => {
+    logout();  // Llamamos a la función logout del contexto
+    alert('Logged out successfully');
+  };
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
@@ -98,13 +120,13 @@ function App() {
       />
       <input
         placeholder="Email"
-        value={userEmail}
+        value={userEmail} // Este es el email para crear usuario
         onChange={e => setUserEmail(e.target.value)}
       />
       <input
         type="password"
         placeholder="Password"
-        value={userPassword}
+        value={userPassword} // Este es el password para crear usuario
         onChange={e => setUserPassword(e.target.value)}
       />
       <button onClick={createUser}>Create User</button>
@@ -151,20 +173,29 @@ function App() {
       <h2>🔐 Login</h2>
       <input
         placeholder="Email"
-        value={userEmail}
-        onChange={e => setUserEmail(e.target.value)}
+        value={loginEmail} // Este es el email para login
+        onChange={e => setLoginEmail(e.target.value)} // Solo actualiza el email de login
       />
       <input
         type="password"
         placeholder="Password"
-        value={userPassword}
-        onChange={e => setUserPassword(e.target.value)}
+        value={loginPassword} // Este es el password para login
+        onChange={e => setLoginPassword(e.target.value)} // Solo actualiza la contraseña de login
       />
       <button onClick={loginUser}>Login</button>
+
+      <button onClick={handleLogout}>Logout</button>
 
       {token && <p>Token: {token}</p>} {/* Mostrar el token cuando esté disponible */}
     </div>
   );
 }
 
-export default App;
+// Envuelve la aplicación con UserProvider para que todos los componentes puedan acceder al contexto
+export default function AppWrapper() {
+  return (
+    <UserProvider>
+      <App />
+    </UserProvider>
+  );
+}
