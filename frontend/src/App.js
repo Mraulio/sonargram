@@ -112,33 +112,57 @@ function App() {
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h2>👤 Create User</h2>
-      <input
-        placeholder="Name"
-        value={userName}
-        onChange={e => setUserName(e.target.value)}
-      />
+      <h2>🔐 Login</h2>
       <input
         placeholder="Email"
-        value={userEmail} // Este es el email para crear usuario
-        onChange={e => setUserEmail(e.target.value)}
+        value={loginEmail} // Este es el email para login
+        onChange={e => setLoginEmail(e.target.value)} // Solo actualiza el email de login
       />
       <input
         type="password"
         placeholder="Password"
-        value={userPassword} // Este es el password para crear usuario
-        onChange={e => setUserPassword(e.target.value)}
+        value={loginPassword} // Este es el password para login
+        onChange={e => setLoginPassword(e.target.value)} // Solo actualiza la contraseña de login
       />
-      <button onClick={createUser}>Create User</button>
+      <button onClick={loginUser}>Login</button>
 
-      <h3>Existing Users:</h3>
-      <ul>
-        {users.map(u => (
-          <li key={u._id}>{u.name} ({u.email})</li>
-        ))}
-      </ul>
+      <button onClick={handleLogout}>Logout</button>
+
+      {token && <p>Token: {token}</p>} {/* Mostrar el token cuando esté disponible */}
 
       <hr />
+      
+      {role === 'admin' && (  // Solo mostrar la sección si el rol es "admin"
+        <>
+          <h2>👤 Create User</h2>
+          <input
+            placeholder="Name"
+            value={userName}
+            onChange={e => setUserName(e.target.value)}
+          />
+          <input
+            placeholder="Email"
+            value={userEmail} // Este es el email para crear usuario
+            onChange={e => setUserEmail(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={userPassword} // Este es el password para crear usuario
+            onChange={e => setUserPassword(e.target.value)}
+          />
+          <button onClick={createUser}>Create User</button>
+
+          <h3>Existing Users:</h3>
+          <ul>
+            {users.map(u => (
+              <li key={u._id}>{u.name} ({u.email})</li>
+            ))}
+          </ul>
+          <hr />
+        </>
+      )}
+
 
       <h2>🎵 Create List</h2>
       <input
@@ -167,26 +191,7 @@ function App() {
           <li key={l._id}>{l.name}</li>
         ))}
       </ul>
-
-      <hr />
-
-      <h2>🔐 Login</h2>
-      <input
-        placeholder="Email"
-        value={loginEmail} // Este es el email para login
-        onChange={e => setLoginEmail(e.target.value)} // Solo actualiza el email de login
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={loginPassword} // Este es el password para login
-        onChange={e => setLoginPassword(e.target.value)} // Solo actualiza la contraseña de login
-      />
-      <button onClick={loginUser}>Login</button>
-
-      <button onClick={handleLogout}>Logout</button>
-
-      {token && <p>Token: {token}</p>} {/* Mostrar el token cuando esté disponible */}
+     
     </div>
   );
 }
