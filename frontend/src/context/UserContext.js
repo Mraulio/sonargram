@@ -38,8 +38,6 @@ export const UserProvider = ({ children }) => {
     setRole(null);
     localStorage.removeItem('token');
     localStorage.removeItem('role');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('role');
   };
 
   return (
