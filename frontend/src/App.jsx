@@ -1,8 +1,13 @@
+// App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { UserContext, UserProvider } from './context/UserContext';
+import { UserProvider, UserContext } from './context/UserContext';
+import { ThemeProviderCustom, ThemeContext } from './context/ThemeContext';
+
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { useContext } from 'react';
+
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
-import { useContext } from 'react';
 
 function App() {
   const { token } = useContext(UserContext);
@@ -21,7 +26,21 @@ function App() {
 export default function AppWrapper() {
   return (
     <UserProvider>
-      <App />
+      <ThemeProviderCustom>
+        <ThemeWrapper />
+      </ThemeProviderCustom>
     </UserProvider>
+  );
+}
+
+// Componente para aplicar el tema
+function ThemeWrapper() {
+  const { theme } = useContext(ThemeContext);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
   );
 }

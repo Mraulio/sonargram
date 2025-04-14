@@ -1,3 +1,4 @@
+import { jwtDecode } from 'jwt-decode';
 import { createContext, useState, useEffect } from 'react';
 
 // Crear el contexto
@@ -14,7 +15,19 @@ export const UserProvider = ({ children }) => {
     const savedRole = localStorage.getItem('role');
 
     if (savedToken) {
-      setToken(savedToken);
+      try {
+        const decoded = jwtDecode(savedToken);
+        const isExpired = decoded.exp * 1000 < Date.now();
+
+        if (isExpired) {
+          logout(); // Token expirado
+        } else {
+          setToken(savedToken);
+          setRole(savedRole);
+        }
+      } catch (err) {
+        logout(); // Token corrupto o inválido
+      }
     }
 
     if (savedRole) {

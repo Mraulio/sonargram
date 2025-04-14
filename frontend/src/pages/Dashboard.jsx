@@ -1,21 +1,20 @@
 import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { ThemeContext } from '../context/ThemeContext';
 
 function Dashboard() {
   const [users, setUsers] = useState([]);
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
   const [lists, setLists] = useState([]);
   const [listName, setListName] = useState('');
   const [songs, setSongs] = useState('');
   const [creator, setCreator] = useState('');
-  
+  const { mode, toggleTheme } = useContext(ThemeContext);
+
   const { token, role, login, logout } = useContext(UserContext);
 
   useEffect(() => {
@@ -81,7 +80,12 @@ function Dashboard() {
           )}
         </CardContent>
       </Card>     
-
+      <div>
+      <Button variant="outlined" onClick={toggleTheme}>
+        Cambiar a modo {mode === 'light' ? 'oscuro' : 'claro'}
+      </Button>
+      {/* ... resto del contenido */}
+    </div>
       {role === 'admin' && (
         <Card sx={{ mb: 4 }}>
           <CardContent>
