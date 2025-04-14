@@ -1,0 +1,24 @@
+{
+    "userLoggedIn": "🟢 Usuario logueado (Rol: {{role}})",
+    "noUserLoggedIn": "🔴 No hay ningún usuario logueado",
+    "logout": "Cerrar sesión",
+    "changeTheme": "Cambiar a modo {{mode}}",
+    "light": "claro",
+    "dark": "oscuro",
+    "createUser": "👤 Crear usuario",
+    "name": "Nombre",
+    "username": "Nombre de usuario (único)",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "createUserButton": "Crear usuario",
+    "existingUsers": "Usuarios existentes",
+    "createList": "🎵 Crear lista",
+    "listName": "Nombre de la lista",
+    "songIds": "ID de canciones (separadas por comas)",
+    "creator": "Creador",
+    "selectCreator": "Seleccionar un creador",
+    "createListButton": "Crear lista",
+    "existingLists": "Listas existentes",
+    "tokenLabel": "Token"
+  }
+  

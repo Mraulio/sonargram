@@ -1,10 +1,12 @@
 import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { ThemeContext } from '../context/ThemeContext';
 
 function Dashboard() {
+  const { t } = useTranslation();  // Hook para obtener las traducciones
   const [users, setUsers] = useState([]);
   const [userName, setUserName] = useState('');
   const [userUsername, setUserUsername] = useState('');
@@ -15,7 +17,6 @@ function Dashboard() {
   const [songs, setSongs] = useState('');
   const [creator, setCreator] = useState('');
   const { mode, toggleTheme } = useContext(ThemeContext);
-
   const { token, role, login, logout } = useContext(UserContext);
 
   useEffect(() => {
@@ -74,42 +75,43 @@ function Dashboard() {
       <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
         <CardContent>
           <Typography variant="h6" sx={{ color: token ? 'green' : 'red' }}>
-            {token ? `🟢 Usuario logueado (Rol: ${role})` : '🔴 No hay ningún usuario logueado'}
+            {token ? t('userLoggedIn', { role }) : t('noUserLoggedIn')}
           </Typography>
           {token && (
             <Button variant="outlined" onClick={logout} sx={{ mt: 1 }}>
-              Logout
+              {t('logout')}
             </Button>
           )}
         </CardContent>
       </Card>     
+      
       <div>
-      <Button variant="outlined" onClick={toggleTheme}>
-        Cambiar a modo {mode === 'light' ? 'oscuro' : 'claro'}
-      </Button>
-      {/* ... resto del contenido */}
-    </div>
+        <Button variant="outlined" onClick={toggleTheme}>
+        {t('changeTheme', { mode: mode === 'light' ? t('dark') : t('light') })}
+        </Button>
+      </div>
+
       {role === 'admin' && (
         <Card sx={{ mb: 4 }}>
           <CardContent>
-            <Typography variant="h5" gutterBottom>👤 Create User</Typography>
+            <Typography variant="h5" gutterBottom>{t('createUser')}</Typography>
             <TextField
               fullWidth
-              label="Name"
+              label={t('name')}
               value={userName}
               onChange={e => setUserName(e.target.value)}
               margin="normal"
             />
             <TextField
               fullWidth
-              label="Username (unique)"
+              label={t('username')}
               value={userUsername}
               onChange={e => setUserUsername(e.target.value)}
               margin="normal"
             />
             <TextField
               fullWidth
-              label="Email"
+              label={t('email')}
               value={userEmail}
               onChange={e => setUserEmail(e.target.value)}
               margin="normal"
@@ -117,16 +119,16 @@ function Dashboard() {
             <TextField
               fullWidth
               type="password"
-              label="Password"
+              label={t('password')}
               value={userPassword}
               onChange={e => setUserPassword(e.target.value)}
               margin="normal"
             />
             <Button variant="contained" onClick={createUser} sx={{ mt: 2 }}>
-              Create User
+              {t('createUserButton')}
             </Button>
             <Divider sx={{ my: 2 }} />
-            <Typography variant="h6">Existing Users</Typography>
+            <Typography variant="h6">{t('existingUsers')}</Typography>
             <ul>
               {users.map(u => (
                 <li key={u._id}>{u.name} ({u.email})</li>
@@ -138,40 +140,40 @@ function Dashboard() {
 
       <Card>
         <CardContent>
-          <Typography variant="h5" gutterBottom>🎵 Create List</Typography>
+          <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
           <TextField
             fullWidth
-            label="List Name"
+            label={t('listName')}
             value={listName}
             onChange={e => setListName(e.target.value)}
             margin="normal"
           />
           <TextField
             fullWidth
-            label="Song IDs (comma-separated)"
+            label={t('songIds')}
             value={songs}
             onChange={e => setSongs(e.target.value)}
             margin="normal"
           />
           <FormControl fullWidth margin="normal">
-            <InputLabel>Creator</InputLabel>
+            <InputLabel>{t('creator')}</InputLabel>
             <Select
               value={creator}
-              label="Creator"
+              label={t('creator')}
               onChange={e => setCreator(e.target.value)}
             >
-              <MenuItem value="">Select a creator</MenuItem>
+              <MenuItem value="">{t('selectCreator')}</MenuItem>
               {users.map(u => (
                 <MenuItem key={u._id} value={u._id}>{u.name}</MenuItem>
               ))}
             </Select>
           </FormControl>
           <Button variant="contained" onClick={createList} sx={{ mt: 2 }}>
-            Create List
+            {t('createListButton')}
           </Button>
 
           <Divider sx={{ my: 2 }} />
-          <Typography variant="h6">Existing Lists</Typography>
+          <Typography variant="h6">{t('existingLists')}</Typography>
           <ul>
             {lists.map(l => (
               <li key={l._id}>{l.name}</li>
@@ -182,7 +184,7 @@ function Dashboard() {
 
       {token && (
         <Typography sx={{ mt: 4 }} fontSize="small" color="text.secondary">
-          Token: {token}
+          {t('tokenLabel')}: {token}
         </Typography>
       )}
     </Box>

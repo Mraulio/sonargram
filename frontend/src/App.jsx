@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard';
 // FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import i18n from './i18n';
 
 function App() {
   const { token } = useContext(UserContext);
@@ -40,7 +41,6 @@ export default function AppWrapper() {
 // Componente para aplicar el tema
 function ThemeWrapper() {
   const { theme, toggleTheme, mode } = useContext(ThemeContext);
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -49,6 +49,8 @@ function ThemeWrapper() {
         <button className="theme-button" onClick={toggleTheme}>
           <FontAwesomeIcon icon={mode === 'light' ? faMoon : faSun} size="lg" />
         </button>
+        <button onClick={() => i18n.changeLanguage('en')}>EN</button>
+      <button onClick={() => i18n.changeLanguage('es')}>ES</button>
       </div>
       <App />
     </ThemeProvider>
