@@ -1,4 +1,3 @@
-// App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { UserProvider, UserContext } from './context/UserContext';
 import { ThemeProviderCustom, ThemeContext } from './context/ThemeContext';
@@ -6,8 +5,13 @@ import { ThemeProviderCustom, ThemeContext } from './context/ThemeContext';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { useContext } from 'react';
 
+// Pages
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
+
+// FontAwesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
   const { token } = useContext(UserContext);
@@ -35,11 +39,17 @@ export default function AppWrapper() {
 
 // Componente para aplicar el tema
 function ThemeWrapper() {
-  const { theme } = useContext(ThemeContext);
+  const { theme, toggleTheme, mode } = useContext(ThemeContext);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      {/* Header con botón de cambio de tema */}
+      <div className="header">
+        <button className="theme-button" onClick={toggleTheme}>
+          <FontAwesomeIcon icon={mode === 'light' ? faMoon : faSun} size="lg" />
+        </button>
+      </div>
       <App />
     </ThemeProvider>
   );
