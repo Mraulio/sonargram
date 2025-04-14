@@ -17,7 +17,7 @@ function Dashboard() {
   const [songs, setSongs] = useState('');
   const [creator, setCreator] = useState('');
   const { mode, toggleTheme } = useContext(ThemeContext);
-  const { token, role, login, logout } = useContext(UserContext);
+  const { token, role, logout } = useContext(UserContext);
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/users')
