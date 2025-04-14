@@ -7,6 +7,7 @@ import { ThemeContext } from '../context/ThemeContext';
 function Dashboard() {
   const [users, setUsers] = useState([]);
   const [userName, setUserName] = useState('');
+  const [userUsername, setUserUsername] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
   const [lists, setLists] = useState([]);
@@ -33,11 +34,13 @@ function Dashboard() {
     try {
       const res = await axios.post('http://localhost:5000/api/users/register', {
         name: userName,
+        username: userUsername,
         email: userEmail,
         password: userPassword
       });
       setUsers([...users, res.data]);
       setUserName('');
+      setUserUsername('');
       setUserEmail('');
       setUserPassword('');
     } catch (err) {
@@ -95,6 +98,13 @@ function Dashboard() {
               label="Name"
               value={userName}
               onChange={e => setUserName(e.target.value)}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Username (unique)"
+              value={userUsername}
+              onChange={e => setUserUsername(e.target.value)}
               margin="normal"
             />
             <TextField
