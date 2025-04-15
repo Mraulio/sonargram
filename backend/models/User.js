@@ -27,6 +27,15 @@ const UserSchema = new mongoose.Schema({
     default: 'user' 
   },
   createdLists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'List' }],
+
+  // Favoritos de usuario, guardamos solo los IDs de MusicBrainz
+  favorites: [
+    {
+      favoriteId: { type: String, required: true },  // ID de MusicBrainz
+      favoriteType: { type: String, enum: ['song', 'album', 'artist'], required: true }
+    }
+  ],
+
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
@@ -41,6 +50,25 @@ UserSchema.pre('save', async function (next) {
 // Method to compare entered password with hashed one
 UserSchema.methods.comparePassword = async function (inputPassword) {
   return await bcrypt.compare(inputPassword, this.password);
+};
+
+// Método para agregar un favorito
+UserSchema.methods.addFavorite = async function(favoriteId, favoriteType) {
+  // Verifica si ya existe el favorito en la lista del usuario
+  const isAlreadyFavorite = this.favorites.some(fav => fav.favoriteId === favoriteId && fav.favoriteType === favoriteType);
+
+  if (!isAlreadyFavorite) {
+    // Si no es favorito, lo agregamos
+    this.favorites.push({ favoriteId, favoriteType });
+    await this.save();
+  }
+};
+
+// Método para eliminar un favorito
+UserSchema.methods.removeFavorite = async function(favoriteId, favoriteType) {
+  // Filtra los favoritos para eliminar el que coincide con el ID y tipo
+  this.favorites = this.favorites.filter(fav => !(fav.favoriteId === favoriteId && fav.favoriteType === favoriteType));
+  await this.save();
 };
 
 module.exports = mongoose.model('User', UserSchema);
