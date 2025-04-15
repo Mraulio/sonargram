@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { ThemeContext } from '../context/ThemeContext';
+import apiClient from '../api/apiClient';
 
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -20,9 +21,9 @@ function Dashboard() {
   const { token, role, logout } = useContext(UserContext);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/users')
-      .then(res => setUsers(res.data))
-      .catch(err => console.error(err));
+    apiClient.get('/users')
+    .then(res => setUsers(res.data))
+    .catch(err => console.error(err));
   }, []);
 
   useEffect(() => {

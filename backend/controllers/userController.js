@@ -72,7 +72,7 @@ const loginUser = async (req, res) => {
     const token = jwt.sign(
       { userId: user._id, role: user.role },  // Aquí estamos agregando el rol
       process.env.JWT_SECRET_KEY,             // Clave secreta
-      { expiresIn: '1m' }                    // Tiempo de expiración
+      { expiresIn: '1h' }                    // Tiempo de expiración
     );
 
     res.status(200).json({
