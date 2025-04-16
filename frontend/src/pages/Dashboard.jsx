@@ -5,6 +5,7 @@ import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { ThemeContext } from '../context/ThemeContext';
 import apiClient from '../api/apiClient';
+import Menu from '../components/Menu';
 
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -71,7 +72,7 @@ function Dashboard() {
 
   return (
     <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
-
+      <Menu></Menu>
       {/* Estado de sesión */}
       <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
         <CardContent>
