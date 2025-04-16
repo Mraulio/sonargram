@@ -12,7 +12,7 @@ function Menu() {
   return (
     <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
         Menu
-      
+        Cambios
     </Box>
   );
 }
