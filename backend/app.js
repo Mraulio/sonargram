@@ -15,9 +15,11 @@ app.use(morgan('dev'));
 // Rutas
 const usersRoutes = require('./routes/usersRoutes');
 const listsRoutes = require('./routes/listRoutes');
+const commentsRoutes = require('./routes/commentRoutes')
 
 app.use('/api/users', usersRoutes);
 app.use('/api/lists', listsRoutes);
+app.use('/api/comments', commentsRoutes);
 
 // Conexión a Mongo (aquí solo la abrimos una vez, podría moverse a server.js si prefieres)
 mongoose.connect(process.env.MONGO_URI)
