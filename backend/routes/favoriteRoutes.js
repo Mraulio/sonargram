@@ -7,6 +7,6 @@ const router = express.Router();
 router.post('/', requireAuth, addFavorite);
 router.delete('/:favoriteId', requireAuth, removeFavorite);
 router.get('/', requireAuth, getFavoritesByUser);
-router.get('/count/:favoriteId/:favoriteType', requireAuth, getFavoriteCount);
+router.get('/count/:favoriteId', requireAuth, getFavoriteCount);
 
 module.exports = router;

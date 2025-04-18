@@ -41,10 +41,10 @@ const removeFavorite = async (req, res) => {
 
 // Método para obtener el número de "me gusta" de un favorito (ejemplo: canción)
 const getFavoriteCount = async (req, res) => {
-    const { favoriteId, favoriteType } = req.params;  // Recibimos el ID y tipo del favorito
+    const { favoriteId } = req.params;  // Recibimos el ID y tipo del favorito
   
     try {
-      const count = await favoriteService.countFavorites(favoriteId, favoriteType);  // Llamamos al servicio
+      const count = await favoriteService.countFavorites(favoriteId);  // Llamamos al servicio
       res.status(200).json({ count });  // Respondemos con el número de "me gusta"
     } catch (err) {
       res.status(500).json({ message: err.message });  // En caso de error, enviamos un mensaje

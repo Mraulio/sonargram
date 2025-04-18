@@ -2,15 +2,12 @@ import { useState, useContext } from 'react';
 import { TextField, Button, Typography, Card, CardContent } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 function LoginPage() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const { login } = useContext(UserContext);
-  const navigate = useNavigate();
-
   
     const loginUser = async () => {
       try {
