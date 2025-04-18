@@ -4,12 +4,15 @@ const followController = require('../controllers/followController');
 const { requireAuth } = require('../middleware/auth');
 
 // Ruta para seguir a un usuario
-router.post('/follow/:followedId', requireAuth, followController.followUser);
+router.post('/:followedId', requireAuth, followController.followUser);
 
 // Ruta para dejar de seguir a un usuario
-router.delete('/unfollow/:followedId', requireAuth, followController.unfollowUser);
+router.delete('/:followedId', requireAuth, followController.unfollowUser);
 
 // Ruta para obtener los seguidores de un usuario
 router.get('/followers/:userId', requireAuth, followController.getFollowers);
+
+// Obtener los usuarios que sigue un usuario
+router.get('/following/:userId', followController.getFollowing);
 
 module.exports = router;

@@ -1,32 +1,42 @@
+// controllers/followController.js
 const followService = require('../services/followService');
 
 // Seguir a un usuario
 async function followUser(req, res) {
-  const { followerId } = req.user; // Obtén el ID del usuario que está haciendo el seguimiento desde el JWT o sesión
-  const { followedId } = req.params; // El ID del usuario que se va a seguir, pasado como parámetro de la ruta
+  const userId = req.user.userId; // ID del usuario logueado (viene del token)
+  const { followedId } = req.params;
 
   try {
-    // Llamar al servicio para seguir al usuario
-    await followService.followUser(followerId, followedId);
+    // Llamamos al servicio para seguir al usuario
+    await followService.followUser(userId, followedId);
     res.status(200).json({ message: 'User followed successfully' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    if (err.message === 'Already following this user') {
+      return res.status(400).json({ message: err.message }); // 400 si ya está siguiendo
+    }
+    if (err.message === 'You cannot follow yourself') {
+      return res.status(400).json({ message: err.message }); // 400 si intenta seguirse a sí mismo
+    }
+    res.status(500).json({ message: 'Server error' }); // 500 para errores del servidor
   }
 }
 
 // Dejar de seguir a un usuario
 async function unfollowUser(req, res) {
-  const { followerId } = req.user; // ID del usuario que está realizando la acción
-  const { followedId } = req.params; // ID del usuario que se va a dejar de seguir
+  const userId = req.user.userId; // ID del usuario logueado (viene del token)
+  const { followedId } = req.params;
 
   try {
-    // Llamar al servicio para dejar de seguir al usuario
-    await followService.unfollowUser(followerId, followedId);
+    // Llamamos al servicio para dejar de seguir al usuario
+    await followService.unfollowUser(userId, followedId);
     res.status(200).json({ message: 'User unfollowed successfully' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    if (err.message === 'You are not following this user') {
+      return res.status(400).json({ message: err.message }); // 400 si no está siguiendo
+    }
+    res.status(500).json({ message: 'Server error' }); // 500 para errores del servidor
   }
 }
 
@@ -43,8 +53,23 @@ async function getFollowers(req, res) {
   }
 }
 
+// Obtener los usuarios que sigue un usuario
+async function getFollowing(req, res) {
+  const { userId } = req.params; // El ID del usuario al que le queremos obtener los usuarios que sigue
+
+  try {
+    const following = await followService.getFollowing(userId);
+    res.status(200).json(following);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
+
 module.exports = {
   followUser,
   unfollowUser,
   getFollowers,
+  getFollowing,
 };
