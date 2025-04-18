@@ -119,72 +119,10 @@ const getUserByEmail = async (req, res) => {
   }
 };
 
-// Añadir un favorito
-const addFavorite = async (req, res) => {
-  const userId = req.user.userId; 
-  const { favoriteId, favoriteType } = req.body;  // Recibe el ID del favorito y el tipo (song, album, artist)
-
-  try {
-    const user = await User.findById(userId);  // Busca al usuario por el ID
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });  // Si no se encuentra el usuario, responde con 404
-    }
-
-    // Verifica si el favorito ya existe
-    const isAlreadyFavorite = user.favorites.some(favorite => favorite.favoriteId === favoriteId && favorite.favoriteType === favoriteType);
-    
-    if (isAlreadyFavorite) {
-      return res.status(400).json({ message: 'Favorite already added' });  // Si ya es favorito, no lo añade
-    }
-
-    // Añadir el favorito al array de favoritos
-    user.favorites.push({ favoriteId, favoriteType });
-
-    await user.save();  // Guarda el usuario con el nuevo favorito
-
-    res.status(200).json({ message: 'Favorite added successfully' });  // Responde con éxito
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });  // En caso de error, responde con 500
-  }
-};
-
-// Eliminar un favorito
-const removeFavorite = async (req, res) => {
-  const userId = req.user.userId;
-  const { favoriteId, favoriteType } = req.body;  // Recibe el ID del favorito y el tipo (song, album, artist)
-
-  try {
-    const user = await User.findById(userId);  // Busca al usuario por el ID
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });  // Si no se encuentra el usuario, responde con 404
-    }
-
-    // Verifica si el favorito existe
-    const favoriteIndex = user.favorites.findIndex(favorite => favorite.favoriteId === favoriteId && favorite.favoriteType === favoriteType);
-    
-    if (favoriteIndex === -1) {
-      return res.status(400).json({ message: 'Favorite not found' });  // Si el favorito no existe, responde con un error
-    }
-
-    // Elimina el favorito de la lista de favoritos
-    user.favorites.splice(favoriteIndex, 1);
-
-    await user.save();  // Guarda el usuario con el favorito eliminado
-
-    res.status(200).json({ message: 'Favorite removed successfully' });  // Responde con éxito
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });  // En caso de error, responde con 500
-  }
-};
-
 module.exports = {
   registerUser,
   loginUser,
   getAllUsers,
   deleteUser,
-  getUserByEmail,  // Export the new function
-  addFavorite,     // Export the addFavorite method
-  removeFavorite,  // Export the removeFavorite method
-};
+  getUserByEmail,
+}

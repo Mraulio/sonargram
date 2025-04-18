@@ -13,13 +13,18 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Rutas
-const usersRoutes = require('./routes/usersRoutes');
-const listsRoutes = require('./routes/listRoutes');
+const userRoutes = require('./routes/userRoutes');
+const listRoutes = require('./routes/listRoutes');
 const commentsRoutes = require('./routes/commentRoutes')
+const favoritesRoutes = require('./routes/favoriteRoutes')
+const followRoutes = require('./routes/followRoutes')
 
-app.use('/api/users', usersRoutes);
-app.use('/api/lists', listsRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/lists', listRoutes);
 app.use('/api/comments', commentsRoutes);
+app.use('/api/favorites', favoritesRoutes);
+app.use('/api/follow', followRoutes);
+
 
 // Conexión a Mongo (aquí solo la abrimos una vez, podría moverse a server.js si prefieres)
 mongoose.connect(process.env.MONGO_URI)
