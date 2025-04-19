@@ -19,6 +19,7 @@
     "selectCreator": "Select a creator",
     "createListButton": "Create List",
     "existingLists": "Existing Lists",
-    "tokenLabel": "Token"
+    "tokenLabel": "Token",
+    "goToProfile": "Profile"
   }
   

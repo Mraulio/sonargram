@@ -1,9 +1,8 @@
 import { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { ThemeContext } from '../context/ThemeContext';
 import apiClient from '../api/apiClient';
 import Menu from '../components/Menu';
 
@@ -18,14 +17,16 @@ function Dashboard() {
   const [listName, setListName] = useState('');
   const [songs, setSongs] = useState('');
   const [creator, setCreator] = useState('');
-  const { mode, toggleTheme } = useContext(ThemeContext);
   const { token, role, logout } = useContext(UserContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    apiClient.get('/users')
-    .then(res => setUsers(res.data))
-    .catch(err => console.error(err));
-  }, []);
+    if(role === 'admin') {
+      apiClient.get('/users')
+      .then(res => setUsers(res.data))
+      .catch(err => console.error(err));
+    }
+  }, [role]);
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/lists')
@@ -88,9 +89,11 @@ function Dashboard() {
       </Card>     
       
       <div>
-        <Button variant="outlined" onClick={toggleTheme}>
-        {t('changeTheme', { mode: mode === 'light' ? t('dark') : t('light') })}
+      <div>
+        <Button variant="outlined" onClick={() => navigate('/profile')}>
+            {t('goToProfile')}
         </Button>
+      </div>
       </div>
 
       {role === 'admin' && (
