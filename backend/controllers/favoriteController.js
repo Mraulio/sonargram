@@ -28,15 +28,15 @@ const removeFavorite = async (req, res) => {
   };
   
 
-  const getFavoritesByUser = async (req, res) => {
-    try {
-      const userId = req.user.userId;  // lo obtienes del JWT gracias al middleware
-      const result = await favoriteService.getFavorites(userId);
-      res.status(200).json(result);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  };
+const getFavoritesByUser = async (req, res) => {
+  try {
+    const userId = req.user.userId;  // lo obtienes del JWT gracias al middleware
+    const result = await favoriteService.getFavorites(userId);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
   
 
 // Método para obtener el número de "me gusta" de un favorito (ejemplo: canción)

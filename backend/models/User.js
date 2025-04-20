@@ -26,10 +26,10 @@ const UserSchema = new mongoose.Schema({
     enum: ['user', 'admin'], 
     default: 'user' 
   },
-  bio: { type: String, default: 'Sonargram user!'},
+  bio: { type: String, default: 'Sonargram user!' },
   status: { type: String, default: 'active' }, // Ej: 'active', 'suspended', 'deleted'
-  createdAt: { type: Date, default: Date.now } // fecha de registro
-
+}, {
+  timestamps: true  // Habilitar la opción para timestamps
 });
 
 // Hash password before saving the user
