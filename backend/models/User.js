@@ -26,7 +26,10 @@ const UserSchema = new mongoose.Schema({
     enum: ['user', 'admin'], 
     default: 'user' 
   },
-  createdLists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'List' }]
+  bio: { type: String, default: 'Sonargram user!'},
+  status: { type: String, default: 'active' }, // Ej: 'active', 'suspended', 'deleted'
+  createdAt: { type: Date, default: Date.now } // fecha de registro
+
 });
 
 // Hash password before saving the user

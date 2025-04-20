@@ -33,25 +33,71 @@ const registerUser = async (req, res) => {
   }
 };
 
-const deleteUser = async (req,res) => {
-  const { email } = req.params;
+const updateUser = async (req, res) => {
+  const { id } = req.params; // Usamos el _id de Mongo
+  const updates = req.body;
+  const { userId, role } = req.user; // Asignado por middleware de autenticación
+
   try {
-    const existingUser = await User.findOne({ email });
-    if (!existingUser) {
-      return res.status(400).json({ message: 'User does not exist, can\'t delete.' });
+    // ❌ No permitir actualización de username ni email ni rol
+    if ('username' in updates || 'email' in updates || 'role' in updates) {
+      return res.status(400).json({
+        message: 'Username, role and email cannot be updated.'
+      });
     }
-    // Eliminar el usuario
-    await User.deleteOne({ email });
 
-    // Responder con éxito
-    res.status(200).json({ message: 'User successfully deleted' });
+    const userToUpdate = await User.findById(id);
+    if (!userToUpdate) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
+    // Solo puede actualizarse a sí mismo o si es admin
+    if (userToUpdate._id.toString() !== userId && role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(id, { $set: updates }, { new: true });
+
+    res.status(200).json({
+      message: 'User updated successfully',
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        status: updatedUser.status,
+        createdAt: updatedUser.createdAt
+      }
+    });
   } catch (error) {
-    // Manejo de errores
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
-}
+};
+
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  const { userId, role } = req.user; // Datos del usuario autenticado
+
+  try {
+    const userToDelete = await User.findById(id);
+    if (!userToDelete) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Solo puede eliminarse a sí mismo o si es admin
+    if (userToDelete._id.toString() !== userId && role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    await User.findByIdAndDelete(id);
+    res.status(200).json({ message: 'User successfully deleted' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 
 const loginUser = async (req, res) => {
@@ -121,6 +167,7 @@ const getUserByEmail = async (req, res) => {
 
 module.exports = {
   registerUser,
+  updateUser,
   loginUser,
   getAllUsers,
   deleteUser,
