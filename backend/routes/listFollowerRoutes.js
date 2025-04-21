@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const listFollowerController = require('../controllers/listFollowerController');
-const requireAuth = require('../middleware/requireAuth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 // Seguir una lista
 router.post('/:listId/follow', requireAuth, listFollowerController.followList);
