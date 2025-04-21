@@ -2,17 +2,29 @@ import { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, Link } from '@mui/material';
 import { ThemeContext } from '../context/ThemeContext';
 import apiClient from '../api/apiClient';
+import logo from '../images/logo.svg';
+import avatar from '../images/avatar.jpg';
 
 function Menu() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
- 
+  const { token, role, logout } = useContext(UserContext);
   return (
-    <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
-        Menu
-        Cambios
+    <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'center', alignItems: 'center', width: '100%', p: 4, backgroundColor: 'primary.main', color: 'white'  }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', width: '100%', p: 4, backgroundColor: 'primary.main', color: 'white'  }}>
+        <Link href="/dashboard" underline="hover" sx={{ display: 'block', mb: 1 }}><img src={logo} alt="logo" style={{ width: 100, height: 100, borderRadius: '50%' }}/></Link>
+        <Link href="songs" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}>Canciones</Link>
+        <Link href="#" underline="hover" sx={{ display: 'block', mb: 1, color: 'white'}}>Álbumes</Link>
+        <Link href="#" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}>Artistas</Link>
+        <Link href="#" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}>Listas</Link>
+        <Link href="#" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}>Seguidores</Link>
+        <Link href="#" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}>Seguidos</Link>
+        <Link href="/profile" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}><img src={avatar} alt="imagen perfil" style={{ width: 100, height: 100, borderRadius: '50%' }}/></Link>
+        <Button variant="outlined" onClick={logout} sx={{ mt: 1, color: 'white', borderColor: 'white' }}>{t('logout')}</Button>
+      </Box>
+      <TextField label="buscar" variant="outlined" sx={{ width: '20%', mb: 2, color: 'white', borderColor:'white' }} />
     </Box>
   );
 }

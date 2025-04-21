@@ -72,8 +72,10 @@ function Dashboard() {
   };
 
   return (
+    <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', width: '100vw' }}>
+    <Menu></Menu>
     <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
-      <Menu></Menu>
+      
       {/* Estado de sesión */}
       <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
         <CardContent>
@@ -192,6 +194,7 @@ function Dashboard() {
           {t('tokenLabel')}: {token}
         </Typography>
       )}
+    </Box>
     </Box>
   );
 }
