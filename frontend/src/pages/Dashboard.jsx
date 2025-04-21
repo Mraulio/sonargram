@@ -1,9 +1,9 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import apiClient from '../api/apiClient';
+import createApiClient from '../api/apiClient';
 import Menu from '../components/Menu';
 
 function Dashboard() {
@@ -19,20 +19,21 @@ function Dashboard() {
   const [creator, setCreator] = useState('');
   const { token, role, logout } = useContext(UserContext);
   const navigate = useNavigate();
-
+  const apiClient = useMemo(() => createApiClient(token), [token]);
+  
   useEffect(() => {
     if(role === 'admin') {
       apiClient.get('/users')
       .then(res => setUsers(res.data))
       .catch(err => console.error(err));
     }
-  }, [role]);
+  }, [role, apiClient]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/lists')
+    apiClient.get('/lists')
       .then(res => setLists(res.data))
       .catch(err => console.error(err));
-  }, []);
+  }, [apiClient]);
 
   const createUser = async () => {
     try {
