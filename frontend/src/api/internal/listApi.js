@@ -1,31 +1,57 @@
 import createApiClient from './apiClient';
 
-// Función para obtener el apiClient con el token
-const getApiClientWithToken = (token) => {
-  return createApiClient(token); // Usamos el apiClient con el token
-};
-
-// Función para obtener todas las listas
-export const getAllLists = async (token) => {
-  try {
-    const apiClient = getApiClientWithToken(token); // Usamos el apiClient con el token
-    const response = await apiClient.get('/lists');
-    return response.data; // Devuelve las listas obtenidas
-  } catch (error) {
-    console.error('Error fetching lists:', error);
-    throw error; // Lanza el error para que pueda ser manejado en el componente
-  }
-};
-
-// Función para crear una nueva lista
+// Crear una lista
 export const createList = async (listData, token) => {
-  console.log(listData)
-  try {
-    const apiClient = getApiClientWithToken(token); // Usamos el apiClient con el token
-    const response = await apiClient.post('/lists', listData);
-    return response.data; // Devuelve la lista creada
-  } catch (error) {
-    console.error('Error creating list:', error);
-    throw error; // Lanza el error para que pueda ser manejado en el componente
-  }
+  const apiClient = createApiClient(token);
+  const response = await apiClient.post('/lists', listData);
+  return response.data;
+};
+
+// Obtener todas las listas (admin)
+export const getAllLists = async (token) => {
+  const apiClient = createApiClient(token);
+  const response = await apiClient.get('/lists');
+  return response.data;
+};
+
+// Obtener listas por usuario
+export const getListsByUser = async (userId, token) => {
+  const apiClient = createApiClient(token);
+  const response = await apiClient.get(`/lists/user/${userId}`);
+  return response.data;
+};
+
+// Obtener lista por ID
+export const getListById = async (listId, token) => {
+  const apiClient = createApiClient(token);
+  const response = await apiClient.get(`/lists/${listId}`);
+  return response.data;
+};
+
+// Añadir canción a lista
+export const addSongToList = async (listId, musicbrainzId, token) => {
+  const apiClient = createApiClient(token);
+  const response = await apiClient.post(`/lists/${listId}/songs`, { musicbrainzId });
+  return response.data;
+};
+
+// Eliminar canción de lista
+export const removeSongFromList = async (listId, musicbrainzId, token) => {
+  const apiClient = createApiClient(token);
+  const response = await apiClient.delete(`/lists/${listId}/songs/${musicbrainzId}`);
+  return response.data;
+};
+
+// Actualizar nombre de lista
+export const updateListName = async (listId, newName, token) => {
+  const apiClient = createApiClient(token);
+  const response = await apiClient.put(`/lists/${listId}`, { name: newName });
+  return response.data;
+};
+
+// Eliminar lista
+export const deleteList = async (listId, token) => {
+  const apiClient = createApiClient(token);
+  const response = await apiClient.delete(`/lists/${listId}`);
+  return response.data;
 };

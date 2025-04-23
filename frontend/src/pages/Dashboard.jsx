@@ -19,7 +19,6 @@ function Dashboard() {
   const [lists, setLists] = useState([]);
   const [listName, setListName] = useState('');
   const [songs, setSongs] = useState('');
-  const [creator, setCreator] = useState('');
   const { token, role, logout } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -65,7 +64,7 @@ function Dashboard() {
       .map(s => s.trim())
       .filter(s => s !== '') // Por si hay espacios vacíos
       .map(id => ({ musicbrainzId: id }));
-      await createList({ name: listName, songs: songArray, creator }, token); // Usamos la función createList
+      await createList({ name: listName, songs: songArray }, token); // Usamos la función createList
       alert('List created');
       setListName('');
       setSongs('');
@@ -160,20 +159,7 @@ function Dashboard() {
             value={songs}
             onChange={e => setSongs(e.target.value)}
             margin="normal"
-          />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>{t('creator')}</InputLabel>
-            <Select
-              value={creator}
-              label={t('creator')}
-              onChange={e => setCreator(e.target.value)}
-            >
-              <MenuItem value="">{t('selectCreator')}</MenuItem>
-              {users.map(u => (
-                <MenuItem key={u._id} value={u._id}>{u.name}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          />          
           <Button variant="contained" onClick={createNewList} sx={{ mt: 2 }}>
             {t('createListButton')}
           </Button>
