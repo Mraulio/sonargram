@@ -6,7 +6,7 @@ import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormCon
 import Menu from '../components/Menu';
 import { registerUser, getAllUsers } from '../api/internal/userApi'
 
-import { getAllLists, createList } from '../api/internal/listApi'; 
+import { getAllLists, createList, deleteList } from '../api/internal/listApi'; 
 
 
 function Dashboard() {
@@ -78,6 +78,19 @@ function Dashboard() {
       console.error(err);
     }
   };
+
+  const handleDeleteList = async (listId) => {
+    if (!window.confirm(t('confirmDeleteList'))) return;
+  
+    try {
+      await deleteList(listId, token);
+      setLists(prev => prev.filter(l => l._id !== listId));
+    } catch (err) {
+      alert(t('errorDeletingList'));
+      console.error(err);
+    }
+  };
+  
   
 
   return (
@@ -141,11 +154,7 @@ function Dashboard() {
             </Button>
             <Divider sx={{ my: 2 }} />
             <Typography variant="h6">{t('existingUsers')}</Typography>
-            <ul>
-              {users.map(u => (
-                <li key={u._id}>{u.name} ({u.email})</li>
-              ))}
-            </ul>
+            
           </CardContent>
         </Card>
       )}
@@ -175,9 +184,21 @@ function Dashboard() {
           <Typography variant="h6">{t('existingLists')}</Typography>
           <ul>
             {lists.map(l => (
-              <li key={l._id}>{l.name}</li>
+              <li key={l._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>{l.name}</span>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  onClick={() => handleDeleteList(l._id)}
+                  sx={{ ml: 2 }}
+                >
+                  {t('delete')}
+                </Button>
+              </li>
             ))}
-          </ul>
+        </ul>
+
         </CardContent>
       </Card>
 
