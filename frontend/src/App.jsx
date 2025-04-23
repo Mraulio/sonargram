@@ -8,6 +8,7 @@ import { useContext } from 'react';
 // Pages
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
+import Test from './pages/Test';
 
 // FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -25,6 +26,7 @@ function App() {
         <Route path="/login" element={!token ? <LoginPage /> : <Navigate to="/dashboard" />} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><UserPage/></PrivateRoute>} />
+        <Route path="/test" element={<PrivateRoute><Test/></PrivateRoute>} />
         <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} />} />
       </Routes>
     </Router>
