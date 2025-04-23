@@ -17,7 +17,7 @@ function Dashboard() {
   const [listName, setListName] = useState('');
   const [songs, setSongs] = useState('');
   const [creator, setCreator] = useState('');
-  const { token, role, logout } = useContext(UserContext);
+  const { token, role, logout, user } = useContext(UserContext);
   const navigate = useNavigate();
   const apiClient = useMemo(() => createApiClient(token), [token]);
   
@@ -71,10 +71,14 @@ function Dashboard() {
       alert('Error creating list');
     }
   };
+  console.log(localStorage.getItem('user'));
 
   return (
     <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', width: '100vw' }}>
     <Menu></Menu>
+    <Typography variant="h1" sx={{ textAlign: 'center', mt: 4 }}>
+    Hola, {user}!
+  </Typography>
     <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
       
       {/* Estado de sesión */}
