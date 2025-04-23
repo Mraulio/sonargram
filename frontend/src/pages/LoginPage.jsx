@@ -1,8 +1,10 @@
 import { useState, useContext } from 'react';
-import { TextField, Button, Typography, Card, CardContent } from '@mui/material';
+import { TextField, Button, Typography, Card, CardContent, Box } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import { jwtDecode } from 'jwt-decode';
 import { loginUser } from '../api/internal/userApi';  // Importamos la función desde userApi
+import Login from '../components/Login';  // Importamos el componente Login
+import { Link } from 'react-router-dom';
 
 function LoginPage() {
   const [loginEmail, setLoginEmail] = useState('');
@@ -23,40 +25,23 @@ function LoginPage() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '5rem' }}>
-      <Card sx={{ maxWidth: 400 }}>
-        <CardContent>
-          <Typography variant="h5" component="div" gutterBottom>
-            Login
-          </Typography>
-          <TextField
-            label="Email"
-            type="email"
-            fullWidth
-            margin="normal"
-            value={loginEmail}
-            onChange={(e) => setLoginEmail(e.target.value)}
-          />
-          <TextField
-            label="Password"
-            type="password"
-            fullWidth
-            margin="normal"
-            value={loginPassword}
-            onChange={(e) => setLoginPassword(e.target.value)}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={loginUserHandler}  // Usamos el handler aquí
-            sx={{ marginTop: '1rem' }}
-          >
-            Login
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+    <Box sx={{ 
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center', // Centra el contenido verticalmente
+      backgroundImage: 'url("../images/imagen.jpg")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center', // Centra la imagen
+      height: '100vh', // Ocupa toda la altura de la pantalla
+      width: '100vw', // Ocupa todo el ancho de la pantalla
+  }}>
+    <Login />  {/* Usamos el componente Login aquí */}
+
+      <Typography variant="body2" sx={{ mt: 2, color: 'black' }}>
+        No tienes cuenta? <Link to="/register" style={{ textDecoration: 'none', color: 'blue' }}>Regístrate aquí</Link> 
+      </Typography>
+  </Box>
   );
 }
 

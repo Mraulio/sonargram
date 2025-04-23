@@ -5,7 +5,7 @@ import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import Menu from '../components/Menu';
 import { registerUser, getAllUsers } from '../api/internal/userApi'
-
+import apiClient from '../api/internal/apiClient';
 import { getAllLists, createList, deleteList } from '../api/internal/listApi'; 
 
 
@@ -96,7 +96,7 @@ function Dashboard() {
     <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', width: '100vw' }}>
     <Menu></Menu>
     <Typography variant="h1" sx={{ textAlign: 'center', mt: 4 }}>
-    Hola, {user}!
+   
   </Typography>
     <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
       
