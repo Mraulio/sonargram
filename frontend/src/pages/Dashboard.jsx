@@ -1,10 +1,13 @@
-import { useEffect, useState, useContext, useMemo } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import createApiClient from '../api/internal/apiClient';
 import Menu from '../components/Menu';
+import { registerUser, getAllUsers } from '../api/internal/userApi'
+
+import { getAllLists, createList } from '../api/internal/listApi'; 
+
 
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -19,33 +22,30 @@ function Dashboard() {
   const [creator, setCreator] = useState('');
   const { token, role, logout } = useContext(UserContext);
   const navigate = useNavigate();
-  const apiClient = useMemo(() => createApiClient(token), [token]);
 
   // Obtener usuarios solo si es admin
   useEffect(() => {
-    if(role === 'admin') {
-      apiClient.get('/users')
-        .then(res => setUsers(res.data))
+    if (role === 'admin') {
+      getAllUsers(token) // Usamos la función getAllUsers de userApi
+        .then(data => setUsers(data))
         .catch(err => console.error(err));
     }
-  }, [role, apiClient]);
+  }, [role, token]);
 
   // Obtener listas
   useEffect(() => {
-    apiClient.get('/lists')
-      .then(res => setLists(res.data))
-      .catch(err => console.error(err));
-  }, [apiClient]);
+    if (token) {
+      getAllLists(token) // Usamos la función getAllLists de userApi
+        .then(data => setLists(data))
+        .catch(err => console.error(err));
+    }
+  }, [token]);
 
-  // Crear un usuario utilizando apiClient
+  // Crear un usuario utilizando la función de userApi
   const createUser = async () => {
     try {
-      const res = await apiClient.post('/users/register', {
-        name: userName,
-        username: userUsername,
-        email: userEmail,
-        password: userPassword
-      });
+      const newUser = { name: userName, username: userUsername, email: userEmail, password: userPassword };
+      const res = await registerUser(newUser); // Usamos la función registerUser
       setUsers([...users, res.data]);
       setUserName('');
       setUserUsername('');
@@ -57,15 +57,11 @@ function Dashboard() {
     }
   };
 
-  // Crear una lista utilizando apiClient
-  const createList = async () => {
+  // Crear una lista utilizando la función de userApi
+  const createNewList = async () => {
     try {
       const songArray = songs.split(',').map(s => s.trim());
-      await apiClient.post('/lists', {
-        name: listName,
-        songs: songArray,
-        creator
-      });
+      await createList({ name: listName, songs: songArray, creator }, token); // Usamos la función createList
       alert('List created');
       setListName('');
       setSongs('');
@@ -92,11 +88,9 @@ function Dashboard() {
       </Card>     
       
       <div>
-      <div>
         <Button variant="outlined" onClick={() => navigate('/profile')}>
             {t('goToProfile')}
         </Button>
-      </div>
       </div>
 
       {role === 'admin' && (
@@ -176,7 +170,7 @@ function Dashboard() {
               ))}
             </Select>
           </FormControl>
-          <Button variant="contained" onClick={createList} sx={{ mt: 2 }}>
+          <Button variant="contained" onClick={createNewList} sx={{ mt: 2 }}>
             {t('createListButton')}
           </Button>
 
