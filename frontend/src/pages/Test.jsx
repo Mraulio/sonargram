@@ -9,7 +9,7 @@ import { registerUser, getAllUsers } from '../api/internal/userApi'
 import { getAllLists, createList, deleteList } from '../api/internal/listApi'; 
 
 
-function Dashboard() {
+function Test() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const [users, setUsers] = useState([]);
   const [userName, setUserName] = useState('');
@@ -19,7 +19,6 @@ function Dashboard() {
   const [lists, setLists] = useState([]);
   const [listName, setListName] = useState('');
   const [songs, setSongs] = useState('');
-  const [creator, setCreator] = useState('');
   const { token, role, logout } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -91,15 +90,12 @@ function Dashboard() {
       console.error(err);
     }
   };
+  
+  
 
   return (
-    <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', width: '100vw' }}>
-    <Menu></Menu>
-    <Typography variant="h1" sx={{ textAlign: 'center', mt: 4 }}>
-    Hola, {user}!
-  </Typography>
     <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
-      
+      <Menu></Menu>
       {/* Estado de sesión */}
       <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
         <CardContent>
@@ -212,8 +208,7 @@ function Dashboard() {
         </Typography>
       )}
     </Box>
-    </Box>
   );
 }
 
-export default Dashboard;
+export default Test;

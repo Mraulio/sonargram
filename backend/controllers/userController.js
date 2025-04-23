@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const LoginEvent = require('../models/LoginEvent');
 
 // Register a new user
 const registerUser = async (req, res) => {
@@ -100,6 +101,7 @@ const deleteUser = async (req, res) => {
 };
 
 
+// Login
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -114,11 +116,18 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
+    // Registrar el evento de login
+    await LoginEvent.create({
+      user: user._id,
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+      userAgent: req.get('User-Agent')
+    });
+
     // Generar JWT con el ID y el rol del usuario
     const token = jwt.sign(
-      { userId: user._id, role: user.role },  // Aquí estamos agregando el rol
-      process.env.JWT_SECRET_KEY,             // Clave secreta
-      { expiresIn: '1h' }                    // Tiempo de expiración
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: '1h' }
     );
 
     res.status(200).json({
