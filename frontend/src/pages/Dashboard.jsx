@@ -60,18 +60,25 @@ function Dashboard() {
   const createNewList = async () => {
     try {
       const songArray = songs
-      .split(',')
-      .map(s => s.trim())
-      .filter(s => s !== '') // Por si hay espacios vacíos
-      .map(id => ({ musicbrainzId: id }));
-      await createList({ name: listName, songs: songArray }, token); // Usamos la función createList
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s !== '')
+        .map(id => ({ musicbrainzId: id }));
+  
+      const newList = await createList({ name: listName, songs: songArray }, token);
+      
+      // Agregar al estado local
+      setLists([...lists, newList]);
+  
       alert('List created');
       setListName('');
       setSongs('');
     } catch (err) {
       alert('Error creating list');
+      console.error(err);
     }
   };
+  
 
   return (
     <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
