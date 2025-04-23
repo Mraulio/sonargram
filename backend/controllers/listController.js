@@ -15,7 +15,7 @@ const createList = async (req, res) => {
   }
 };
 
-// Obtener todas las listas
+// Obtener todas las listas (Admin)
 const getLists = async (req, res) => {
   const listas = await List.find().populate('creator');
   res.json(listas);
@@ -31,6 +31,21 @@ const getListsByUser = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+// Obtener una lista específica por su ID
+const getListById = async (req, res) => {
+  const { listId } = req.params;
+
+  try {
+    const list = await List.findById(listId).populate('creator');
+    if (!list) return res.status(404).json({ message: 'List not found' });
+
+    res.status(200).json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 // Añadir canción a la lista (solo creador o admin)
 const addSongToList = async (req, res) => {
@@ -133,6 +148,7 @@ module.exports = {
   createList,
   getLists,
   getListsByUser,
+  getListById,
   addSongToList,
   removeSongFromList,
   updateListName,

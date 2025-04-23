@@ -6,11 +6,14 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 // Crear nueva lista (autenticado)
 router.post('/', requireAuth, listController.createList);
 
-// Obtener todas las listas (público o como prefieras)
-router.get('/', requireAuth, listController.getLists);
+// Obtener todas las listas
+router.get('/', requireAuth, requireAdmin, listController.getLists);
 
 // Obtener listas de un usuario específico
 router.get('/user/:userId', requireAuth, listController.getListsByUser);
+
+// Obtener lista por su id
+router.get('/:listId', listController.getListById);
 
 // Añadir canción a una lista (autenticado)
 router.post('/:listId/songs', requireAuth, listController.addSongToList);
