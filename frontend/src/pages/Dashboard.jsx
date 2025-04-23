@@ -60,7 +60,11 @@ function Dashboard() {
   // Crear una lista utilizando la función de userApi
   const createNewList = async () => {
     try {
-      const songArray = songs.split(',').map(s => s.trim());
+      const songArray = songs
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s !== '') // Por si hay espacios vacíos
+      .map(id => ({ musicbrainzId: id }));
       await createList({ name: listName, songs: songArray, creator }, token); // Usamos la función createList
       alert('List created');
       setListName('');

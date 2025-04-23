@@ -19,6 +19,7 @@ export const getAllLists = async (token) => {
 
 // Función para crear una nueva lista
 export const createList = async (listData, token) => {
+  console.log(listData)
   try {
     const apiClient = getApiClientWithToken(token); // Usamos el apiClient con el token
     const response = await apiClient.post('/lists', listData);
