@@ -1,29 +1,33 @@
 import { useState, useContext } from 'react';
 import { TextField, Button, Typography, Card, CardContent } from '@mui/material';
 import { UserContext } from '../context/UserContext';
-import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import createApiClient from '../api/internal/apiClient';
 
 function LoginPage() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const { login } = useContext(UserContext);
-  
-    const loginUser = async () => {
-      try {
-        const res = await axios.post('http://localhost:5000/api/users/login', {
-          email: loginEmail,
-          password: loginPassword
-        });
-  
-        const { token } = res.data;
-        const decodedToken = jwtDecode(token);
-        login(token, decodedToken.role);
-        //alert(`Logged in successfully. Role: ${decodedToken.role}`);
-      } catch (err) {
-        alert('Error logging in');
-      }
-    };
+
+  const apiClient = createApiClient(); // sin token por ahora
+
+  const loginUser = async () => {
+    try {
+      const res = await apiClient.post('/users/login', {
+        email: loginEmail,
+        password: loginPassword,
+      });
+
+      const { token } = res.data;
+      const decodedToken = jwtDecode(token);
+      
+      login(token, decodedToken.role); // esto probablemente lo guarda en contexto/localStorage
+
+    } catch (err) {
+      alert('Error logging in');
+      console.error(err);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '5rem' }}>

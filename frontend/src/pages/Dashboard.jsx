@@ -1,9 +1,9 @@
 import { useEffect, useState, useContext, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import createApiClient from '../api/apiClient';
+import createApiClient from '../api/internal/apiClient';
 import Menu from '../components/Menu';
 
 function Dashboard() {
@@ -20,24 +20,27 @@ function Dashboard() {
   const { token, role, logout } = useContext(UserContext);
   const navigate = useNavigate();
   const apiClient = useMemo(() => createApiClient(token), [token]);
-  
+
+  // Obtener usuarios solo si es admin
   useEffect(() => {
     if(role === 'admin') {
       apiClient.get('/users')
-      .then(res => setUsers(res.data))
-      .catch(err => console.error(err));
+        .then(res => setUsers(res.data))
+        .catch(err => console.error(err));
     }
   }, [role, apiClient]);
 
+  // Obtener listas
   useEffect(() => {
     apiClient.get('/lists')
       .then(res => setLists(res.data))
       .catch(err => console.error(err));
   }, [apiClient]);
 
+  // Crear un usuario utilizando apiClient
   const createUser = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/api/users/register', {
+      const res = await apiClient.post('/users/register', {
         name: userName,
         username: userUsername,
         email: userEmail,
@@ -54,15 +57,14 @@ function Dashboard() {
     }
   };
 
+  // Crear una lista utilizando apiClient
   const createList = async () => {
     try {
       const songArray = songs.split(',').map(s => s.trim());
-      await axios.post('http://localhost:5000/api/lists', {
+      await apiClient.post('/lists', {
         name: listName,
         songs: songArray,
         creator
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       alert('List created');
       setListName('');
