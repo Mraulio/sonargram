@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import i18n from './i18n';
 
+
 function App() {
   const { token } = useContext(UserContext);
 
@@ -21,7 +22,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={!token ? <LoginPage /> : <Navigate to="/dashboard" />} />
-        <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/login" />} />
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><UserPage/></PrivateRoute>} />
         <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} />} />
       </Routes>
     </Router>

@@ -8,11 +8,11 @@ import apiClient from '../api/apiClient';
 
 function Menu() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
- 
+  const { token, role, logout } = useContext(UserContext);
   return (
     <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
         Menu
-      Inicio
+      
     </Box>
   );
 }
