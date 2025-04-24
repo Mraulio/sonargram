@@ -17,6 +17,8 @@ import FollowerPage from './pages/FollowerPage';
 import FollowedPage from './pages/FollowedPage';
 import RegisterPage from './pages/RegisterPage'; // Asegúrate de importar el componente de registro
 import PrivateRoute from './components/PrivateRoute';
+import AdminPage from './pages/AdminPage';
+import TestPage from './pages/Test'; // Asegúrate de importar el componente de prueba
 
 
 
@@ -42,6 +44,8 @@ function App() {
         <Route path="/lists" element={<PrivateRoute><ListPage/></PrivateRoute>} />
         <Route path="/followers" element={<PrivateRoute><FollowerPage/></PrivateRoute>} />
         <Route path="/followed" element={<PrivateRoute><FollowedPage/></PrivateRoute>} />
+        <Route path="/test" element={<PrivateRoute><TestPage/></PrivateRoute>} />
+        <Route path="/admin" element={<PrivateRoute><AdminPage/></PrivateRoute>} />
         <Route path="*" element={<Navigate to={token ? "/dashboard" : "/"} />} />
       </Routes>
     </Router>

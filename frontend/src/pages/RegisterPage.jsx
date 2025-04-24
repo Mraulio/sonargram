@@ -97,7 +97,7 @@ function RegisterPage() {
             
           </CardContent>
         </Card>
-        <Link to="/login" style={{ textDecoration: 'none', color: 'blue' }}>Volver</Link> 
+        <Link to="/" style={{ textDecoration: 'none', color: 'blue' }}>Volver</Link> 
      
   </Box>
   );

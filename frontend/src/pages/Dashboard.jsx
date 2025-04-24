@@ -99,9 +99,6 @@ function Dashboard() {
   return (
     <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', width: '100vw' }}>
     <Menu></Menu>
-    <Typography variant="h1" sx={{ textAlign: 'center', mt: 4 }}>
- 
-  </Typography>
     <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
       
       {/* Estado de sesión */}
