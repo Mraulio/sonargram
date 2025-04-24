@@ -26,6 +26,7 @@ function Menu() {
         <Link href="/lists" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}>Listas</Link>
         <Link href="/followers" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}>Seguidores</Link>
         <Link href="/followed" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}>Seguidos</Link>
+        {role === 'admin' && <Link href="/admin" underline="hover" sx={{ display: 'block', mb: 1, color: 'red' }}>Admin</Link>}
         <Link href="/profile" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}><img src={avatar} alt="imagen perfil" style={{ width: 100, height: 100, borderRadius: '50%' }}/></Link>
         <Button variant="outlined" onClick={logout} sx={{ mt: 1, color: 'white', borderColor: 'white' }}>{t('logout')}</Button>
       </Box>
