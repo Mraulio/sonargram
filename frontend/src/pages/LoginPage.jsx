@@ -1,25 +1,15 @@
-import { useState, useContext } from 'react';
-import { TextField, Button, Typography, Card, CardContent } from '@mui/material';
-import { UserContext } from '../context/UserContext';
-import { jwtDecode } from 'jwt-decode';
-import { loginUser } from '../api/internal/userApi';  // Importamos la función desde userApi
+import { useState } from 'react';
+import { TextField, Button, Typography, Card, CardContent, CircularProgress } from '@mui/material';
+import useAuth from '../hooks/useAuth';  // Importamos el hook useAuth
 
 function LoginPage() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const { login } = useContext(UserContext);
+  const { loginHandler, loading, error } = useAuth();  // Usamos el hook de auth
 
   const loginUserHandler = async () => {
-    try {
-      const token = await loginUser(loginEmail, loginPassword); // Llamamos a la función desde userApi
-
-      const decodedToken = jwtDecode(token);  // Decodificamos el token
-      login(token, decodedToken.role);  // Guardamos el token y el rol en el contexto
-
-    } catch (err) {
-      alert('Error logging in');
-      console.error(err);
-    }
+    await loginHandler(loginEmail, loginPassword);  // Solo llamamos al loginHandler del hook
+    // La redirección se maneja automáticamente en App según el token
   };
 
   return (
@@ -49,11 +39,14 @@ function LoginPage() {
             variant="contained"
             color="primary"
             fullWidth
-            onClick={loginUserHandler}  // Usamos el handler aquí
+            onClick={loginUserHandler}
             sx={{ marginTop: '1rem' }}
+            disabled={loading}  // Deshabilitamos el botón si está cargando
           >
-            Login
+            {loading ? <CircularProgress size={24} /> : 'Login'}  {/* Muestra un spinner si está cargando */}
           </Button>
+
+          {error && <Typography color="error" variant="body2">{error}</Typography>} {/* Muestra el error si ocurre */}
         </CardContent>
       </Card>
     </div>
