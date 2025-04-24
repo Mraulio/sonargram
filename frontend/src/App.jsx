@@ -6,7 +6,7 @@ import { ThemeProvider, CssBaseline, Box, Typography, Card, CardContent, Button,
 import { useContext } from 'react';
 
 // Pages
-import LoginPage from './pages/LoginPage';
+import IndexPage from './pages/IndexPage';
 import Dashboard from './pages/Dashboard';
 import UserPage from './pages/UserPage';
 import AlbumPage from './pages/AlbumPage';
@@ -32,7 +32,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={!token ? <LoginPage /> : <Navigate to="/dashboard" />} />
+        <Route path="/" element={!token ? <IndexPage /> : <Navigate to="/dashboard" />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><UserPage/></PrivateRoute>} />
