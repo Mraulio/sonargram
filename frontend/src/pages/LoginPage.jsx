@@ -2,10 +2,10 @@ import { useState, useContext } from 'react';
 import { TextField, Button, Typography, Card, CardContent, Box } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import { jwtDecode } from 'jwt-decode';
-import { loginUser } from '../api/internal/userApi';  // Importamos la función desde userApi
+import { loginUser, getUserByEmail } from '../api/internal/userApi';  // Importamos la función desde userApi
 import Login from '../components/Login';  // Importamos el componente Login
 import { Link } from 'react-router-dom';
-
+import imagen from '../images/imagen.jpg';  // Importamos la imagen de fondo
 function LoginPage() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -16,7 +16,8 @@ function LoginPage() {
       const token = await loginUser(loginEmail, loginPassword); // Llamamos a la función desde userApi
 
       const decodedToken = jwtDecode(token);  // Decodificamos el token
-      login(token, decodedToken.role);  // Guardamos el token y el rol en el contexto
+      const userData = await getUserByEmail(loginEmail, token); // Obtenemos los datos del usuario desde el backend
+      login(token, decodedToken.role, userData);  // Guardamos el token y el rol en el contexto
 
     } catch (err) {
       alert('Error logging in');
@@ -30,7 +31,7 @@ function LoginPage() {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center', // Centra el contenido verticalmente
-      backgroundImage: 'url("../images/imagen.jpg")',
+      backgroundImage: {imagen},
       backgroundSize: 'cover',
       backgroundPosition: 'center', // Centra la imagen
       height: '100vh', // Ocupa toda la altura de la pantalla

@@ -32,7 +32,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={!token ? <LoginPage /> : <Navigate to="/dashboard" />} />
+        <Route path="/" element={!token ? <LoginPage /> : <Navigate to="/dashboard" />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><UserPage/></PrivateRoute>} />
@@ -42,7 +42,7 @@ function App() {
         <Route path="/lists" element={<PrivateRoute><ListPage/></PrivateRoute>} />
         <Route path="/followers" element={<PrivateRoute><FollowerPage/></PrivateRoute>} />
         <Route path="/followed" element={<PrivateRoute><FollowedPage/></PrivateRoute>} />
-        <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} />} />
+        <Route path="*" element={<Navigate to={token ? "/dashboard" : "/"} />} />
       </Routes>
     </Router>
   );
