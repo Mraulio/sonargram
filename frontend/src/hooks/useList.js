@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import * as listaApi from '../api/internal/listaApi';
+import * as listaApi from '../api/internal/listApi';
 
 export default function useList(token) {
   const [lists, setLists] = useState([]);
