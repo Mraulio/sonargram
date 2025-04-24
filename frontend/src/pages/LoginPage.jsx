@@ -1,48 +1,55 @@
-import { useState, useContext } from 'react';
-import { TextField, Button, Typography, Card, CardContent, Box } from '@mui/material';
-import { UserContext } from '../context/UserContext';
-import { jwtDecode } from 'jwt-decode';
-import { loginUser, getUserByEmail } from '../api/internal/userApi';  // Importamos la función desde userApi
-import Login from '../components/Login';  // Importamos el componente Login
-import { Link } from 'react-router-dom';
-import imagen from '../images/imagen.jpg';  // Importamos la imagen de fondo
+import { useState } from 'react';
+import { TextField, Button, Typography, Card, CardContent, CircularProgress } from '@mui/material';
+import useAuth from '../hooks/useAuth';  // Importamos el hook useAuth
+
 function LoginPage() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const { login } = useContext(UserContext);
+  const { loginHandler, loading, error } = useAuth();  // Usamos el hook de auth
 
   const loginUserHandler = async () => {
-    try {
-      const token = await loginUser(loginEmail, loginPassword); // Llamamos a la función desde userApi
-
-      const decodedToken = jwtDecode(token);  // Decodificamos el token
-      const userData = await getUserByEmail(loginEmail, token); // Obtenemos los datos del usuario desde el backend
-      login(token, decodedToken.role, userData);  // Guardamos el token y el rol en el contexto
-
-    } catch (err) {
-      alert('Error logging in');
-      console.error(err);
-    }
+    await loginHandler(loginEmail, loginPassword);  // Solo llamamos al loginHandler del hook
+    // La redirección se maneja automáticamente en App según el token
   };
 
   return (
-    <Box sx={{ 
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center', // Centra el contenido verticalmente
-      backgroundImage: {imagen},
-      backgroundSize: 'cover',
-      backgroundPosition: 'center', // Centra la imagen
-      height: '100vh', // Ocupa toda la altura de la pantalla
-      width: '100vw', // Ocupa todo el ancho de la pantalla
-  }}>
-    <Login />  {/* Usamos el componente Login aquí */}
+    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '5rem' }}>
+      <Card sx={{ maxWidth: 400 }}>
+        <CardContent>
+          <Typography variant="h5" component="div" gutterBottom>
+            Login
+          </Typography>
+          <TextField
+            label="Email"
+            type="email"
+            fullWidth
+            margin="normal"
+            value={loginEmail}
+            onChange={(e) => setLoginEmail(e.target.value)}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={loginPassword}
+            onChange={(e) => setLoginPassword(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={loginUserHandler}
+            sx={{ marginTop: '1rem' }}
+            disabled={loading}  // Deshabilitamos el botón si está cargando
+          >
+            {loading ? <CircularProgress size={24} /> : 'Login'}  {/* Muestra un spinner si está cargando */}
+          </Button>
 
-      <Typography variant="body2" sx={{ mt: 2, color: 'black' }}>
-        No tienes cuenta? <Link to="/register" style={{ textDecoration: 'none', color: 'blue' }}>Regístrate aquí</Link> 
-      </Typography>
-  </Box>
+          {error && <Typography color="error" variant="body2">{error}</Typography>} {/* Muestra el error si ocurre */}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
