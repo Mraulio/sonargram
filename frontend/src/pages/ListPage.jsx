@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, Link } from '@mui/material';
-import createApiClient from '../api/apiClient';
+import createApiClient from '../api/internal/apiClient';
 import Menu from '../components/Menu';
 
 

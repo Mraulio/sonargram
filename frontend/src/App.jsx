@@ -1,13 +1,24 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { UserProvider, UserContext } from './context/UserContext';
 import { ThemeProviderCustom, ThemeContext } from './context/ThemeContext';
+import { ThemeProvider, CssBaseline, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, Link } from '@mui/material';
 
-import { ThemeProvider, CssBaseline } from '@mui/material';
 import { useContext } from 'react';
 
 // Pages
-import LoginPage from './pages/LoginPage';
+import IndexPage from './pages/IndexPage';
 import Dashboard from './pages/Dashboard';
+import UserPage from './pages/UserPage';
+import AlbumPage from './pages/AlbumPage';
+import SongPage from './pages/SongPage';
+import ArtistPage from './pages/ArtistPage';
+import ListPage from './pages/ListPage';
+import FollowerPage from './pages/FollowerPage';
+import FollowedPage from './pages/FollowedPage';
+import RegisterPage from './pages/RegisterPage'; // Asegúrate de importar el componente de registro
+import PrivateRoute from './components/PrivateRoute';
+
+
 
 // FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -21,10 +32,17 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={!token ? <LoginPage /> : <Navigate to="/dashboard" />} />
+        <Route path="/" element={!token ? <IndexPage /> : <Navigate to="/dashboard" />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><UserPage/></PrivateRoute>} />
-        <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} />} />
+        <Route path="/album" element={<PrivateRoute><AlbumPage/></PrivateRoute>} />
+        <Route path="/songs" element={<PrivateRoute><SongPage/></PrivateRoute>} />
+        <Route path="/artists" element={<PrivateRoute><ArtistPage/></PrivateRoute>} />
+        <Route path="/lists" element={<PrivateRoute><ListPage/></PrivateRoute>} />
+        <Route path="/followers" element={<PrivateRoute><FollowerPage/></PrivateRoute>} />
+        <Route path="/followed" element={<PrivateRoute><FollowedPage/></PrivateRoute>} />
+        <Route path="*" element={<Navigate to={token ? "/dashboard" : "/"} />} />
       </Routes>
     </Router>
   );
