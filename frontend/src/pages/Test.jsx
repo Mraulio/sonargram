@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Typography, Card, CardContent, Button, TextField, Divider } from '@mui/material';
 import Menu from '../components/Menu';
 import { registerUser, getAllUsers } from '../api/internal/userApi'
 
@@ -22,13 +22,10 @@ function Test() {
   const { token, role, logout } = useContext(UserContext);
   const navigate = useNavigate();
 
-  // Obtener usuarios solo si es admin
   useEffect(() => {
-    if (role === 'admin') {
-      getAllUsers(token) // Usamos la función getAllUsers de userApi
-        .then(data => setUsers(data))
-        .catch(err => console.error(err));
-    }
+    getAllUsers(token) // Usamos la función getAllUsers de userApi
+      .then(data => setUsers(data))
+      .catch(err => console.error(err));    
   }, [role, token]);
 
   // Obtener listas
