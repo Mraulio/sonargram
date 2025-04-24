@@ -12,11 +12,6 @@ function Menu() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const { token, role, logout } = useContext(UserContext);
   return (
-<<<<<<< HEAD
-    <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
-        Menu
-      
-=======
     <Box sx={{ display: 'flex', flexDirection:'column', justifyContent: 'center', alignItems: 'center', width: '100%', p: 4, backgroundColor: 'primary.main', color: 'white'  }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', width: '100%', p: 4, backgroundColor: 'primary.main', color: 'white'  }}>
         <Link href="/dashboard" underline="hover" sx={{ display: 'block', mb: 1 }}><img src={logo} alt="logo" style={{ width: 100, height: 100, borderRadius: '50%' }}/></Link>
@@ -31,7 +26,7 @@ function Menu() {
         <Button variant="outlined" onClick={logout} sx={{ mt: 1, color: 'white', borderColor: 'white' }}>{t('logout')}</Button>
       </Box>
       <TextField label="buscar" variant="outlined" sx={{ width: '20%', mb: 2, color: 'white', borderColor:'white' }} />
->>>>>>> e2496c8a2a5afcf925062d88166e6630356247a0
+
     </Box>
   );
 }
