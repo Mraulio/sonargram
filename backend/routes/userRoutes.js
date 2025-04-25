@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, updateUser, loginUser, getAllUsers, getUserById, getUserByEmail, deleteUser} = require('../controllers/userController');
+const { registerUser, updateUser, loginUser, getCurrentUser, getAllUsers, getUserById, getUserByEmail, deleteUser} = require('../controllers/userController');
 const router = express.Router();
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
@@ -10,9 +10,12 @@ router.put('/update/:id', requireAuth, updateUser);
 
 router.get('/', requireAuth, requireAdmin, getAllUsers);  // Ruta para obtener todos los usuarios
 
+router.get('/me', requireAuth, getCurrentUser);
+
 router.get('/id/:id', requireAuth, getUserById);
 
 router.get('/email/:email', requireAuth, getUserByEmail);
+
 
 // Borar por ID de Mongo
 router.delete('/:id', requireAuth, requireAdmin, deleteUser);

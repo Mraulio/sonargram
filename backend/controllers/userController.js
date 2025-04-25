@@ -149,6 +149,18 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// En userController.js
+const getCurrentUser = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId).select('-password'); // Excluye password
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // Get user by id
 const getUserById = async (req, res) => {
   const { id } = req.params;  // El email se pasa como parámetro de la ruta
@@ -201,6 +213,7 @@ module.exports = {
   registerUser,
   updateUser,
   loginUser,
+  getCurrentUser,
   getAllUsers,
   getUserById,
   deleteUser,

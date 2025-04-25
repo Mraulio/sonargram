@@ -65,6 +65,18 @@ export const getAllUsers = async (token) => {
   }
 };
 
+// Obtener un usuario logueado
+export const getCurrentUser = async (token) => {
+  try {
+    const apiClient = getApiClientWithToken(token); // Usamos el apiClient con el token
+    const response = await apiClient.get(`/users/me`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user by email:", error);
+    throw error; // Propagar el error
+  }
+};
+
 // Obtener un usuario por correo electrónico
 export const getUserById = async (id, token) => {
   try {
