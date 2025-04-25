@@ -63,6 +63,9 @@ function Test() {
         Username: ${user.username}
         Bio: ${user.bio}
         Email: ${user.email}
+        Status: ${user.status}
+        Rol: ${user.role}
+        Created: ${user.createdAt}
       `);
     } catch (err) {
       alert("Error al obtener datos del usuario");

@@ -176,9 +176,12 @@ const getUserById = async (req, res) => {
     res.status(200).json({
       id: user._id,
       name: user.name,
+      username: user.username,
+      bio: user.bio,
       email: user.email,
-      createdLists: user.createdLists,
-      following: user.following
+      role: user.role,
+      status: user.status,
+      createdAt: user.createdAt
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });  // En caso de error, responde con 500
