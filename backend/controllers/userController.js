@@ -149,6 +149,29 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// Get user by id
+const getUserById = async (req, res) => {
+  const { id } = req.params;  // El email se pasa como parámetro de la ruta
+
+  try {
+    const user = await User.findById(id);  // Busca al usuario por el id
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });  // Si no lo encuentra, responde con 404
+    }
+
+    // Si lo encuentra, devuelve la información del usuario
+    res.status(200).json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      createdLists: user.createdLists,
+      following: user.following
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });  // En caso de error, responde con 500
+  }
+};
 
 // Get user by email
 const getUserByEmail = async (req, res) => {
@@ -179,6 +202,7 @@ module.exports = {
   updateUser,
   loginUser,
   getAllUsers,
+  getUserById,
   deleteUser,
   getUserByEmail,
 }
