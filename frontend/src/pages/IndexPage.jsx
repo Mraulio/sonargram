@@ -6,7 +6,7 @@ function IndexPage() {
 
   return (
   
-    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'end', justifyContent: 'center', height: '100vh', width: '100vw', backgroundImage: `url(${imagen})`, backgroundSize: 'contain', backgroundPosition: 'center', gap: 10 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'end', justifyContent: 'center', height: '100vh', width: '100vw', backgroundImage: `url(${imagen})`, backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', gap: 10 }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'start', height: '50vh' }}>
       <img src={logo} alt="Logo" style={{ width: '200px', height: 'auto' }} />
       <Typography variant="h6" sx={{ color: 'white', marginTop: '1rem' }}>

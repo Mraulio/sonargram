@@ -37,7 +37,9 @@ function App() {
       <Routes>
         <Route path="/" element={!token ? <IndexPage /> : <Navigate to="/dashboard" />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/test" element={<Test />} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
+        <Route path="/admin" element={<PrivateRoute><AdminPage/></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><UserPage/></PrivateRoute>} />
         <Route path="/album" element={<PrivateRoute><AlbumPage/></PrivateRoute>} />
         <Route path="/songs" element={<PrivateRoute><SongPage/></PrivateRoute>} />

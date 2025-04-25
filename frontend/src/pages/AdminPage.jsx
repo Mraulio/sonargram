@@ -17,7 +17,11 @@ function AdminPage() {
       fetchAllUsers,
       registerNewUser,
       deleteUser,
-    } = useUser();
+      getUserById,
+      getCurrentUser,
+      setCurrentUser,
+      updateUser,
+    } = useUser(token);
   
     const {
       lists,
@@ -33,15 +37,28 @@ function AdminPage() {
   
     const [listName, setListName] = useState('');
     const [songs, setSongs] = useState('');
-  
+    const [editingUser, setEditingUser] = useState(null); // Estado para el usuario en edición
     useEffect(() => {
-      if (token && role === 'admin') fetchAllUsers(token);
+      if (token && role === "admin") fetchAllUsers();
     }, [token, role, fetchAllUsers]);
-  
+    
     useEffect(() => {
       if (token) fetchAllLists();
     }, [token, fetchAllLists]);
   
+    useEffect(() => {
+      const fetchCurrent = async () => {
+        try {
+          const user = await getCurrentUser();
+          setCurrentUser(user);
+        } catch (err) {
+          console.error("Error fetching current user", err);
+        }
+      };
+  
+      if (token) fetchCurrent();
+    }, [token, getCurrentUser]);
+
     const handleCreateUser = async () => {
       try {
         await registerNewUser({
@@ -102,6 +119,49 @@ function AdminPage() {
           console.error('Error deleting user:', err);
         }
       };
+
+      const handleEditUser = (user) => {
+        setEditingUser(user); // Establece el usuario que se está editando
+      };
+      
+      const handleUpdateUser = async () => {
+        if (!editingUser) return;
+      
+        try {
+          // Actualizar los datos del usuario
+          await updateUser(editingUser._id, {
+            name: editingUser.name,
+            username: editingUser.username,
+            email: editingUser.email,
+          });
+      
+          alert(t('userUpdated')); // Mensaje de éxito
+          setEditingUser(null); // Limpia el estado de edición
+          fetchAllUsers(); // Refresca la lista de usuarios
+        } catch (err) {
+          alert(t('errorUpdatingUser')); // Mensaje de error
+          console.error('Error updating user:', err);
+        }
+      };
+
+      const handleUserClick = async (userId) => {
+        try {
+          const user = await getUserById(userId);
+          alert(`
+            ID: ${user.id}
+            Nombre: ${user.name}
+            Username: ${user.username}
+            Bio: ${user.bio}
+            Email: ${user.email}
+            Status: ${user.status}
+            Rol: ${user.role}
+            Created: ${user.createdAt}
+          `);
+        } catch (err) {
+          alert("Error al obtener datos del usuario");
+          console.error(err);
+        }
+      };
   
     return (
       <Box sx={{ fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
@@ -130,16 +190,28 @@ function AdminPage() {
     
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="h6">{t('existingUsers')}</Typography>
+
                 <ul>
-                    {users.map(u => (
-                    <li key={u._id}>
-                        {u.username} - {u.email}
-                        <Button variant="outlined" color="error" size="small" onClick={() => handleDeleteUser(u._id)} sx={{ ml: 2 }}>
+                {users.map((u) => (
+                  <li
+                    key={u._id}
+                    style={{
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                      color: "blue",
+                    }}
+                    onClick={() => handleUserClick(u._id)}>
+                    {u.username} - {u.email}
+                    <Button variant="outlined" color="warning" size="small" onClick={() => handleEditUser(u._id)} sx={{ ml: 2 }}>
+                        {t('edit')}
+                    </Button>
+                    <Button variant="outlined" color="error" size="small" onClick={() => handleDeleteUser(u._id)} sx={{ ml: 2 }}>
                         {t('delete')}
                         </Button>
-                    </li>
-                    ))}
-                </ul>
+                  </li>
+                ))}
+              </ul>            
+                     
                 </CardContent>
             </Card>
             )}
@@ -159,6 +231,7 @@ function AdminPage() {
                 {lists.map(l => (
                     <li key={l._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span>{l.name}</span>
+                    
                     <Button variant="outlined" color="error" size="small" onClick={() => handleDeleteList(l._id)} sx={{ ml: 2 }}>
                         {t('delete')}
                     </Button>

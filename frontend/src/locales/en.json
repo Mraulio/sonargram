@@ -20,6 +20,11 @@
     "createListButton": "Create List",
     "existingLists": "Existing Lists",
     "tokenLabel": "Token",
-    "goToProfile": "Profile"
+    "goToProfile": "Profile",
+    "updateUser": "Update User",
+    "editUserButton": "Update User",
+    "deleteUserButton": "Delete User",
+    "confirmDeleteUser": "Are you sure you want to delete your account? This action cannot be undone.",
+    "userDeleted": "User deleted successfully"
   }
   
