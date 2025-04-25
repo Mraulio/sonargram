@@ -41,7 +41,7 @@ export const UserProvider = ({ children }) => {
   const login = (token, role, user) => {
     setToken(token);
     setRole(role);
-    
+
     const decoded = jwtDecode(token);
     setUser(decoded);
 
@@ -61,7 +61,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ token, role, login, logout, isLoading }}>
+    <UserContext.Provider value={{ token, role, user, login, logout, isLoading }}>
       {children}
     </UserContext.Provider>
   );

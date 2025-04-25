@@ -24,6 +24,7 @@ import PrivateRoute from './components/PrivateRoute';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import i18n from './i18n';
+import Test from './pages/Test';
 
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
         <Route path="/lists" element={<PrivateRoute><ListPage/></PrivateRoute>} />
         <Route path="/followers" element={<PrivateRoute><FollowerPage/></PrivateRoute>} />
         <Route path="/followed" element={<PrivateRoute><FollowedPage/></PrivateRoute>} />
+        <Route path="/test" element={<PrivateRoute><Test/></PrivateRoute>} />
         <Route path="*" element={<Navigate to={token ? "/dashboard" : "/"} />} />
       </Routes>
     </Router>

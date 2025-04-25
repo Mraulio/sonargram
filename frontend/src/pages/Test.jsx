@@ -16,7 +16,7 @@ function Test() {
     users,
     fetchAllUsers,
     registerNewUser,
-  } = useUser();
+  } = useUser(token);
 
   const {
     lists,
@@ -34,7 +34,7 @@ function Test() {
   const [songs, setSongs] = useState('');
 
   useEffect(() => {
-    if (token && role === 'admin') fetchAllUsers(token);
+    if (token && role === 'admin') fetchAllUsers();
   }, [token, role, fetchAllUsers]);
 
   useEffect(() => {
