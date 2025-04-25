@@ -12,7 +12,7 @@ router.get('/', requireAuth, requireAdmin, getAllUsers);  // Ruta para obtener t
 
 router.get('/id/:id', requireAuth, getUserById);
 
-router.get('/:email', requireAuth, getUserByEmail);
+router.get('/email/:email', requireAuth, getUserByEmail);
 
 // Borar por ID de Mongo
 router.delete('/:id', requireAuth, requireAdmin, deleteUser);

@@ -41,6 +41,16 @@ export default function useUsers(token) {
     }
   };
 
+  const getUserById = async (id) => {
+    try {
+      const user = await api.getUserById(id, token);
+      return user;
+    } catch (err) {
+      setError(err.message);
+      return null;
+    }
+  };
+
   const getUserByEmail = async (email) => {
     try {
       const user = await api.getUserByEmail(email, token);
@@ -58,6 +68,7 @@ export default function useUsers(token) {
     fetchAllUsers,
     deleteUser,
     updateUser,
+    getUserById,
     getUserByEmail,
   };
 }
