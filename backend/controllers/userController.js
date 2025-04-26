@@ -90,7 +90,7 @@ const uploadProfilePic = async (req, res) => {
     }
 
     // Construir la URL de la imagen subida
-    const profilePicUrl = `/uploads/${req.file.filename}`;
+    const profilePicUrl = req.file.filename;
 
     // Actualizar el perfil del usuario en la base de datos
     const updatedUser = await User.findByIdAndUpdate(
