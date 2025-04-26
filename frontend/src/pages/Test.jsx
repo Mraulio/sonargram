@@ -281,16 +281,13 @@ function Test() {
                 <strong>{t("createdAt")}:</strong> {selectedUser.createdAt}
               </Typography>
               <img
-                src={`http://localhost:5000/uploads/${
-                  selectedUser.profilePic || "default.png"
-                }`}
+                src={
+                  selectedUser.profilePic
+                    ? `http://localhost:5000/uploads/${selectedUser.profilePic}`
+                    : '/assets/images/profilepic_default.png'  // Accede directamente a la carpeta public
+                }
                 alt="Profile Pic"
-                style={{
-                  width: "150px",
-                  height: "150px",
-                  borderRadius: "50%",
-                  marginTop: "20px",
-                }}
+                style={{ width: '150px', height: '150px', borderRadius: '50%' }}
               />
               <Button
                 variant="contained"
