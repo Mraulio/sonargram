@@ -76,6 +76,39 @@ const updateUser = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+const uploadProfilePic = async (req, res) => {
+  const { userId, role } = req.user; // Info del token
+
+  try {
+    // Reglas de autorización (solo el propio usuario o un admin puede subir la imagen)
+    if (req.user.userId !== userId && role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Construir la URL de la imagen subida
+    const profilePicUrl = req.file.filename;
+
+    // Actualizar el perfil del usuario en la base de datos
+    const updatedUser = await User.findByIdAndUpdate(
+      userId, // Usamos el userId extraído del token
+      { $set: { profilePic: profilePicUrl } },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: 'Profile picture updated',
+      profilePic: updatedUser.profilePic
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
 const deleteUser = async (req, res) => {
   const { id } = req.params;
@@ -166,7 +199,7 @@ const getUserById = async (req, res) => {
   const { id } = req.params;  // El email se pasa como parámetro de la ruta
 
   try {
-    const user = await User.findById(id);  // Busca al usuario por el id
+    const user = await User.findById(id).select('-password');  // Busca al usuario por el id
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });  // Si no lo encuentra, responde con 404
@@ -181,6 +214,7 @@ const getUserById = async (req, res) => {
       email: user.email,
       role: user.role,
       status: user.status,
+      profilePic: user.profilePic,
       createdAt: user.createdAt
     });
   } catch (error) {
@@ -215,6 +249,7 @@ const getUserByEmail = async (req, res) => {
 module.exports = {
   registerUser,
   updateUser,
+  uploadProfilePic,
   loginUser,
   getCurrentUser,
   getAllUsers,

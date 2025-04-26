@@ -27,6 +27,7 @@ const UserSchema = new mongoose.Schema({
     default: 'user' 
   },
   bio: { type: String, default: 'Sonargram user!' },
+  profilePic: { type: String, default: null },
   status: { type: String, default: 'active' }, // Ej: 'active', 'suspended', 'deleted'
 }, {
   timestamps: true  // Habilitar la opción para timestamps

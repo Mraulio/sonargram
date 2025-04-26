@@ -52,7 +52,7 @@ function RegisterPage() {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center', // Centra el contenido verticalmente
-      backgroundImage: 'url("../images/imagen.jpg")',
+      backgroundImage: 'url("../assets/images/imagen.jpg")',
       backgroundSize: 'cover',
       backgroundPosition: 'center', // Centra la imagen
       height: '100vh', // Ocupa toda la altura de la pantalla

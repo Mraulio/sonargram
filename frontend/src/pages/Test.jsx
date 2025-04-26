@@ -10,6 +10,7 @@ import {
   Button,
   TextField,
   Divider,
+  Modal
 } from "@mui/material";
 import Menu from "../components/Menu";
 import useUser from "../hooks/useUser";
@@ -32,6 +33,8 @@ function Test() {
   const [currentUser, setCurrentUser] = useState(null);
   const [listName, setListName] = useState("");
   const [songs, setSongs] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     if (token && role === "admin") fetchAllUsers();
@@ -54,19 +57,11 @@ function Test() {
     if (token) fetchCurrent();
   }, [token, getCurrentUser]);
 
-  const handleUserClick = async (userId) => {
+   const handleUserClick = async (userId) => {
     try {
       const user = await getUserById(userId);
-      alert(`
-        ID: ${user.id}
-        Nombre: ${user.name}
-        Username: ${user.username}
-        Bio: ${user.bio}
-        Email: ${user.email}
-        Status: ${user.status}
-        Rol: ${user.role}
-        Created: ${user.createdAt}
-      `);
+      setSelectedUser(user);
+      setOpenModal(true); // Abrimos el modal
     } catch (err) {
       alert("Error al obtener datos del usuario");
       console.error(err);
@@ -120,6 +115,11 @@ function Test() {
       alert(t("errorDeletingList"));
       console.error(err);
     }
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false); // Cerramos el modal
+    setSelectedUser(null); // Limpiamos los detalles del usuario
   };
 
   return (
@@ -233,6 +233,72 @@ function Test() {
           </Card>
         )}
 
+        {/* Modal con los detalles del usuario */}
+        {selectedUser && (
+          <Modal
+            open={openModal}
+            onClose={handleCloseModal}
+            aria-labelledby="user-details-modal"
+            aria-describedby="user-details-description"
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                backgroundColor: "white",
+                padding: 4,
+                borderRadius: 2,
+                boxShadow: 24,
+                width: 400,
+                maxHeight: "80vh",
+                overflowY: "auto",
+              }}
+            >
+              <Typography variant="h6" id="user-details-modal">
+                {t("userDetails")}
+              </Typography>
+              <Typography variant="body1">
+                <strong>{t("name")}:</strong> {selectedUser.name}
+              </Typography>
+              <Typography variant="body1">
+                <strong>{t("username")}:</strong> {selectedUser.username}
+              </Typography>
+              <Typography variant="body1">
+                <strong>{t("email")}:</strong> {selectedUser.email}
+              </Typography>
+              <Typography variant="body1">
+                <strong>{t("bio")}:</strong> {selectedUser.bio}
+              </Typography>
+              <Typography variant="body1">
+                <strong>{t("status")}:</strong> {selectedUser.status}
+              </Typography>
+              <Typography variant="body1">
+                <strong>{t("role")}:</strong> {selectedUser.role}
+              </Typography>
+              <Typography variant="body1">
+                <strong>{t("createdAt")}:</strong> {selectedUser.createdAt}
+              </Typography>
+              <img
+                src={
+                  selectedUser.profilePic
+                    ? `http://localhost:5000/uploads/${selectedUser.profilePic}`
+                    : '/assets/images/profilepic_default.png'  // Accede directamente a la carpeta public
+                }
+                alt="Profile Pic"
+                style={{ width: '150px', height: '150px', borderRadius: '50%' }}
+              />
+              <Button
+                variant="contained"
+                onClick={handleCloseModal}
+                sx={{ mt: 2 }}
+              >
+                {t("close")}
+              </Button>
+            </Box>
+          </Modal>
+        )}
         <Card>
           <CardContent>
             <Typography variant="h5" gutterBottom>
