@@ -59,6 +59,9 @@ function UserPage() {
           try {
             await deleteUser(userId); // Llamamos a la función deleteUser del hook
             alert(t('userDeleted')); // Mensaje de éxito
+            navigate('/admin'); // Redirige a la página de administración
+            
+
           } catch (err) {
             alert(t('errorDeletingUser')); // Mensaje de error
             console.error('Error deleting user:', err);
@@ -69,7 +72,7 @@ function UserPage() {
           try {
             // Llamamos a la función updateUser del hook para actualizar los datos del usuario
             await updateUser(userId, updatedData);
-        
+            
             alert(t('userUpdated')); // Mensaje de éxito
           } catch (err) {
             alert(t('errorUpdatingUser')); // Mensaje de error
