@@ -64,6 +64,7 @@ function Test() {
         Bio: ${user.bio}
         Email: ${user.email}
         Status: ${user.status}
+        ProfilePic: ${user.profilePic}
         Rol: ${user.role}
         Created: ${user.createdAt}
       `);

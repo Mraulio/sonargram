@@ -5,8 +5,8 @@ import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, Link } from '@mui/material';
 import { ThemeContext } from '../context/ThemeContext';
 import apiClient from '../api/internal/apiClient';
-import logo from '../images/logo.svg';
-import avatar from '../images/avatar.jpg';
+import logo from '../assets/images/logo.svg';
+import avatar from '../assets/images/avatar.jpg';
 
 function Menu() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
