@@ -18,6 +18,7 @@ import FollowedPage from './pages/FollowedPage';
 import RegisterPage from './pages/RegisterPage'; // Asegúrate de importar el componente de registro
 import PrivateRoute from './components/PrivateRoute';
 import AdminPage from './pages/AdminPage';
+import EditUser from './pages/EditUser'; // Asegúrate de importar el componente de edición de usuario
 import TestPage from './pages/Test'; // Asegúrate de importar el componente de prueba
 
 
@@ -40,6 +41,7 @@ function App() {
         <Route path="/test" element={<Test />} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
         <Route path="/admin" element={<PrivateRoute><AdminPage/></PrivateRoute>} />
+        <Route path="/editUser/:id" element={<PrivateRoute><EditUser/></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><UserPage/></PrivateRoute>} />
         <Route path="/album" element={<PrivateRoute><AlbumPage/></PrivateRoute>} />
         <Route path="/songs" element={<PrivateRoute><SongPage/></PrivateRoute>} />

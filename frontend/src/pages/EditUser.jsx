@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { registerUser, getAllUsers } from '../api/internal/userApi'
 import useUser from '../hooks/useUser';
 import Menu from '../components/Menu';
+import { useParams } from 'react-router-dom';
 
 function UserPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -23,7 +24,7 @@ function UserPage() {
         const [creator, setCreator] = useState('');
         const { token, role, logout, login } = useContext(UserContext);
         const navigate = useNavigate();
-
+        const { id } = useParams(); // Obtiene el ID del usuario desde la URL
         const {
               fetchAllUsers,
               registerNewUser,
@@ -37,7 +38,7 @@ function UserPage() {
         useEffect(() => {
           const fetchUserData = async () => {
             try {
-              const user = await getCurrentUser(); // Llamamos a getCurrentUser para obtener los datos del usuario actual
+              const user = await getUserById(id); // Llamamos a getCurrentUser para obtener los datos del usuario actual
               if (user) {
                 setUserName(user.name);
                 setUserUsername(user.username);
@@ -81,8 +82,8 @@ function UserPage() {
       <Menu />
       <Card sx={{ width: '500px', p: 2, margin: 'auto', backgroundColor: '#f5f5f5' }}>
         <CardContent>
-        <Typography variant="h5" gutterBottom>{t('updateUser')}</Typography>
-                    <TextField
+        <Typography variant="h5" gutterBottom>{t('updateUser')}: {userName} {id}</Typography>
+            <TextField
               fullWidth
               label={t('name')}
               value={userName}
@@ -106,7 +107,7 @@ function UserPage() {
             <Button
               variant="contained"
               onClick={() =>
-                handleEditUser(userId, {
+                handleEditUser(id, {
                   name: userName,
                   username: userUsername,
                   email: userEmail,
@@ -116,7 +117,7 @@ function UserPage() {
             >
               {t('editUserButton')}
             </Button>
-            <Button variant="contained" color= "error" onClick={() => handleDeleteUser(userId)} sx={{ mt: 2 }}>
+            <Button variant="contained" color= "error" onClick={() => handleDeleteUser(id)} sx={{ mt: 2 }}>
               {t('deleteUserButton')}
             </Button>
         </CardContent>

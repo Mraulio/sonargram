@@ -120,30 +120,7 @@ function AdminPage() {
         }
       };
 
-      const handleEditUser = (user) => {
-        setEditingUser(user); // Establece el usuario que se está editando
-      };
       
-      const handleUpdateUser = async () => {
-        if (!editingUser) return;
-      
-        try {
-          // Actualizar los datos del usuario
-          await updateUser(editingUser._id, {
-            name: editingUser.name,
-            username: editingUser.username,
-            email: editingUser.email,
-          });
-      
-          alert(t('userUpdated')); // Mensaje de éxito
-          setEditingUser(null); // Limpia el estado de edición
-          fetchAllUsers(); // Refresca la lista de usuarios
-        } catch (err) {
-          alert(t('errorUpdatingUser')); // Mensaje de error
-          console.error('Error updating user:', err);
-        }
-      };
-
       const handleUserClick = async (userId) => {
         try {
           const user = await getUserById(userId);
@@ -202,7 +179,7 @@ function AdminPage() {
                     }}
                     onClick={() => handleUserClick(u._id)}>
                     {u.username} - {u.email}
-                    <Button variant="outlined" color="warning" size="small" onClick={() => handleEditUser(u._id)} sx={{ ml: 2 }}>
+                    <Button variant="outlined" color="warning" size="small" onClick={() => navigate(`/editUser/${u._id}`)} sx={{ ml: 2 }}>
                         {t('edit')}
                     </Button>
                     <Button variant="outlined" color="error" size="small" onClick={() => handleDeleteUser(u._id)} sx={{ ml: 2 }}>
