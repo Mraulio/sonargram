@@ -7,7 +7,6 @@ import createApiClient from '../api/internal/apiClient';
 import Menu from '../components/Menu';
 
 
-
 function ListPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
       const [users, setUsers] = useState([]);

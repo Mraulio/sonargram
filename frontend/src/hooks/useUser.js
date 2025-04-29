@@ -70,6 +70,16 @@ export default function useUsers(token) {
     }
   };
 
+  const registerNewUser = async (userData) => {
+    try {
+      const newUser = await api.registerUser(userData, token); // Llama a la API para registrar el usuario
+      return newUser; // Devuelve el usuario creado
+    } catch (err) {
+      console.error('Error registering new user:', err);
+      throw err; // Propaga el error para manejarlo en el componente
+    }
+  };
+
   return {
     users,
     loading,
@@ -80,5 +90,6 @@ export default function useUsers(token) {
     updateUser,
     getUserById,
     getUserByEmail,
+    registerNewUser,
   };
 }

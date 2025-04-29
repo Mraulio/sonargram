@@ -54,7 +54,7 @@ function UserPage() {
 
         const handleDeleteUser = async (userId) => {
           if (!window.confirm(t('confirmDeleteUser'))) return; // Confirmación antes de eliminar
-        
+          console.log('Deleting user with ID:', userId); // Log para depuración
           try {
             await deleteUser(userId); // Llamamos a la función deleteUser del hook
             alert(t('userDeleted')); // Mensaje de éxito
@@ -66,13 +66,27 @@ function UserPage() {
 
         const handleEditUser = async (userId, updatedData) => {
           try {
-            // Llamamos a la función updateUser del hook para actualizar los datos del usuario
-            await updateUser(userId, updatedData);
+            // Solo enviar los campos permitidos por el backend
+            const updates = {
+              name: userName,
+            };
         
+            await updateUser(userId, updates); // Llama a la función updateUser con los datos permitidos
             alert(t('userUpdated')); // Mensaje de éxito
+       
           } catch (err) {
-            alert(t('errorUpdatingUser')); // Mensaje de error
             console.error('Error updating user:', err);
+        
+            // Manejo de errores basado en la respuesta del backend
+            if (err.response && err.response.status === 400) {
+              alert(t('errorUpdatingUserFields')); // Mensaje para campos no permitidos
+            } else if (err.response && err.response.status === 403) {
+              alert(t('errorAccessDenied')); // Mensaje para acceso denegado
+            } else if (err.response && err.response.status === 404) {
+              alert(t('errorUserNotFound')); // Mensaje para usuario no encontrado
+            } else {
+              alert(t('errorUpdatingUser')); // Mensaje genérico
+            }
           }
         };
 
@@ -89,20 +103,7 @@ function UserPage() {
               onChange={(e) => setUserName(e.target.value)}
               margin="normal"
             />
-            <TextField
-              fullWidth
-              label={t('username')}
-              value={userUsername}
-              onChange={(e) => setUserUsername(e.target.value)}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label={t('email')}
-              value={userEmail}
-              onChange={(e) => setUserEmail(e.target.value)}
-              margin="normal"
-            />
+
             <Button
               variant="contained"
               onClick={() =>

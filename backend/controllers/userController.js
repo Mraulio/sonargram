@@ -39,6 +39,10 @@ const updateUser = async (req, res) => {
   const updates = req.body;
   const { userId, role } = req.user; // Asignado por middleware de autenticación
 
+  console.log('Received ID:', id); // Verifica el ID recibido
+  console.log('Updates:', updates); // Verifica los datos enviados
+  console.log('Authenticated user ID:', userId); // Verifica el usuario autenticado
+  console.log('Role:', role); // Verifica el rol del usuario
   try {
     // ❌ No permitir actualización de username ni email ni rol
     if ('username' in updates || 'email' in updates || 'role' in updates) {

@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider } from '@mui/material';
+import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import Menu from '../components/Menu';
 import useUser from '../hooks/useUser';
 import useList from '../hooks/useList';
@@ -11,7 +11,7 @@ function AdminPage() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { token, role, logout } = useContext(UserContext);
-  
+    const [open, setOpen] = useState(false);
     const {
       users,
       fetchAllUsers,
@@ -19,7 +19,6 @@ function AdminPage() {
       deleteUser,
       getUserById,
       getCurrentUser,
-      setCurrentUser,
       updateUser,
     } = useUser(token);
   
@@ -38,6 +37,7 @@ function AdminPage() {
     const [listName, setListName] = useState('');
     const [songs, setSongs] = useState('');
     const [editingUser, setEditingUser] = useState(null); // Estado para el usuario en edición
+    
     useEffect(() => {
       if (token && role === "admin") fetchAllUsers();
     }, [token, role, fetchAllUsers]);
@@ -46,19 +46,46 @@ function AdminPage() {
       if (token) fetchAllLists();
     }, [token, fetchAllLists]);
   
-    useEffect(() => {
-      const fetchCurrent = async () => {
-        try {
-          const user = await getCurrentUser();
-          setCurrentUser(user);
-        } catch (err) {
-          console.error("Error fetching current user", err);
-        }
-      };
-  
-      if (token) fetchCurrent();
-    }, [token, getCurrentUser]);
 
+    const handleOpenModal = (user) => {
+      setEditingUser(user); // Establece el usuario en edición
+      setUserName(user.name);
+
+      setOpen(true); // Abre el modal
+    };
+
+    const handleCloseModal = () => {
+      setOpen(false); // Cierra el modal
+      setEditingUser(null); // Limpia el usuario en edición
+    };
+
+    const handleSaveChanges = async () => {
+      try {
+        // Solo enviar los campos permitidos por el backend
+        const updates = {
+          name: userName,
+        };
+    
+        await updateUser(editingUser._id, updates); // Llama a la función updateUser con los datos permitidos
+        alert(t('userUpdated')); // Mensaje de éxito
+        setOpen(false); // Cierra el modal
+        fetchAllUsers(); // Actualiza la lista de usuarios
+      } catch (err) {
+        console.error('Error updating user:', err);
+    
+        // Manejo de errores basado en la respuesta del backend
+        if (err.response && err.response.status === 400) {
+          alert(t('errorUpdatingUserFields')); // Mensaje para campos no permitidos
+        } else if (err.response && err.response.status === 403) {
+          alert(t('errorAccessDenied')); // Mensaje para acceso denegado
+        } else if (err.response && err.response.status === 404) {
+          alert(t('errorUserNotFound')); // Mensaje para usuario no encontrado
+        } else {
+          alert(t('errorUpdatingUser')); // Mensaje genérico
+        }
+      }
+    };
+  
     const handleCreateUser = async () => {
       try {
         await registerNewUser({
@@ -110,7 +137,7 @@ function AdminPage() {
 
     const handleDeleteUser = async (userId) => {
         if (!window.confirm(t('confirmDeleteUser'))) return; // Confirmación antes de eliminar
-      
+        console.log('Deleting user with ID:', userId); // Verifica el ID del usuario a eliminar
         try {
           await deleteUser(userId); // Llamamos a la función deleteUser del hook
           alert(t('userDeleted')); // Mensaje de éxito
@@ -173,26 +200,51 @@ function AdminPage() {
                   <li
                     key={u._id}
                     style={{
+                      display: "flex", // Usamos flexbox para alinear los elementos
+                      alignItems: "center", // Alinea verticalmente los elementos
+                      gap: "10px", // Espaciado entre los botones y el texto
+                      justifyContent: "space-between", // Espacio entre el texto y los botones
                       cursor: "pointer",
                       textDecoration: "underline",
                       color: "blue",
                     }}
                     onClick={() => handleUserClick(u._id)}>
                     {u.username} - {u.email}
-                    <Button variant="outlined" color="warning" size="small" onClick={() => navigate(`/editUser/${u._id}`)} sx={{ ml: 2 }}>
-                        {t('edit')}
-                    </Button>
-                    <Button variant="outlined" color="error" size="small" onClick={() => handleDeleteUser(u._id)} sx={{ ml: 2 }}>
-                        {t('delete')}
-                        </Button>
+                    <Box>
+                    <Button variant="outlined" color="warning" size="small" onClick={(e) => {e.stopPropagation(); handleOpenModal(u);}} sx={{ ml: 2 }}>{t('edit')}</Button>
+                    <Button variant="outlined" color="error" size="small" onClick={(e) => {e.stopPropagation(); handleDeleteUser(u._id);}} sx={{ ml: 2 }}>{t('delete')}</Button>
+                    </Box>
                   </li>
+                   
                 ))}
-              </ul>            
-                     
+              </ul>                   
                 </CardContent>
             </Card>
             )}
-    
+
+            {/* Modal para editar usuario */}
+      <Dialog open={open} onClose={handleCloseModal}>
+        <DialogTitle>{t('editUser')}</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label={t('name')}
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            margin="normal"
+          />
+          
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal} color="secondary">
+            {t('cancel')}
+          </Button>
+          <Button onClick={handleSaveChanges} variant="contained" color="primary">
+            {t('save')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
             <Card>
             <CardContent>
                 <Typography variant="h5" gutterBottom>{t('createList')}</Typography>

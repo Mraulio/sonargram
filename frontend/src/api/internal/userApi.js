@@ -32,8 +32,9 @@ export const registerUser = async (userData) => {
 // Actualizar un usuario (solo los campos permitidos)
 export const updateUser = async (userId, userData, token) => {
   try {
+    
     const apiClient = getApiClientWithToken(token); // Usamos el apiClient con el token
-    const response = await apiClient.put(`/users/${userId}`, userData);
+    const response = await apiClient.put(`/users/update/${userId}`, userData);
     return response.data;
   } catch (error) {
     console.error("Error updating user:", error);
