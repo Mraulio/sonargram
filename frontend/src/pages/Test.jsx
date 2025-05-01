@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { UserContext } from "../context/UserContext";
@@ -11,7 +11,8 @@ import {
   TextField,
   Divider,
   Modal,
-  IconButton
+  IconButton,
+  ButtonBase
 } from "@mui/material";
 import Menu from "../components/Menu";
 import useUser from "../hooks/useUser";
@@ -28,7 +29,7 @@ function Test() {
   const navigate = useNavigate();
   const { token, role, logout } = useContext(UserContext);
 
-  const { users, fetchAllUsers, getUserById, getCurrentUser, registerNewUser } =
+  const { users, fetchAllUsers, getUserById, getCurrentUser, registerNewUser, uploadProfilePic } =
     useUser(token);
 
   const { lists, fetchAllLists, createNewList, removeList } = useList(token);
@@ -41,13 +42,16 @@ function Test() {
   const [listName, setListName] = useState("");
   const [songs, setSongs] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [openProfilePicModal, setOpenProfilePicModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [favoriteCounts, setFavoriteCounts] = useState({
     artists: {},
     albums: {},
     songs: {}
   });
-  
+  const [previewImage, setPreviewImage] = useState(null);
+  const [resizedImage, setResizedImage] = useState(null);
+  const fileInputRef = useRef(null);
   const { 
     addFavorite, 
     removeFavorite, 
@@ -260,6 +264,76 @@ const handleFavoriteToggle = async (id, type) => {
   }
 };
 
+ // ****************** IMAGEN DE PERFIL ********************************* //
+  const handleProfilePicClick = () => {
+    fileInputRef.current.click(); // abre el file picker
+  };
+  
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        resizeImage(reader.result);
+        setOpenProfilePicModal(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  const resizeImage = (dataUrl) => {
+    const img = new Image();
+    img.onload = () => {
+      const maxSize = 200;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+  
+      canvas.width = maxSize;
+      canvas.height = maxSize;
+  
+      // Calcular el tamaño redimensionado manteniendo proporción
+      const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+      const newWidth = img.width * ratio;
+      const newHeight = img.height * ratio;
+  
+      // Centrar la imagen en el canvas
+      const offsetX = (maxSize - newWidth) / 2;
+      const offsetY = (maxSize - newHeight) / 2;
+  
+      // Fondo blanco opcional (puedes cambiar a transparente si prefieres)
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, maxSize, maxSize);
+  
+      ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+      const resizedDataUrl = canvas.toDataURL("image/jpeg");
+      setResizedImage(resizedDataUrl);
+    };
+    img.src = dataUrl;
+  };
+  
+
+  const handleSaveImage = async () => {
+    try {
+      const response = await fetch(resizedImage);
+      const blob = await response.blob();
+      const formData = new FormData();
+      formData.append("profilePic", blob, "profile.jpg");
+  
+      // Subir la imagen usando el hook
+      const resp = await uploadProfilePic(formData); // Esta es la llamada a la API
+
+      setCurrentUser({...currentUser, profilePic: `${resp.profilePic}?t=${new Date().getTime()}` }) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
+
+      setOpenProfilePicModal(false); // Cerrar el modal
+    } catch (err) {
+      console.error("Error updating profile picture", err);
+      alert("Error al actualizar imagen");
+    }
+  };
+  
+  
+ // ****************** FIN IMAGEN DE PERFIL ********************************* //
 
   return (
     <Box
@@ -291,9 +365,38 @@ const handleFavoriteToggle = async (id, type) => {
                 <Typography variant="body1">
                   <strong>{t("username")}:</strong> {currentUser.username}
                 </Typography>
+                <ButtonBase
+                  onClick={handleProfilePicClick}
+                  sx={{
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    width: 150,
+                    height: 150,
+                    display: "inline-block",
+                  }}
+                >
+                  <img
+                    src={
+                      currentUser && currentUser.profilePic
+                        ? `http://localhost:5000/uploads/${currentUser.profilePic}`
+                        : "/assets/images/profilepic_default.png"
+                    }
+                    alt="Profile Pic"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+
+                </ButtonBase>
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                />
+
               </>
             )}
-
+            <br></br>
             {token && (
               <Button variant="outlined" onClick={logout} sx={{ mt: 2 }}>
                 {t("logout")}
@@ -610,7 +713,40 @@ const handleFavoriteToggle = async (id, type) => {
             {t("tokenLabel")}: {token}
           </Typography>
         )}
+        <Modal open={openProfilePicModal} onClose={() => setOpenProfilePicModal(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
+            padding: 4,
+            borderRadius: 2,
+            boxShadow: 24,
+            width: 300,
+            textAlign: "center"
+          }}
+        >
+          <Typography variant="h6">Actualizar imagen de perfil</Typography>
+          {previewImage && (
+            <img
+              src={resizedImage || previewImage}
+              alt="Preview"
+              style={{ width: 200, height: 200, borderRadius: "50%", marginTop: 16 }}
+            />
+          )}
+          <Button
+            variant="contained"
+            sx={{ mt: 2 }}
+            onClick={handleSaveImage}
+          >
+            Guardar Imagen
+          </Button>
+        </Box>
+      </Modal>
     </Box>
+    
   );
 }
 

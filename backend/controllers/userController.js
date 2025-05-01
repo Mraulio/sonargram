@@ -76,6 +76,7 @@ const updateUser = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 const uploadProfilePic = async (req, res) => {
   const { userId, role } = req.user; // Info del token
 

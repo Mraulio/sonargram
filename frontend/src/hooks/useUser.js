@@ -70,6 +70,16 @@ export default function useUsers(token) {
     }
   };
 
+  const uploadProfilePic = async (formData) => {
+    try {
+      const response = await api.uploadProfilePic(formData, token);
+      return response;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
   return {
     users,
     loading,
@@ -80,5 +90,6 @@ export default function useUsers(token) {
     updateUser,
     getUserById,
     getUserByEmail,
+    uploadProfilePic,
   };
 }
