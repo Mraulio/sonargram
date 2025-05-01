@@ -101,7 +101,8 @@ const updateListName = async (req, res) => {
   const { listId } = req.params;
   const { name } = req.body;
   const { userId, role } = req.user;
-
+  console.log('listId:', listId);
+  console.log('newName:', newName);
   try {
     const list = await List.findById(listId);
     if (!list) return res.status(404).json({ message: 'List not found' });
@@ -119,6 +120,7 @@ const updateListName = async (req, res) => {
 
     res.status(200).json(list);
   } catch (err) {
+    
     res.status(500).json({ error: err.message });
   }
 };

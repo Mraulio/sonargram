@@ -22,7 +22,9 @@ router.get('/id/:id', requireAuth, getUserById);
 router.get('/email/:email', requireAuth, getUserByEmail);
 
 
-// Borar por ID de Mongo
+// Borrar por ID de Mongo
 router.delete('/:id', requireAuth, requireAdmin, deleteUser);
+// Borrar por ID de Mongo (propio
+
 
 module.exports = router;

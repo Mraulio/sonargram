@@ -54,7 +54,7 @@ function UserPage() {
 
         const handleDeleteUser = async (userId) => {
           if (!window.confirm(t('confirmDeleteUser'))) return; // Confirmación antes de eliminar
-          console.log('Deleting user with ID:', userId); // Log para depuración
+          
           try {
             await deleteUser(userId); // Llamamos a la función deleteUser del hook
             alert(t('userDeleted')); // Mensaje de éxito

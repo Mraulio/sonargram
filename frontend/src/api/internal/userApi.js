@@ -49,7 +49,7 @@ export const deleteUser = async (userId, token) => {
     const response = await apiClient.delete(`/users/${userId}`);
     return response.data;
   } catch (error) {
-    console.error("Error deleting user:", error);
+    console.error("Error deleting user: ", error);
     throw error; // Propagar el error
   }
 };
@@ -65,6 +65,7 @@ export const getAllUsers = async (token) => {
     throw error; // Propagar el error
   }
 };
+
 
 // Obtener un usuario logueado
 export const getCurrentUser = async (token) => {

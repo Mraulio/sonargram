@@ -61,6 +61,7 @@ export default function useList(token) {
   const renameList = async (listId, newName) => {
     try {
       const updatedList = await listaApi.updateListName(listId, newName, token);
+      console.log('Updated list:', updatedList);
       setLists(prev =>
         prev.map(list => (list._id === listId ? updatedList : list))
       );

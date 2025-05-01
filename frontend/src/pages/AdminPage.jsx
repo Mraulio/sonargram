@@ -269,12 +269,6 @@ function AdminPage() {
                 </ul>
             </CardContent>
             </Card>
-    
-            {token && (
-            <Typography sx={{ mt: 4 }} fontSize="small" color="text.secondary">
-                {t('tokenLabel')}: {token}
-            </Typography>
-            )}
         </Box>
       </Box>
     );

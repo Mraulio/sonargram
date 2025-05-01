@@ -21,7 +21,9 @@ export default function useUsers(token) {
 
   const deleteUser = async (userId) => {
     try {
+      
       await api.deleteUser(userId, token);
+      console.log('Deleting user with ID:', userId); // Log para depuración
       setUsers(prev => prev.filter(user => user._id !== userId));
     } catch (err) {
       console.error('Error deleting user:', err);

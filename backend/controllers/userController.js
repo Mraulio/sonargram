@@ -39,10 +39,6 @@ const updateUser = async (req, res) => {
   const updates = req.body;
   const { userId, role } = req.user; // Asignado por middleware de autenticación
 
-  console.log('Received ID:', id); // Verifica el ID recibido
-  console.log('Updates:', updates); // Verifica los datos enviados
-  console.log('Authenticated user ID:', userId); // Verifica el usuario autenticado
-  console.log('Role:', role); // Verifica el rol del usuario
   try {
     // ❌ No permitir actualización de username ni email ni rol
     if ('username' in updates || 'email' in updates || 'role' in updates) {
@@ -115,6 +111,7 @@ const uploadProfilePic = async (req, res) => {
 
 
 const deleteUser = async (req, res) => {
+  console.log("llegaste")
   const { id } = req.params;
   const { userId, role } = req.user; // Datos del usuario autenticado
 
@@ -125,8 +122,8 @@ const deleteUser = async (req, res) => {
     }
 
     // Solo puede eliminarse a sí mismo o si es admin
-    if (userToDelete._id.toString() !== userId && role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied' });
+    if (userToDelete._id !== userId && role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied sorry' });
     }
 
     await User.findByIdAndDelete(id);
