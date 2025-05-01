@@ -10,53 +10,11 @@ function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const [users, setUsers] = useState([]);
   const [userUsername, setUserUsername] = useState('');
-  const [listName, setListName] = useState('');
-  const [songs, setSongs] = useState('');
   const { token, role, logout, user} = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const {
-        lists,
-        fetchAllLists,
-        createNewList,
-        removeList,
-      } = useList(token);
-    
-          
-    useEffect(() => {
-      if (token) fetchAllLists();
-    }, [token, fetchAllLists]);
-  // Crear una lista utilizando la función de userApi
-  const handleCreateList = async () => {
-    try {
-      const songArray = songs
-        .split(',')
-        .map(s => s.trim())
-        .filter(s => s !== '')
-        .map(id => ({ musicbrainzId: id }));
-
-      await createNewList({ name: listName, songs: songArray });
-
-      alert('List created');
-      setListName('');
-      setSongs('');
-    } catch (err) {
-      alert('Error creating list');
-      console.error(err);
-    }
-  };
-
-  const handleDeleteList = async (listId) => {
-    if (!window.confirm(t('confirmDeleteList'))) return;
-
-    try {
-      await removeList(listId);
-    } catch (err) {
-      alert(t('errorDeletingList'));
-      console.error(err);
-    }
-  };
+ 
 
   const handleSearchUser = useCallback(async () => {
     setLoading(true);
@@ -138,16 +96,6 @@ function Dashboard() {
   </CardContent>
 </Card>
 
-<Card>
-            <CardContent>
-                <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
-                <TextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
-                <TextField fullWidth label={t('songIds')} value={songs} onChange={e => setSongs(e.target.value)} margin="normal" />
-                <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>
-                {t('createListButton')}
-                </Button>
-          </CardContent>
-        </Card>
       </Box>
     </Box>
   );

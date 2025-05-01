@@ -52,6 +52,7 @@ export const updateListName = async (listId, newName, token) => {
 // Eliminar lista
 export const deleteList = async (listId, token) => {
   const apiClient = createApiClient(token);
+  console.log('Deleting list with ID:', listId); // Debugging line
   const response = await apiClient.delete(`/lists/${listId}`);
   return response.data;
 };

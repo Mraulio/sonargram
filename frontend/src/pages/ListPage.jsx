@@ -1,30 +1,53 @@
-import { useEffect, useState, useContext, useMemo } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import createApiClient from '../api/internal/apiClient';
 import Menu from '../components/Menu';
 import useList from '../hooks/useList';
+import useUser from '../hooks/useUser';
 
 function ListPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
     const { token, role, logout } = useContext(UserContext);
-    const apiClient = useMemo(() => createApiClient(token), [token]);
     const [editingList, setEditingList] = useState(null); // Estado para la lista en edición
     const [listName, setListName] = useState(''); // Estado para el nombre de la lista
     const [songs, setSongs] = useState(''); // Estado para las canciones de la lista
     const [open, setOpen] = useState(false); // Estado para controlar el modal
+    const {users, getCurrentUser} = useUser(token);
      const {
            lists,
            fetchAllLists,
            createNewList,
            removeList,
            renameList,
+           fetchListsByUser
          } = useList(token);
           
-            useEffect(() => {
-              if (token) fetchAllLists();
-            }, [token, fetchAllLists]);
+         const handleSearchListByUser = async () => {
+          try {
+            // Obtén el usuario actual utilizando getCurrentUser
+            const currentUser = await getCurrentUser();
+            if (!currentUser || !currentUser._id) {
+              alert(t('errorFetchingUserId')); // Mensaje de error si no se puede obtener el usuario
+              return;
+            }
+        
+            const userId = currentUser._id; // Obtén el ID del usuario actual
+            console.log('Current user ID:', userId);
+        
+            // Llama a la función para buscar listas por el ID del usuario
+            await fetchListsByUser(userId);
+          } catch (err) {
+            console.error('Error fetching lists by user:', err);
+            alert(t('errorFetchingListsByUser')); // Mensaje de error genérico
+          }
+        };
+          
+        useEffect(() => {
+          if (token) {
+            handleSearchListByUser(); // Llama a la función para buscar listas del usuario actual
+          }
+        }, [token]);
 
             const handleCreateList = async () => {
               try {
@@ -50,6 +73,7 @@ function ListPage() {
                 if (!window.confirm(t('confirmDeleteList'))) return;
             
                 try {
+                  console.log('Deleting list with ID:', listId); // Debugging line
                   await removeList(listId);
                 } catch (err) {
                   alert(t('errorDeletingList'));
@@ -139,6 +163,9 @@ function ListPage() {
                             >
                               {t('edit')}
                             </Button>
+                            <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
+                            </Button>
+                         
                           </Box>
                         </CardContent>
                       </Card>
@@ -161,11 +188,11 @@ function ListPage() {
                     />
                   </DialogContent>
                   <DialogActions>
-                    <Button onClick={handleCloseListModal} color="secondary">
-                      {t('cancel')}
-                    </Button>
                     <Button onClick={handleSaveListChanges} variant="contained" color="primary">
                       {t('save')}
+                    </Button>
+                    <Button onClick={handleCloseListModal} color="secondary">
+                      {t('cancel')}
                     </Button>
                   </DialogActions>
                 </Dialog>
