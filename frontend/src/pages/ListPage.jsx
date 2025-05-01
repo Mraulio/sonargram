@@ -26,6 +26,37 @@ function ListPage() {
               if (token) fetchAllLists();
             }, [token, fetchAllLists]);
 
+            const handleCreateList = async () => {
+              try {
+                const songArray = songs
+                  .split(',')
+                  .map(s => s.trim())
+                  .filter(s => s !== '')
+                  .map(id => ({ musicbrainzId: id }));
+          
+                await createNewList({ name: listName, songs: songArray });
+          
+                alert('List created');
+                setListName('');
+                setSongs('');
+              } catch (err) {
+                alert('Error creating list');
+                console.error(err);
+              }
+            };
+
+            
+              const handleDeleteList = async (listId) => {
+                if (!window.confirm(t('confirmDeleteList'))) return;
+            
+                try {
+                  await removeList(listId);
+                } catch (err) {
+                  alert(t('errorDeletingList'));
+                  console.error(err);
+                }
+              };
+
             const handleOpenListModal = (list) => {
               setEditingList(list); // Establece la lista en edición
               setListName(list.name); // Establece el nombre de la lista en el estado
@@ -74,6 +105,16 @@ function ListPage() {
             return (
               <Box>
                 <Menu />
+                <Card>
+                  <CardContent>
+                    <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
+                    <TextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
+                    <TextField fullWidth label={t('songIds')} value={songs} onChange={e => setSongs(e.target.value)} margin="normal" />
+                    <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>
+                      { t('createListButton')}
+                    </Button>
+                  </CardContent>
+                </Card>
                 <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: '90vw', mx: 'auto' }}>
                   <Typography variant="h6" sx={{ mb: 2 }}>{t('Listas')}</Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
@@ -102,6 +143,8 @@ function ListPage() {
                         </CardContent>
                       </Card>
                     ))}
+
+
                   </Box>
                 </Box>
           
