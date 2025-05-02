@@ -72,6 +72,7 @@ export default function useUsers(token) {
     }
   };
 
+<<<<<<< HEAD
   const registerNewUser = async (userData) => {
     try {
       const newUser = await api.registerUser(userData, token); // Llama a la API para registrar el usuario
@@ -79,6 +80,15 @@ export default function useUsers(token) {
     } catch (err) {
       console.error('Error registering new user:', err);
       throw err; // Propaga el error para manejarlo en el componente
+=======
+  const uploadProfilePic = async (formData) => {
+    try {
+      const response = await api.uploadProfilePic(formData, token);
+      return response;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+>>>>>>> develop
     }
   };
 
@@ -92,6 +102,10 @@ export default function useUsers(token) {
     updateUser,
     getUserById,
     getUserByEmail,
+<<<<<<< HEAD
     registerNewUser,
+=======
+    uploadProfilePic,
+>>>>>>> develop
   };
 }

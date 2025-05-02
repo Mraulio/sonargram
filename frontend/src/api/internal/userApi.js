@@ -102,3 +102,19 @@ export const getUserByEmail = async (email, token) => {
     throw error; // Propagar el error
   }
 };
+
+export const uploadProfilePic = async (formData, token) => {
+  try {
+    const apiClient = getApiClientWithToken(token);
+    const response = await apiClient.post('/users/upload-profile-pic', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading profile picture:", error);
+    throw error;
+  }
+};
+

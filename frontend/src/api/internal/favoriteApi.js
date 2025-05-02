@@ -1,4 +1,4 @@
-import createApiClient from '../config/apiClient'; // Ajustá el path según tu estructura
+import createApiClient from "./apiClient";
 
 // Agregar a favoritos
 export const addFavorite = async (favoriteId, favoriteType, token) => {

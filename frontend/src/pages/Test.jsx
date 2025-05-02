@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { UserContext } from "../context/UserContext";
@@ -10,18 +10,26 @@ import {
   Button,
   TextField,
   Divider,
-  Modal
+  Modal,
+  IconButton,
+  ButtonBase
 } from "@mui/material";
 import Menu from "../components/Menu";
 import useUser from "../hooks/useUser";
 import useList from "../hooks/useList";
+import { searchArtists, getAlbumsByArtist, getSongsByRelease, getReleasesByReleaseGroup } from "../api/external/apiMB";
+import useFavorites from '../hooks/useFavorites';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
 
 function Test() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { token, role, logout } = useContext(UserContext);
 
-  const { users, fetchAllUsers, getUserById, getCurrentUser, registerNewUser } =
+  const { users, fetchAllUsers, getUserById, getCurrentUser, registerNewUser, uploadProfilePic } =
     useUser(token);
 
   const { lists, fetchAllLists, createNewList, removeList } = useList(token);
@@ -34,7 +42,23 @@ function Test() {
   const [listName, setListName] = useState("");
   const [songs, setSongs] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [openProfilePicModal, setOpenProfilePicModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [favoriteCounts, setFavoriteCounts] = useState({
+    artists: {},
+    albums: {},
+    songs: {}
+  });
+  const [previewImage, setPreviewImage] = useState(null);
+  const [resizedImage, setResizedImage] = useState(null);
+  const fileInputRef = useRef(null);
+  const { 
+    addFavorite, 
+    removeFavorite, 
+    isFavorite,
+    getFavoriteCount
+  } = useFavorites(token); // o el nombre de tu variable/token
+
 
   useEffect(() => {
     if (token && role === "admin") fetchAllUsers();
@@ -122,6 +146,195 @@ function Test() {
     setSelectedUser(null); // Limpiamos los detalles del usuario
   };
 
+  const [searchTerm, setSearchTerm] = useState("");
+const [artistResults, setArtistResults] = useState([]);
+const [selectedAlbums, setSelectedAlbums] = useState([]);
+const [albumSongs, setAlbumSongs] = useState([]);
+
+const handleSearchArtist = async () => {
+  try {
+    const results = await searchArtists(searchTerm);
+    setArtistResults(results);
+
+    // Crear un objeto para los conteos de artistas
+    const artistCounts = {};
+    for (const artist of results) {
+      try {
+        const count = await getFavoriteCount(artist.id);
+        console.log('count artista', count)
+        artistCounts[artist.id] = count || 0;
+      } catch {
+        artistCounts[artist.id] = 0;
+      }
+    }
+
+    // Actualizamos solo la parte de artistas de favoriteCounts
+    setFavoriteCounts((prevCounts) => ({
+      ...prevCounts, // Mantener los conteos anteriores
+      artists: artistCounts // Actualizar solo los conteos de los artistas
+    }));
+
+    setSelectedAlbums([]);
+    setAlbumSongs([]);
+  } catch (err) {
+    alert("Error al buscar artistas");
+    console.error(err);
+  }
+};
+
+const handleSelectArtist = async (artistId) => {
+  try {
+    const albums = await getAlbumsByArtist(artistId);
+
+     // Crear un objeto para los conteos de artistas
+     const albumCounts = {};
+     for (const album of albums) {
+       try {
+         const count = await getFavoriteCount(album.id);
+         albumCounts[album.id] = count || 0;
+       } catch {
+        albumCounts[album.id] = 0;
+       }
+     }
+ 
+     // Actualizamos solo la parte de artistas de favoriteCounts
+     setFavoriteCounts((prevCounts) => ({
+       ...prevCounts, // Mantener los conteos anteriores
+       albums: albumCounts // Actualizar solo los conteos de los artistas
+     }));
+    setSelectedAlbums(albums);
+    setAlbumSongs([]);
+  } catch (err) {
+    alert("Error al obtener álbumes");
+    console.error(err);
+  }
+};
+
+const handleSelectAlbum = async (releaseGroupId) => {
+  try {
+    const releases = await getReleasesByReleaseGroup(releaseGroupId);
+    if (releases.length > 0) {
+      const releaseId = releases[0].id;
+      const songs = await getSongsByRelease(releaseId);
+
+       // Crear un objeto para los conteos de artistas
+     const songCounts = {};
+     for (const song of songs) {
+       try {
+         const count = await getFavoriteCount(song.id);
+         songCounts[song.id] = count || 0;
+       } catch {
+        songCounts[song.id] = 0;
+       }
+     }
+ 
+     // Actualizamos solo la parte de artistas de favoriteCounts
+     setFavoriteCounts((prevCounts) => ({
+       ...prevCounts, // Mantener los conteos anteriores
+       songs: songCounts // Actualizar solo los conteos de los artistas
+     }));
+
+      setAlbumSongs(songs);
+    }
+  } catch (err) {
+    alert("Error al obtener canciones del álbum");
+    console.error(err);
+  }
+};
+
+const handleFavoriteToggle = async (id, type) => {
+  try {
+    if (isFavorite(id)) {
+      await removeFavorite(id);
+    } else {
+      await addFavorite(id, type);
+    }
+
+    const newCount = await getFavoriteCount(id);
+
+    setFavoriteCounts(prev => ({
+      ...prev,
+      [type + "s"]: {
+        ...prev[type + "s"],
+        [id]: newCount
+      }
+    }));
+  } catch (err) {
+    console.error("Error toggling favorite", err);
+  }
+};
+
+ // ****************** IMAGEN DE PERFIL ********************************* //
+  const handleProfilePicClick = () => {
+    fileInputRef.current.click(); // abre el file picker
+  };
+  
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        resizeImage(reader.result);
+        setOpenProfilePicModal(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  const resizeImage = (dataUrl) => {
+    const img = new Image();
+    img.onload = () => {
+      const maxSize = 200;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+  
+      canvas.width = maxSize;
+      canvas.height = maxSize;
+  
+      // Calcular el tamaño redimensionado manteniendo proporción
+      const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+      const newWidth = img.width * ratio;
+      const newHeight = img.height * ratio;
+  
+      // Centrar la imagen en el canvas
+      const offsetX = (maxSize - newWidth) / 2;
+      const offsetY = (maxSize - newHeight) / 2;
+  
+      // Fondo blanco opcional (puedes cambiar a transparente si prefieres)
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, maxSize, maxSize);
+  
+      ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+      const resizedDataUrl = canvas.toDataURL("image/jpeg");
+      setResizedImage(resizedDataUrl);
+    };
+    img.src = dataUrl;
+  };
+  
+
+  const handleSaveImage = async () => {
+    try {
+      const response = await fetch(resizedImage);
+      const blob = await response.blob();
+      const formData = new FormData();
+      formData.append("profilePic", blob, "profile.jpg");
+  
+      // Subir la imagen usando el hook
+      const resp = await uploadProfilePic(formData); // Esta es la llamada a la API
+
+      setCurrentUser({...currentUser, profilePic: `${resp.profilePic}?t=${new Date().getTime()}` }) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
+
+      setOpenProfilePicModal(false); // Cerrar el modal
+    } catch (err) {
+      console.error("Error updating profile picture", err);
+      alert("Error al actualizar imagen");
+    }
+  };
+  
+  
+ // ****************** FIN IMAGEN DE PERFIL ********************************* //
+
   return (
     <Box
       sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}
@@ -152,9 +365,38 @@ function Test() {
                 <Typography variant="body1">
                   <strong>{t("username")}:</strong> {currentUser.username}
                 </Typography>
+                <ButtonBase
+                  onClick={handleProfilePicClick}
+                  sx={{
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    width: 150,
+                    height: 150,
+                    display: "inline-block",
+                  }}
+                >
+                  <img
+                    src={
+                      currentUser && currentUser.profilePic
+                        ? `http://localhost:5000/uploads/${currentUser.profilePic}`
+                        : "/assets/images/profilepic_default.png"
+                    }
+                    alt="Profile Pic"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+
+                </ButtonBase>
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                />
+
               </>
             )}
-
+            <br></br>
             {token && (
               <Button variant="outlined" onClick={logout} sx={{ mt: 2 }}>
                 {t("logout")}
@@ -354,13 +596,157 @@ function Test() {
           </CardContent>
         </Card>
 
-        {token && (
+        
+        {/* MusicBrainz búsqueda canciones */}
+        <Card sx={{ mt: 4 }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>
+              Buscar Artista
+            </Typography>
+            <TextField
+              fullWidth
+              label="Nombre del artista"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              margin="normal"
+            />
+            <Button variant="contained" onClick={handleSearchArtist}>
+              Buscar
+            </Button>
+
+            {artistResults.length > 0 && (
+              <>
+                <Typography variant="h6" sx={{ mt: 3 }}>Resultados:</Typography>
+                <ul>
+                  {artistResults.map((artist) => (
+                    <li
+                      key={artist.id}
+                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+                    >
+                      <span
+                        onClick={() => handleSelectArtist(artist.id)}
+                        style={{ color: "blue", textDecoration: "underline" }}
+                      >
+                        {artist.name}
+                      </span>                      
+                      <IconButton onClick={() => handleFavoriteToggle(artist.id, "artist")}>
+                        <FontAwesomeIcon
+                          icon={isFavorite(artist.id) ? solidHeart : regularHeart}
+                          style={{ color: isFavorite(artist.id) ? "red" : "gray" }}
+                        />
+                      <span>
+                        ({favoriteCounts.artists?.[artist.id] || 0})
+                      </span>
+                      </IconButton>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {selectedAlbums.length > 0 && (
+          <Card sx={{ mt: 2 }}>
+            <CardContent>
+              <Typography variant="h6">Álbumes del artista</Typography>
+              <ul>
+                {selectedAlbums.map((album) => (
+                  <li
+                    key={album.id}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+                  >
+                    <span
+                      onClick={() => handleSelectAlbum(album.id)}
+                      style={{ color: "green", textDecoration: "underline" }}
+                    >
+                      {album.title}
+                    </span>
+                    <IconButton onClick={() => handleFavoriteToggle(album.id, "album")}>
+
+                      <FontAwesomeIcon
+                        icon={isFavorite(album.id) ? solidHeart : regularHeart}
+                        style={{ color: isFavorite(album.id) ? "red" : "gray" }}
+                      />
+                      <span>
+                        ({favoriteCounts.albums?.[album.id] || 0})
+                      </span>
+                    </IconButton>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
+        {albumSongs.length > 0 && (
+          <Card sx={{ mt: 2 }}>
+            <CardContent>
+              <Typography variant="h6">Canciones del álbum {}</Typography>
+              <ol>
+                {albumSongs.map((song) => (
+                  <li
+                    key={song.id}
+                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+                  >
+                    {song.title}
+                    <IconButton onClick={() => handleFavoriteToggle(song.id, "song")}>
+
+                      <FontAwesomeIcon
+                        icon={isFavorite(song.id) ? solidHeart : regularHeart}
+                        style={{ color: isFavorite(song.id) ? "red" : "gray" }}
+                      />
+                      <span>
+                        ({favoriteCounts.songs?.[song.id] || 0})
+                      </span>
+                    </IconButton>
+                  </li>
+                ))}
+              </ol>
+            </CardContent>
+          </Card>
+        )}
+
+      </Box>  
+      {token && (
           <Typography sx={{ mt: 4 }} fontSize="small" color="text.secondary">
             {t("tokenLabel")}: {token}
           </Typography>
         )}
-      </Box>
+        <Modal open={openProfilePicModal} onClose={() => setOpenProfilePicModal(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "white",
+            padding: 4,
+            borderRadius: 2,
+            boxShadow: 24,
+            width: 300,
+            textAlign: "center"
+          }}
+        >
+          <Typography variant="h6">Actualizar imagen de perfil</Typography>
+          {previewImage && (
+            <img
+              src={resizedImage || previewImage}
+              alt="Preview"
+              style={{ width: 200, height: 200, borderRadius: "50%", marginTop: 16 }}
+            />
+          )}
+          <Button
+            variant="contained"
+            sx={{ mt: 2 }}
+            onClick={handleSaveImage}
+          >
+            Guardar Imagen
+          </Button>
+        </Box>
+      </Modal>
     </Box>
+    
   );
 }
 

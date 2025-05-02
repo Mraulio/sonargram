@@ -1,17 +1,4 @@
-/*const API_URL = "http://localhost:5000/api/data";
-
-export const getData = async () => {
-    try {
-        const res = await fetch(`${API_URL}/`);
-        if (!res.ok) {
-            throw new Error(`Error en la solicitud: ${res.status} ${res.statusText}`);
-        }
-        return await res.json();
-    } catch (error) {
-        console.error("Error al obtener los datos:", error);
-        throw error; // Re-lanzar el error para que el componente lo maneje
-    }
-};
+/*
 
 const BASE_URL = "https://musicbrainz.org/ws/2";
 
@@ -63,7 +50,6 @@ export const getAlbumsByArtist = async (artistId, limit = 100, offset = 0) => {
 
 import { MusicBrainzApi } from "musicbrainz-api";
 
-
 const mbApi = new MusicBrainzApi({
     appName: "Prueba",
     appVersion: "0.1.0",
@@ -108,6 +94,7 @@ export const getAlbumsByArtist = async (artistId, limit = 0, offset = 0) => {
 };
 
 // Obtener canciones de un artista
+/*
 export const getSongsByArtist = async (artistId, limit = 10, offset = 0) => {
     try {
         const result = await mbApi.searchRecording({
@@ -120,7 +107,7 @@ export const getSongsByArtist = async (artistId, limit = 10, offset = 0) => {
         console.error("Error al obtener canciones del artista:", error);
         throw error;
     }
-};
+};*/
 export const getReleasesByReleaseGroup = async (releaseGroupId, limit = 10, offset = 0) => {
     try {
         const result = await mbApi.browse("release", {
