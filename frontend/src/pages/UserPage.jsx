@@ -165,6 +165,7 @@ function UserPage() {
       setCurrentUser({...currentUser, profilePic: `${resp.profilePic}?t=${new Date().getTime()}` }) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
 
       setOpenProfilePicModal(false); // Cerrar el modal
+      window.location.reload();
     } catch (err) {
       console.error("Error updating profile picture", err);
       alert("Error al actualizar imagen");
