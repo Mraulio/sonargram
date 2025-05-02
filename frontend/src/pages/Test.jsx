@@ -59,6 +59,7 @@ function Test() {
     getFavoriteCount
   } = useFavorites(token); // o el nombre de tu variable/token
 
+  const [profilePic, setProfilePic] = useState(null)
 
   useEffect(() => {
     if (token && role === "admin") fetchAllUsers();
@@ -73,6 +74,9 @@ function Test() {
       try {
         const user = await getCurrentUser();
         setCurrentUser(user);
+        setProfilePic (user.profilePic 
+          ? `http://localhost:5000/uploads/${user.profilePic}` 
+          : "/assets/images/profilepic_default.png");       
       } catch (err) {
         console.error("Error fetching current user", err);
       }
@@ -161,7 +165,6 @@ const handleSearchArtist = async () => {
     for (const artist of results) {
       try {
         const count = await getFavoriteCount(artist.id);
-        console.log('count artista', count)
         artistCounts[artist.id] = count || 0;
       } catch {
         artistCounts[artist.id] = 0;
@@ -322,8 +325,12 @@ const handleFavoriteToggle = async (id, type) => {
   
       // Subir la imagen usando el hook
       const resp = await uploadProfilePic(formData); // Esta es la llamada a la API
+      
+      // Crear URL temporal para previsualización
+      const objectUrl = URL.createObjectURL(blob);
+      setProfilePic(objectUrl); // Se mostrará mientras no recargues
 
-      setCurrentUser({...currentUser, profilePic: `${resp.profilePic}?t=${new Date().getTime()}` }) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
+      setCurrentUser({...currentUser, profilePic: resp.profilePic}) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
 
       setOpenProfilePicModal(false); // Cerrar el modal
     } catch (err) {
@@ -376,11 +383,7 @@ const handleFavoriteToggle = async (id, type) => {
                   }}
                 >
                   <img
-                    src={
-                      currentUser && currentUser.profilePic
-                        ? `http://localhost:5000/uploads/${currentUser.profilePic}`
-                        : "/assets/images/profilepic_default.png"
-                    }
+                    src={profilePic}
                     alt="Profile Pic"
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
