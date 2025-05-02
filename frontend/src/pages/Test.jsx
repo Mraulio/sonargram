@@ -146,7 +146,7 @@ function Test() {
     setSelectedUser(null); // Limpiamos los detalles del usuario
   };
 
-  const [searchTerm, setSearchTerm] = useState("");
+const [searchTerm, setSearchTerm] = useState("");
 const [artistResults, setArtistResults] = useState([]);
 const [selectedAlbums, setSelectedAlbums] = useState([]);
 const [albumSongs, setAlbumSongs] = useState([]);
