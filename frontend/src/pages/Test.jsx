@@ -73,7 +73,10 @@ function Test() {
     const fetchCurrent = async () => {
       try {
         const user = await getCurrentUser();
-        setCurrentUser(user);          
+        setCurrentUser(user);   
+        setProfilePic (user && user.profilePic 
+          ? `http://localhost:5000/uploads/${user.profilePic}` 
+          : "/assets/images/profilepic_default.png");         
       } catch (err) {
         console.error("Error fetching current user", err);
       }
@@ -344,8 +347,8 @@ const handleFavoriteToggle = async (id, type) => {
 
   const handleDeleteProfilePic = async () => {
       try {
-        await deleteProfilePic();
-        setCurrentUser({...currentUser, profilePic: null});
+        const resp = await deleteProfilePic();
+        setCurrentUser({...currentUser, profilePic: resp.updatedUser.profilePic});
       } catch (err) {
         alert("Error al eliminar foto de perfil");
         console.error(err);
