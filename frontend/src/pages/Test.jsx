@@ -29,7 +29,7 @@ function Test() {
   const navigate = useNavigate();
   const { token, role, logout } = useContext(UserContext);
 
-  const { users, fetchAllUsers, getUserById, getCurrentUser, registerNewUser, uploadProfilePic } =
+  const { users, fetchAllUsers, getUserById, getCurrentUser, registerNewUser, uploadProfilePic, deleteProfilePic } =
     useUser(token);
 
   const { lists, fetchAllLists, createNewList, removeList } = useList(token);
@@ -73,10 +73,7 @@ function Test() {
     const fetchCurrent = async () => {
       try {
         const user = await getCurrentUser();
-        setCurrentUser(user);
-        setProfilePic (user.profilePic 
-          ? `http://localhost:5000/uploads/${user.profilePic}` 
-          : "/assets/images/profilepic_default.png");       
+        setCurrentUser(user);          
       } catch (err) {
         console.error("Error fetching current user", err);
       }
@@ -85,7 +82,13 @@ function Test() {
     if (token) fetchCurrent();
   }, [token, getCurrentUser]);
 
-   const handleUserClick = async (userId) => {
+  useEffect (() => {
+    setProfilePic (currentUser && currentUser.profilePic 
+      ? `http://localhost:5000/uploads/${currentUser.profilePic}` 
+      : "/assets/images/profilepic_default.png");     
+  }, [currentUser]);
+
+  const handleUserClick = async (userId) => {
     try {
       const user = await getUserById(userId);
       setSelectedUser(user);
@@ -150,7 +153,7 @@ function Test() {
     setSelectedUser(null); // Limpiamos los detalles del usuario
   };
 
-  const [searchTerm, setSearchTerm] = useState("");
+const [searchTerm, setSearchTerm] = useState("");
 const [artistResults, setArtistResults] = useState([]);
 const [selectedAlbums, setSelectedAlbums] = useState([]);
 const [albumSongs, setAlbumSongs] = useState([]);
@@ -338,6 +341,16 @@ const handleFavoriteToggle = async (id, type) => {
       alert("Error al actualizar imagen");
     }
   };
+
+  const handleDeleteProfilePic = async () => {
+      try {
+        await deleteProfilePic();
+        setCurrentUser({...currentUser, profilePic: null});
+      } catch (err) {
+        alert("Error al eliminar foto de perfil");
+        console.error(err);
+      } 
+  };
   
   
  // ****************** FIN IMAGEN DE PERFIL ********************************* //
@@ -396,6 +409,9 @@ const handleFavoriteToggle = async (id, type) => {
                   ref={fileInputRef}
                   onChange={handleImageChange}
                 />
+                 <Button variant="outlined" onClick={handleDeleteProfilePic} sx={{ mt: 2 }}>
+                Delete profile pic
+                </Button>
 
               </>
             )}

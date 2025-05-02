@@ -110,6 +110,32 @@ const uploadProfilePic = async (req, res) => {
   }
 };
 
+const deleteProfilePic = async (req, res) => {
+  const { userId, role } = req.user; // Info del token
+
+  try {
+    // Reglas de autorización (solo el propio usuario o un admin puede subir la imagen)
+    if (req.user.userId !== userId && role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }   
+
+    // Actualizar el perfil del usuario en la base de datos
+    const updatedUser = await User.findByIdAndUpdate(
+      userId, // Usamos el userId extraído del token
+      { $set: { profilePic: null } },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: 'Profile picture deleted',
+      updatedUser: updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+
+}
 
 const deleteUser = async (req, res) => {
   const { id } = req.params;
@@ -251,6 +277,7 @@ module.exports = {
   registerUser,
   updateUser,
   uploadProfilePic,
+  deleteProfilePic,
   loginUser,
   getCurrentUser,
   getAllUsers,

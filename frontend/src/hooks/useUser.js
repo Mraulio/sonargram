@@ -80,6 +80,16 @@ export default function useUsers(token) {
     }
   };
 
+  const deleteProfilePic = async () => {
+    try {
+      const response = await api.deleteProfilePic( token);
+      return response;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
   return {
     users,
     loading,
@@ -91,5 +101,6 @@ export default function useUsers(token) {
     getUserById,
     getUserByEmail,
     uploadProfilePic,
+    deleteProfilePic,
   };
 }
