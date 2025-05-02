@@ -45,7 +45,7 @@ export const removeSongFromList = async (listId, musicbrainzId, token) => {
 // Actualizar nombre de lista
 export const updateListName = async (listId, newName, token) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.put(`/lists/${listId}/name`, newName );
+  const response = await apiClient.put(`/lists/${listId}/name`, {newName} );
   return response.data;
 };
 

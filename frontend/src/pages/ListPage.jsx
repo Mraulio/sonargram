@@ -24,7 +24,7 @@ function ListPage() {
            removeList,
            renameList,
            fetchListsByUser,
-           setLists
+           getAllLists
          } = useList(token);
           
          const handleSearchListByUser = async () => {
@@ -57,8 +57,8 @@ function ListPage() {
           setLoading(true);
           setError(null);
           try {
-            // Obtén todas las listas
-            const data = await fetchAllLists();
+            const data = await getAllLists(); // Llama a la nueva función
+            console.log('Fetched lists:', data); // Depuración
         
             // Filtra las listas cuyo nombre contenga el texto ingresado
             const filteredLists = data.filter(list =>
@@ -66,13 +66,13 @@ function ListPage() {
             );
         
             setSearchResults(filteredLists); // Actualiza el estado con las listas filtradas
-            console.log('Filtered lists:', filteredLists); // Agrega esta línea para depurar
+            console.log('Filtered lists:', filteredLists); // Depuración
           } catch (err) {
             setError(err.message || 'Error fetching lists');
           } finally {
             setLoading(false);
           }
-        }, [fetchAllLists, listName]);
+        }, [getAllLists, listName]);
 
             const handleCreateList = async () => {
               try {
@@ -229,15 +229,6 @@ function ListPage() {
                 <Typography variant="body2" color="text.secondary">
                   {t('Creador de la lista')}: {l.creator.name || t('unknown')}
                 </Typography>
-                <Button
-                  variant="outlined"
-                  color="warning"
-                  size="small"
-                  onClick={() => handleOpenListModal(l)}
-                  sx={{ ml: 2 }}>
-                  {t('edit')}
-                </Button>
-                <Button onClick={() => handleDeleteList(l._id)} color="error">{t('delete')}</Button>
               </Box>
             </CardContent>
           </Card>

@@ -101,6 +101,16 @@ export default function useList(token) {
     }
   };
 
+  const getAllLists = useCallback(async () => {
+    try {
+      const data = await listaApi.getAllLists(token); // Llama a la API
+      return data; // Devuelve los datos directamente
+    } catch (err) {
+      console.error('Error fetching all lists:', err);
+      throw err; // Lanza el error para manejarlo en otro lugar
+    }
+  }, [token]);
+
   return {
     lists,
     loading,
@@ -112,6 +122,7 @@ export default function useList(token) {
     renameList,
     addSong,
     removeSong,
-    fetchListById
+    fetchListById,
+    getAllLists,
   };
 }

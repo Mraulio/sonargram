@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import * as api from '../api/internal/userApi';
 
+
 export default function useUsers(token) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,11 +20,12 @@ export default function useUsers(token) {
     }
   }, [token]);
 
+  
+
   const deleteUser = async (userId) => {
     try {
       
       await api.deleteUser(userId, token);
-      console.log('Deleting user with ID:', userId); // Log para depuración
       setUsers(prev => prev.filter(user => user._id !== userId));
     } catch (err) {
       console.error('Error deleting user:', err);
@@ -72,7 +74,6 @@ export default function useUsers(token) {
     }
   };
 
-<<<<<<< HEAD
   const registerNewUser = async (userData) => {
     try {
       const newUser = await api.registerUser(userData, token); // Llama a la API para registrar el usuario
@@ -80,7 +81,9 @@ export default function useUsers(token) {
     } catch (err) {
       console.error('Error registering new user:', err);
       throw err; // Propaga el error para manejarlo en el componente
-=======
+    }
+  };
+
   const uploadProfilePic = async (formData) => {
     try {
       const response = await api.uploadProfilePic(formData, token);
@@ -88,10 +91,8 @@ export default function useUsers(token) {
     } catch (err) {
       setError(err.message);
       throw err;
->>>>>>> develop
     }
   };
-
   return {
     users,
     loading,
@@ -102,10 +103,7 @@ export default function useUsers(token) {
     updateUser,
     getUserById,
     getUserByEmail,
-<<<<<<< HEAD
     registerNewUser,
-=======
-    uploadProfilePic,
->>>>>>> develop
+    uploadProfilePic
   };
 }
