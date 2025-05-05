@@ -14,6 +14,7 @@ function UserPage() {
         const [userName, setUserName] = useState('');
         const [userUsername, setUserUsername] = useState('');
         const [userEmail, setUserEmail] = useState('');
+        const [userBio, setUserBio] = useState('');
         const [openModal, setOpenModal] = useState(false);
         const [openProfilePicModal, setOpenProfilePicModal] = useState(false);
         const { token, role, logout, login } = useContext(UserContext);
@@ -43,6 +44,8 @@ function UserPage() {
                 setUserUsername(user.username);
                 setUserEmail(user.email);
                 setUserId(user._id); 
+
+                setUserBio(user.bio); // Asignamos la biografía al estado
               }
             } catch (err) {
               console.error('Error fetching current user:', err);
@@ -82,6 +85,7 @@ function UserPage() {
             // Solo enviar los campos permitidos por el backend
             const updates = {
               name: userName,
+              bio: userBio
             };
         
             await updateUser(userId, updates); // Llama a la función updateUser con los datos permitidos
@@ -226,6 +230,13 @@ function UserPage() {
           onChange={(e) => setUserName(e.target.value)}
           margin="normal"
         />
+        <TextField
+          fullWidth
+          label={t('bio')} // Etiqueta traducida para la biografía
+          value={userBio} // Estado para la biografía
+          onChange={(e) => setUserBio(e.target.value)} // Actualiza el estado de la biografía
+          margin="normal"/>
+          
         <Button
           variant="contained"
           onClick={() =>

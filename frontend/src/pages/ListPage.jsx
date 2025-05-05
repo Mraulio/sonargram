@@ -120,19 +120,17 @@ function ListPage() {
             
             const handleSaveListChanges = async () => {
               try {
-                // Convierte la cadena de canciones a un array de objetos
+                // Convierte la cadena de canciones a un array de objetos (si es necesario)
                 const updatedSongs = songs
                   .split(',')
                   .map(s => s.trim())
                   .filter(s => s !== '')
                   .map(id => ({ musicbrainzId: id }));
             
-                // Solo enviar los campos permitidos por el backend
-                const updates = {
-                  name: listName,
-                };
-            
-                await renameList(editingList._id, updates); // Llama a la función updateList con los datos permitidos
+                // Llama a renameList con el ID de la lista y el nuevo nombre
+                console.log('List updated:', editingList._id, listName);
+                await renameList(editingList._id, listName);
+                
                 alert(t('listUpdated')); // Mensaje de éxito
                 setOpen(false); // Cierra el modal
                 fetchAllLists(); // Actualiza la lista de listas
