@@ -61,7 +61,7 @@ export const searchArtists = async (artista) => {
     try {
         const result = await mbApi.search('artist', 
             {query: artista,
-             limit:1
+             limit:5
             });
         console.log(result.artists)
 

@@ -29,7 +29,7 @@ function Test() {
   const navigate = useNavigate();
   const { token, role, logout } = useContext(UserContext);
 
-  const { users, fetchAllUsers, getUserById, getCurrentUser, registerNewUser, uploadProfilePic } =
+  const { users, fetchAllUsers, getUserById, getCurrentUser, registerNewUser, uploadProfilePic, deleteProfilePic } =
     useUser(token);
 
   const { lists, fetchAllLists, createNewList, removeList } = useList(token);
@@ -59,6 +59,7 @@ function Test() {
     getFavoriteCount
   } = useFavorites(token); // o el nombre de tu variable/token
 
+  const [profilePic, setProfilePic] = useState(null)
 
   useEffect(() => {
     if (token && role === "admin") fetchAllUsers();
@@ -72,7 +73,10 @@ function Test() {
     const fetchCurrent = async () => {
       try {
         const user = await getCurrentUser();
-        setCurrentUser(user);
+        setCurrentUser(user);   
+        setProfilePic (user && user.profilePic 
+          ? `http://localhost:5000/uploads/${user.profilePic}` 
+          : "/assets/images/profilepic_default.png");         
       } catch (err) {
         console.error("Error fetching current user", err);
       }
@@ -81,7 +85,13 @@ function Test() {
     if (token) fetchCurrent();
   }, [token, getCurrentUser]);
 
-   const handleUserClick = async (userId) => {
+  useEffect (() => {
+    setProfilePic (currentUser && currentUser.profilePic 
+      ? `http://localhost:5000/uploads/${currentUser.profilePic}` 
+      : "/assets/images/profilepic_default.png");     
+  }, [currentUser]);
+
+  const handleUserClick = async (userId) => {
     try {
       const user = await getUserById(userId);
       setSelectedUser(user);
@@ -161,7 +171,6 @@ const handleSearchArtist = async () => {
     for (const artist of results) {
       try {
         const count = await getFavoriteCount(artist.id);
-        console.log('count artista', count)
         artistCounts[artist.id] = count || 0;
       } catch {
         artistCounts[artist.id] = 0;
@@ -322,14 +331,28 @@ const handleFavoriteToggle = async (id, type) => {
   
       // Subir la imagen usando el hook
       const resp = await uploadProfilePic(formData); // Esta es la llamada a la API
+      
+      // Crear URL temporal para previsualización
+      const objectUrl = URL.createObjectURL(blob);
+      setProfilePic(objectUrl); // Se mostrará mientras no recargues
 
-      setCurrentUser({...currentUser, profilePic: `${resp.profilePic}?t=${new Date().getTime()}` }) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
+      setCurrentUser({...currentUser, profilePic: resp.profilePic}) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
 
       setOpenProfilePicModal(false); // Cerrar el modal
     } catch (err) {
       console.error("Error updating profile picture", err);
       alert("Error al actualizar imagen");
     }
+  };
+
+  const handleDeleteProfilePic = async () => {
+      try {
+        const resp = await deleteProfilePic();
+        setCurrentUser({...currentUser, profilePic: resp.updatedUser.profilePic});
+      } catch (err) {
+        alert("Error al eliminar foto de perfil");
+        console.error(err);
+      } 
   };
   
   
@@ -376,11 +399,7 @@ const handleFavoriteToggle = async (id, type) => {
                   }}
                 >
                   <img
-                    src={
-                      currentUser && currentUser.profilePic
-                        ? `http://localhost:5000/uploads/${currentUser.profilePic}`
-                        : "/assets/images/profilepic_default.png"
-                    }
+                    src={profilePic}
                     alt="Profile Pic"
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
@@ -393,6 +412,9 @@ const handleFavoriteToggle = async (id, type) => {
                   ref={fileInputRef}
                   onChange={handleImageChange}
                 />
+                 <Button variant="outlined" onClick={handleDeleteProfilePic} sx={{ mt: 2 }}>
+                Delete profile pic
+                </Button>
 
               </>
             )}

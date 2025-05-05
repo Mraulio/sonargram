@@ -118,3 +118,14 @@ export const uploadProfilePic = async (formData, token) => {
   }
 };
 
+export const deleteProfilePic = async (token) => {
+  try {
+    const apiClient = getApiClientWithToken(token);
+    const response = await apiClient.delete('/users/delete-profile-pic');
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting profile picture:", error);
+    throw error;
+  }
+};
+
