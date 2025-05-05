@@ -12,7 +12,6 @@ router.put('/update/:id', requireAuth, updateUser);
 
 router.post('/upload-profile-pic', requireAuth, upload.single('profilePic'), uploadProfilePic);
 
-
 router.get('/', requireAuth, requireAdmin, getAllUsers);  // Ruta para obtener todos los usuarios
 
 router.get('/me', requireAuth, getCurrentUser);

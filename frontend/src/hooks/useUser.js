@@ -19,7 +19,6 @@ export default function useUsers(token) {
       setLoading(false);
     }
   }, [token]);
-
   
 
   const deleteUser = async (userId) => {

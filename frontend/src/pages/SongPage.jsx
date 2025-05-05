@@ -10,6 +10,7 @@ import Menu from '../components/Menu';
 function SongPage() {
     const navigate = useNavigate();
     const { t } = useTranslation();  // Hook para obtener las traducciones
+    
 
     return(
         <Box>
