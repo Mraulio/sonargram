@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const listController = require('../controllers/listController');
-const { requireAuth } = require('../middleware/auth'); // Asegúrate de tener este middleware
+const { requireAuth, requireAdmin } = require('../middleware/auth'); 
 
 // Crear nueva lista (autenticado)
 router.post('/', requireAuth, listController.createList);
@@ -11,6 +11,9 @@ router.get('/', requireAuth, listController.getLists);
 
 // Obtener listas de un usuario específico
 router.get('/user/:userId', requireAuth, listController.getListsByUser);
+
+// Obtener listas de un usuario en específico 
+router.get('/:listId', listController.getListById);
 
 // Añadir canción a una lista (autenticado)
 router.post('/:listId/songs', requireAuth, listController.addSongToList);

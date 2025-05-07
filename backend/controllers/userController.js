@@ -139,7 +139,6 @@ const deleteProfilePic = async (req, res) => {
 }
 
 const deleteUser = async (req, res) => {
-  console.log("llegaste")
   const { id } = req.params;
   const { userId, role } = req.user; // Datos del usuario autenticado
 

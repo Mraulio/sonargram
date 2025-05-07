@@ -61,7 +61,6 @@ export default function useList(token) {
   const renameList = async (listId, newName) => {
     try {
       const updatedList = await listaApi.updateListName(listId, newName, token);
-      console.log('Updated list:', updatedList);
       setLists(prev =>
         prev.map(list => (list._id === listId ? updatedList : list))
       );
@@ -99,18 +98,8 @@ export default function useList(token) {
       setError(err.message);
       return null;
     }
+    
   };
-
-  const getAllLists = useCallback(async () => {
-    try {
-      const data = await listaApi.getAllLists(token); // Llama a la API
-      return data; // Devuelve los datos directamente
-    } catch (err) {
-      console.error('Error fetching all lists:', err);
-      throw err; // Lanza el error para manejarlo en otro lugar
-    }
-  }, [token]);
-
   return {
     lists,
     loading,

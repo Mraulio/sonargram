@@ -38,7 +38,7 @@ function App() {
       <Routes>
         <Route path="/" element={!token ? <IndexPage /> : <Navigate to="/dashboard" />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/test" element={<Test />} />
+        <Route path="/test" element={<PrivateRoute><Test/></PrivateRoute>} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
         <Route path="/admin" element={<PrivateRoute><AdminPage/></PrivateRoute>} />
         <Route path="/editUser/:id" element={<PrivateRoute><EditUser/></PrivateRoute>} />

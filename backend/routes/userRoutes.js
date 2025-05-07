@@ -11,7 +11,7 @@ router.post('/login', loginUser);
 router.put('/update/:id', requireAuth, updateUser);
 
 router.post('/upload-profile-pic', requireAuth, upload.single('profilePic'), uploadProfilePic);
-
+router.delete('/delete-profile-pic', requireAuth, deleteProfilePic);
 
 router.get('/', requireAuth, getAllUsers);  // Ruta para obtener todos los usuarios
 
@@ -23,6 +23,6 @@ router.get('/email/:email', requireAuth, getUserByEmail);
 
 
 // Borar por ID de Mongo
-router.delete('/:id', requireAuth, requireAdmin, deleteUser);
+router.delete('/:id', requireAuth, deleteUser);
 
 module.exports = router;
