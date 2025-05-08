@@ -5,6 +5,7 @@ import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormCon
 import Menu from '../components/Menu';
 import { getAllUsers } from '../api/internal/userApi'
 import useList from '../hooks/useList';
+import useFollow from '../hooks/useFollow';
 
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -13,6 +14,7 @@ function Dashboard() {
   const { token, role, logout, user} = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { follower, follow } = useFollow(token);
 
  
 
@@ -39,6 +41,15 @@ function Dashboard() {
     }
   }, [token, userUsername]);
 
+  const handleFollow = async (followedId) => {
+    try {
+      await follow(followedId); // Llama a la función `follow`
+      alert(t('userFollowed')); // Muestra un mensaje de éxito
+    } catch (err) {
+      console.error('Error following user:', err);
+      alert(t('errorFollowingUser')); // Muestra un mensaje de error
+    }
+  };
 
 
   return (
@@ -82,11 +93,21 @@ function Dashboard() {
   <CardContent>
     <Typography variant="h6">{t('searchResults')}</Typography>
     {loading ? (
-      <Typography>{t('loading')}</Typography>) : error ? (<Typography color="error">{error}</Typography>) : users.length > 0 ? (
+      <Typography>{t('loading')}</Typography>
+    ) : error ? (
+      <Typography color="error">{error}</Typography>
+    ) : users.length > 0 ? (
       <ul>
         {users.map(user => (
           <li key={user._id}>
             {user.name} ({user.username})
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleFollow(user._id)} // Llama a `handleFollow` con el ID del usuario
+            >
+              {t('follow')}
+            </Button>
           </li>
         ))}
       </ul>

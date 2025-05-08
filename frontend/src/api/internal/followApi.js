@@ -1,9 +1,9 @@
-import createApiClient from '../config/apiClient'; // Ajustá la ruta si es diferente
+import createApiClient from './apiClient'; // Ajustá la ruta si es diferente
 
 // Seguir a un usuario
 export const followUser = async (followedId, token) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.post(`/follows/${followedId}`);
+  const response = await apiClient.post(`/follow/${followedId}`);
   return response.data;
 };
 
