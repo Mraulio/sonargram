@@ -112,6 +112,5 @@ export default function useList(token) {
     addSong,
     removeSong,
     fetchListById,
-    getAllLists,
   };
 }
