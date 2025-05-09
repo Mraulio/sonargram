@@ -24,6 +24,6 @@ export const getFollowers = async (userId, token) => {
 // Obtener los usuarios que un usuario está siguiendo
 export const getFollowing = async (userId, token) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.get(`/follows/following/${userId}`);
+  const response = await apiClient.get(`/follow/following/${userId}`);
   return response.data;
 };

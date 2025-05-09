@@ -54,68 +54,68 @@ function Dashboard() {
 
   return (
     <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', width: '100vw' }}>
-    <Menu></Menu>
-    <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
-      
-      {/* Estado de sesión */}
-      <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ color: token ? 'green' : 'red' }}>
-            {token ? t('userLoggedIn', { role }) : t('noUserLoggedIn')}
-          </Typography>
-          {token && (
-            <Button variant="outlined" onClick={logout} sx={{ mt: 1 }}>
-              {t('logout')}
-            </Button>
-          )}
-        </CardContent>
-      </Card>     
-      
-      <Card>
-  <CardContent>
-    <Typography variant="h5">{t('findUsers')}</Typography>
-    <TextField
-      fullWidth
-      label={t('userName')}
-      onChange={e => setUserUsername(e.target.value)}
-      onKeyDown={e => {
-        if (e.key === 'Enter') {
-          handleSearchUser();
-        }
-      }}
-      margin="normal"
-    />
-  </CardContent>
-</Card>
+      <Menu></Menu>
+      <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
+        
+        {/* Estado de sesión */}
+        <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
+          <CardContent>
+            <Typography variant="h6" sx={{ color: token ? 'green' : 'red' }}>
+              {token ? t('userLoggedIn', { role }) : t('noUserLoggedIn')}
+            </Typography>
+            {token && (
+              <Button variant="outlined" onClick={logout} sx={{ mt: 1 }}>
+                {t('logout')}
+              </Button>
+            )}
+          </CardContent>
+        </Card>     
+        
+        <Card>
+          <CardContent>
+            <Typography variant="h5">{t('findUsers')}</Typography>
+            <TextField
+              fullWidth
+              label={t('userName')}
+              onChange={e => setUserUsername(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  handleSearchUser();
+                }
+              }}
+              margin="normal"
+            />
+          </CardContent>
+        </Card>
 
-{/* Mostrar los usuarios obtenidos */}
-<Card>
-  <CardContent>
-    <Typography variant="h6">{t('searchResults')}</Typography>
-    {loading ? (
-      <Typography>{t('loading')}</Typography>
-    ) : error ? (
-      <Typography color="error">{error}</Typography>
-    ) : users.length > 0 ? (
-      <ul>
-        {users.map(user => (
-          <li key={user._id}>
-            {user.name} ({user.username})
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => handleFollow(user._id)} // Llama a `handleFollow` con el ID del usuario
-            >
-              {t('follow')}
-            </Button>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <Typography>{t('noResults')}</Typography>
-    )}
-  </CardContent>
-</Card>
+        {/* Mostrar los usuarios obtenidos */}
+        <Card>
+          <CardContent>
+            <Typography variant="h6">{t('searchResults')}</Typography>
+            {loading ? (
+              <Typography>{t('loading')}</Typography>
+            ) : error ? (
+              <Typography color="error">{error}</Typography>
+            ) : users.length > 0 ? (
+              <ul>
+                {users.map(user => (
+                  <li key={user._id}>
+                    {user.name} ({user.username})
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleFollow(user._id)} // Llama a `handleFollow` con el ID del usuario
+                    >
+                      {t('follow')}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Typography>{t('noResults')}</Typography>
+            )}
+          </CardContent>
+        </Card>
 
       </Box>
     </Box>

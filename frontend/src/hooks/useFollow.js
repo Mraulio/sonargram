@@ -47,6 +47,7 @@ const useFollow = (token) => {
     try {
       const data = await getFollowing(userId, token);
       setFollowing(data);
+      return data;
     } catch (err) {
       console.error('Error fetching following:', err);
     }
