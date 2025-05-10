@@ -4,7 +4,7 @@ import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import Menu from '../components/Menu';
 import { getAllUsers } from '../api/internal/userApi'
-import useList from '../hooks/useList';
+import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
 
 function Dashboard() {
@@ -14,8 +14,9 @@ function Dashboard() {
   const { token, role, logout, user} = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { follower, follow } = useFollow(token);
-
+  const { follower, follow, fetchFollowing } = useFollow(token);
+  const { getCurrentUser, fetchAllUsers } = useUser(token);
+  const [followedIds, setFollowedIds] = useState([]);
  
 
   const handleSearchUser = useCallback(async () => {
@@ -24,16 +25,22 @@ function Dashboard() {
     try {
       // Obtén todos los usuarios
       const data = await getAllUsers(token);
+      const currentUser = await getCurrentUser(token); // Obtiene el usuario actual
 
       // Verifica que userUsername no sea undefined o vacío
   
       // Filtra los usuarios cuyo username contenga el texto ingresado
       const filteredUsers = data.filter(user =>
-        user.username.toLowerCase().includes(userUsername.toLowerCase())
-      );
+       user._id !== currentUser._id &&
+      user.username.toLowerCase().includes(userUsername.toLowerCase())
+    );
   
       setUsers(filteredUsers); // Actualiza el estado con los usuarios filtrados
-      console.log('Filtered users:', filteredUsers); // Agrega esta línea para depurar
+
+      const followingList = await fetchFollowing(currentUser._id); // Obtiene la lista de usuarios seguidos por el usuario actual
+      const followedIds = followingList.map(f => f.followed._id); // Extrae los IDs de los usuarios seguidos
+      setFollowedIds(followedIds); // Guardar en estado
+
     } catch (err) {
       setError(err.message || 'Error fetching users');
     } finally {
@@ -44,6 +51,7 @@ function Dashboard() {
   const handleFollow = async (followedId) => {
     try {
       await follow(followedId); // Llama a la función `follow`
+      setFollowedIds(prev => [...prev, followedId]);
       alert(t('userFollowed')); // Muestra un mensaje de éxito
     } catch (err) {
       console.error('Error following user:', err);
@@ -101,13 +109,20 @@ function Dashboard() {
                 {users.map(user => (
                   <li key={user._id}>
                     {user.name} ({user.username})
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleFollow(user._id)} // Llama a `handleFollow` con el ID del usuario
-                    >
-                      {t('follow')}
-                    </Button>
+                    {followedIds.includes(user._id) ? (
+                      <Typography sx={{ ml: 2, color: 'green', display: 'inline-block' }}>
+                        {t('following')}
+                      </Typography>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleFollow(user._id)}
+                        sx={{ ml: 2 }}
+                      >
+                        {t('follow')}
+                      </Button>
+                    )}
                   </li>
                 ))}
               </ul>
