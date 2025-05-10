@@ -3,7 +3,7 @@ const Rating = require ('../models/Rating.js');
 
 const rateItem = async (req, res) => {
   const { mbid, type, rating } = req.body;
-  const { userId } = req.user.userId;
+  const { userId } = req.user;
 
   if (!mbid || !type || !rating) {
     return res.status(400).json({ message: 'Missing data' });
@@ -13,18 +13,18 @@ const rateItem = async (req, res) => {
     const updated = await Rating.findOneAndUpdate(
       { userId, mbid, type },
       { rating },
-      { new: true, upsert: true, setDefaultsOnInsert: true }
+      { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true  }
     );
 
     res.status(200).json({ message: 'Rating saved', rating: updated });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: error });
   }
 };
 
 const getRatingsByUser = async (req, res) => {
-  const { userId } = req.user.userId;
+  const { userId } = req.user;
   try {
     const ratings = await Rating.find({ userId });
     res.status(200).json(ratings);
@@ -48,7 +48,7 @@ const getRatingsByItem = async (req, res) => {
   
 const deleteRating = async (req, res) => {
     const { mbid } = req.params;
-    const { userId } = req.user.userId;
+    const { userId } = req.user;
   
     if (!mbid) {
       return res.status(400).json({ message: 'Missing mbid or type' });
