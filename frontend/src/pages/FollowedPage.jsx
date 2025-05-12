@@ -12,9 +12,8 @@ function FollowedPage() {
     const navigate = useNavigate();
     const { t } = useTranslation();  // Hook para obtener las traducciones
     const { token } = useContext(UserContext);
-    const {  fetchFollowing } = useFollow(token);
+    const {  following, fetchFollowing } = useFollow(token);
     const { getCurrentUser } = useUser(token);
-    const [followedList, setFollowedList] = useState([]);
 
     const handleFetchFollowers = async () => {
     try {
@@ -23,11 +22,7 @@ function FollowedPage() {
         console.error('No user ID found');
         return;
         }
-        console.log('Current user ID:', user._id); // Verifica que obtienes el ID del usuario actual
-        const followedList = await fetchFollowing(user._id); // Llama a la función fetchFollowers con el ID del usuario actual
-        console.log(followedList);
-        setFollowedList(followedList); // Actualiza el estado con la lista de seguidores
-
+        await fetchFollowing(user._id); // Llama a la función fetchFollowers con el ID del usuario actual
         } catch (err) {
         console.error('Error fetching followers:', err);
     }
@@ -43,7 +38,7 @@ function FollowedPage() {
             <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'column', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
                 <Typography variant="h6" sx={{ mb: 2 }}>{t('usersFollowed')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
-                    {followedList.map(f => (
+                    {following.map(f => (
                         f.followed ? (
                             <Card key={f.followed._id} sx={{ width: '500px', p: 2 }}>
                                 <CardContent>

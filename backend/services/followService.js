@@ -39,7 +39,7 @@ async function unfollowUser(followerId, followedId) {
 }
 
 async function getFollowers(userId) {
-  return Follow.find({ followed: userId });
+  return Follow.find({ followed: userId }).populate('follower'); // Relacionamos el "follower" con los usuarios que siguen
 }
 
 // Obtener los usuarios que sigue un usuario
