@@ -149,7 +149,7 @@ const deleteUser = async (req, res) => {
     }
 
     // Solo puede eliminarse a sí mismo o si es admin
-    if (userToDelete._id.toString()!== userId && role !== 'admin') {
+    if (userToDelete._id.toString() !== userId && role !== 'admin') {
       return res.status(403).json({ message: 'Access denied' });
     }
 

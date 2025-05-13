@@ -11,27 +11,30 @@ function ListPage() {
     const { token, role, logout } = useContext(UserContext);
     const [editingList, setEditingList] = useState(null); // Estado para la lista en edición
     const [listName, setListName] = useState(''); // Estado para el nombre de la lista
+    const [searchListName, setSearchListName] = useState(''); // Estado para el nombre de la lista a buscar
+    const [editListName, setEditListName] = useState(''); // Estado para el nombre de la lista a editar
     const [songs, setSongs] = useState(''); // Estado para las canciones de la lista
     const [open, setOpen] = useState(false); // Estado para controlar el modal
     const [loading, setLoading] = useState(false);
-    const {users, getCurrentUser} = useUser(token);
+    const {user, getCurrentUser} = useUser(token);
     const [error, setError] = useState(null);
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
      const {
            lists,
+           userLists,
            fetchAllLists,
            createNewList,
            removeList,
            renameList,
            fetchListsByUser,
-           getAllLists
          } = useList(token);
-          
+        
          const handleSearchListByUser = async () => {
           try {
             // Obtén el usuario actual utilizando getCurrentUser
-            const currentUser = await getCurrentUser();
-            if (!currentUser || !currentUser._id) {
+            const currentUser= await getCurrentUser();
+            console.log('Current user:', currentUser); // Depuración
+            if (!currentUser|| !currentUser._id) {
               alert(t('errorFetchingUserId')); // Mensaje de error si no se puede obtener el usuario
               return;
             }
@@ -50,6 +53,7 @@ function ListPage() {
         useEffect(() => {
           if (token) {
             handleSearchListByUser(); // Llama a la función para buscar listas del usuario actual
+            fetchAllLists(); // Llama a la función para obtener todas las listas
           }
         }, [token]);
 
@@ -57,12 +61,10 @@ function ListPage() {
           setLoading(true);
           setError(null);
           try {
-            const data = await getAllLists(); // Llama a la nueva función
-            console.log('Fetched lists:', data); // Depuración
         
             // Filtra las listas cuyo nombre contenga el texto ingresado
-            const filteredLists = data.filter(list =>
-              list.name.toLowerCase().includes(listName.toLowerCase())
+            const filteredLists = lists.filter(list =>
+              list.name.toLowerCase().includes(searchListName.toLowerCase())
             );
         
             setSearchResults(filteredLists); // Actualiza el estado con las listas filtradas
@@ -72,21 +74,23 @@ function ListPage() {
           } finally {
             setLoading(false);
           }
-        }, [getAllLists, listName]);
+        },);
 
-            const handleCreateList = async () => {
-              try {
-                const songArray = songs
-                  .split(',')
-                  .map(s => s.trim())
-                  .filter(s => s !== '')
-                  .map(id => ({ musicbrainzId: id }));
+        const handleCreateList = async () => {
+          try {
+            const songArray = songs
+              .split(',')
+              .map(s => s.trim())
+              .filter(s => s !== '')
+              .map(id => ({ musicbrainzId: id }));
           
-                await createNewList({ name: listName, songs: songArray });
+              await createNewList({ name: listName, songs: songArray });
+              const currentUser= await getCurrentUser();
+              fetchListsByUser(currentUser._id); // Actualiza la lista de listas
           
-                alert('List created');
-                setListName('');
-                setSongs('');
+              alert('List created');
+              setListName('');
+              setSongs('');
               } catch (err) {
                 alert('Error creating list');
                 console.error(err);
@@ -100,6 +104,8 @@ function ListPage() {
                 try {
                   console.log('Deleting list with ID:', listId); // Debugging line
                   await removeList(listId);
+                  const currentUser= await getCurrentUser();
+                  fetchListsByUser(currentUser._id); // Actualiza la lista de listas
                 } catch (err) {
                   alert(t('errorDeletingList'));
                   console.error(err);
@@ -107,8 +113,10 @@ function ListPage() {
               };
 
             const handleOpenListModal = (list) => {
+              console.log('Opening modal for list:', list); // Debugging line
+              console.log('List name:', list.name); // Debugging line
               setEditingList(list); // Establece la lista en edición
-              setListName(list.name); // Establece el nombre de la lista en el estado
+              setEditListName(list.name); // Establece el nombre de la lista en el estado
               setSongs(list.songs.map(song => song.musicbrainzId).join(', ')); // Convierte los IDs de canciones a una cadena separada por comas
               setOpen(true); // Abre el modal
             };
@@ -128,12 +136,13 @@ function ListPage() {
                   .map(id => ({ musicbrainzId: id }));
             
                 // Llama a renameList con el ID de la lista y el nuevo nombre
-                console.log('List updated:', editingList._id, listName);
-                await renameList(editingList._id, listName);
+                console.log('List updated:', editingList._id, editListName);
+                await renameList(editingList._id, editListName);
                 
                 alert(t('listUpdated')); // Mensaje de éxito
                 setOpen(false); // Cierra el modal
-                fetchAllLists(); // Actualiza la lista de listas
+                const currentUser= await getCurrentUser();
+                fetchListsByUser(currentUser._id); // Actualiza la lista de listas
               } catch (err) {
                 console.error('Error updating list:', err);
             
@@ -155,7 +164,7 @@ function ListPage() {
                 <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: '90vw', mx: 'auto' }}>
                   <Typography variant="h6" sx={{ mb: 2 }}>{t('Listas')}</Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                    {lists.map(l => (
+                    {userLists.map(l => (
                       <Card key={l._id} sx={{ width: '500px', p: 2 }}>
                         <CardContent>
                           <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
@@ -200,9 +209,9 @@ function ListPage() {
                     <Typography variant="h5" gutterBottom>{t('showList')}</Typography>
                     <TextField
                         fullWidth
-                        label={t('listName')}
-                        value={listName}
-                        onChange={e => setListName(e.target.value)}
+                        label={t('searchListName')}
+                        value={searchListName}
+                        onChange={e => setSearchListName(e.target.value)}
                         margin="normal"
                     />
                     <Button variant="contained" onClick={handleSearchListByName} sx={{ mt: 2 }}>
@@ -212,50 +221,50 @@ function ListPage() {
                 
             </Card>
             {searchResults.length > 0 && (
-    <CardContent>
-      <Typography variant="h6" sx={{ mt: 2 }}>{t('searchResults')}</Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-        {searchResults.map(l => (
-          <Card key={l._id} sx={{ width: '500px', p: 2 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
-              <Divider sx={{ my: 1 }} />
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                {t('Canciones')}: {l.songs.join(', ')}
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body2" color="text.secondary">
-                  {t('Creador de la lista')}: {l.creator.name || t('unknown')}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
-    </CardContent>
-  )}     
-                {/* Modal para renombrar la lista */}
-                <Dialog open={open} onClose={handleCloseListModal}>
-                  <DialogTitle>{t('editList')}</DialogTitle>
-                  <DialogContent>
-                    <TextField
-                      fullWidth
-                      label={t('listName')}
-                      value={listName}
-                      onChange={(e) => setListName(e.target.value)}
-                      margin="normal"
-                    />
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={handleSaveListChanges} variant="contained" color="primary">
-                      {t('save')}
-                    </Button>
-                    <Button onClick={handleCloseListModal} color="secondary">
-                      {t('cancel')}
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              </Box>
+              <CardContent>
+                <Typography variant="h6" sx={{ mt: 2 }}>{t('searchResults')}</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  {searchResults.map(l => (
+                    <Card key={l._id} sx={{ width: '500px', p: 2 }}>
+                      <CardContent>
+                        <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
+                        <Divider sx={{ my: 1 }} />
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                          {t('Canciones')}: {l.songs.join(', ')}
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant="body2" color="text.secondary">
+                            {t('Creador de la lista')}: {l.creator.name || t('unknown')}
+                          </Typography>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Box>
+              </CardContent>
+            )}     
+            {/* Modal para renombrar la lista */}
+              <Dialog open={open} onClose={handleCloseListModal}>
+                <DialogTitle>{t('editList')}</DialogTitle>
+                <DialogContent>
+                  <TextField
+                    fullWidth
+                    label={t('editListName')}
+                    value={editListName}
+                    onChange={(e) => setEditListName(e.target.value)}
+                    margin="normal"
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleSaveListChanges} variant="contained" color="primary">
+                    {t('save')}
+                  </Button>
+                  <Button onClick={handleCloseListModal} color="secondary">
+                    {t('cancel')}
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </Box>
             );
           }
 export default ListPage;

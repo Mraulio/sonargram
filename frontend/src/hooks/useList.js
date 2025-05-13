@@ -3,6 +3,7 @@ import * as listaApi from '../api/internal/listApi';
 
 export default function useList(token) {
   const [lists, setLists] = useState([]);
+  const [userLists, setUserLists] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -26,7 +27,7 @@ export default function useList(token) {
     setError(null);
     try {
       const data = await listaApi.getListsByUser(userId, token);
-      setLists(data);
+      setUserLists(data);
     } catch (err) {
       setError(err.message || 'Error fetching user lists');
     } finally {
@@ -102,6 +103,7 @@ export default function useList(token) {
   };
   return {
     lists,
+    userLists,
     loading,
     error,
     fetchAllLists,

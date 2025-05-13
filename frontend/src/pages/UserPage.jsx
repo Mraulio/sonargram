@@ -32,7 +32,8 @@ function UserPage() {
               getUserById,
               getCurrentUser,
               updateUser,
-              uploadProfilePic
+              uploadProfilePic,
+              deleteProfilePic,
             } = useUser(token);
 
         useEffect(() => {
@@ -74,6 +75,7 @@ function UserPage() {
           try {
             await deleteUser(userId); // Llamamos a la función deleteUser del hook
             alert(t('userDeleted')); // Mensaje de éxito
+            logout(); // Cerrar sesión después de eliminar el usuario
           } catch (err) {
             alert(t('errorDeletingUser')); // Mensaje de error
             console.error('Error deleting user:', err);
@@ -169,7 +171,6 @@ function UserPage() {
       setCurrentUser({...currentUser, profilePic: `${resp.profilePic}?t=${new Date().getTime()}` }) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
 
       setOpenProfilePicModal(false); // Cerrar el modal
-      window.location.reload();
     } catch (err) {
       console.error("Error updating profile picture", err);
       alert("Error al actualizar imagen");
@@ -179,6 +180,16 @@ function UserPage() {
   const handleCloseModal = () => {
     setOpenModal(false); // Cerramos el modal
     setSelectedUser(null); // Limpiamos los detalles del usuario
+  };
+
+  const handleDeleteProfilePic = async () => {
+      try {
+        const resp = await deleteProfilePic();
+        setCurrentUser({...currentUser, profilePic: resp.updatedUser.profilePic});
+      } catch (err) {
+        alert("Error al eliminar foto de perfil");
+        console.error(err);
+      } 
   };
   
   
@@ -223,6 +234,9 @@ function UserPage() {
           onChange={handleImageChange}
         />
         <br />
+                <Button variant="outlined" color="error" onClick={handleDeleteProfilePic} sx={{ mt: 2 }}>
+                {t('deleteProfilePic')}
+                </Button>
         <TextField
           fullWidth
           label={t('name')}
