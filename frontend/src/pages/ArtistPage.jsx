@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useRef } from "react";
+import { useEffect, useState, useContext, useRef, use } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { UserContext } from "../context/UserContext";
@@ -19,7 +19,7 @@ import useUser from "../hooks/useUser";
 import useList from "../hooks/useList";
 import { searchArtists, getAlbumsByArtist, getSongsByRelease, getReleasesByReleaseGroup } from "../api/external/apiMB";
 import useFavorites from '../hooks/useFavorites';
-
+import { getFavoritesByUser } from "../api/internal/favoriteApi";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
@@ -28,6 +28,9 @@ function ArtistPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { token, role, logout } = useContext(UserContext);
+   const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const { users, fetchAllUsers, getUserById, getCurrentUser, registerNewUser, uploadProfilePic } =
     useUser(token);
@@ -183,10 +186,22 @@ const handleFavoriteToggle = async (id, type) => {
   }
 };
 
-  
-  
-  
- // ****************** FIN IMAGEN DE PERFIL ********************************* //
+useEffect(() => {
+  const fetchFavorites = async () => {
+    try {
+      const data = await getFavoritesByUser(token);
+      const artistFavorites = data.filter(item => item.favoriteType === "artist");
+      console.log('artistFavorites', artistFavorites)
+      setFavorites(artistFavorites);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (token) fetchFavorites();
+}, [token]);
 
   return (
     <Box sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}>
