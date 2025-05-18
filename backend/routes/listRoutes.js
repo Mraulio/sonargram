@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const listController = require('../controllers/listController');
-const { requireAuth, requireAdmin } = require('../middleware/auth'); 
+const { requireAuth } = require('../middleware/auth');
 
 // Crear nueva lista (autenticado)
 router.post('/', requireAuth, listController.createList);
