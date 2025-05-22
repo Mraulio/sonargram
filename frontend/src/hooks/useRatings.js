@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import * as api from '../api/internal/ratingApi';
 
 export default function useRatings(token) {
@@ -54,33 +54,41 @@ export default function useRatings(token) {
   const getRatingFor = (mbid, type) =>
     ratings.find(r => r.mbid === mbid && r.type === type)?.rating ?? null;
 
-  const fetchItemRatings = async (mbid) => {
+  const fetchMultipleItemRatings = useCallback (async (mbids) => {
     try {
-      const data = await api.getRatingsByItem(mbid);
-      const sum = data.reduce((acc, r) => acc + r.rating, 0);
-      const count = data.length;
-      const average = count ? sum / count : null;
-
-      setItemStats(prev => ({
-        ...prev,
-        [mbid]: { average, count },
-      }));
-
-      return { average, count };
+      const data = await api.getRatingsByMbids(mbids, token);
+      console.log(data); // Para verificar la estructura
+      setItemStats(prev => ({ ...prev, ...data }));
+      // Actualizar ratings del usuario autenticado
+      const updatedUserRatings = Object.entries(data)
+        .filter(([_, stats]) => stats.userRating != null)
+        .map(([mbid, stats]) => ({ mbid, rating: stats.userRating }));
+  
+      setRatings(prev => {
+        const map = new Map(prev.map(r => [`${r.mbid}`, r]));
+        for (const r of updatedUserRatings) {
+          map.set(r.mbid, r);
+        }
+        return Array.from(map.values());
+      });
+  
+      return data;
     } catch (err) {
       setError(err.message);
       return null;
     }
-  };
+  }, [token]);
+  
 
-  const getItemStats = (mbid) => itemStats[mbid] || { average: null, count: 0 };
-
+  const getItemStats = (mbid) =>
+    itemStats[mbid] || { average: null, count: 0, userRating: null };
+  
   return {
     ratings,
     rateItem,
     deleteRating,
     getRatingFor,
-    fetchItemRatings,
+    fetchMultipleItemRatings,
     getItemStats,
     loading,
     error,
