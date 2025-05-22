@@ -5,6 +5,7 @@ import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog,
 import Menu from '../components/Menu';
 import useList from '../hooks/useList';
 import useUser from '../hooks/useUser';
+import useListFollowers from '../hooks/useListFollowers';
 
 function ListPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -19,15 +20,9 @@ function ListPage() {
     const {user, getCurrentUser} = useUser(token);
     const [error, setError] = useState(null);
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
-     const {
-           lists,
-           userLists,
-           fetchAllLists,
-           createNewList,
-           removeList,
-           renameList,
-           fetchListsByUser,
-         } = useList(token);
+    const [ followLists, setFollowLists ] = useState('');
+    const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser } = useList(token);
+    const { followers, followersCount, followedLists, follow, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists,  } = useListFollowers(token);
         
          const handleSearchListByUser = async () => {
           try {
@@ -44,6 +39,7 @@ function ListPage() {
         
             // Llama a la función para buscar listas por el ID del usuario
             await fetchListsByUser(userId);
+            await fetchFollowedLists(userId);
           } catch (err) {
             console.error('Error fetching lists by user:', err);
             alert(t('errorFetchingListsByUser')); // Mensaje de error genérico
@@ -158,11 +154,37 @@ function ListPage() {
                 }
               }
             };
+
+            const handlefollowList = async (listId) => {
+              try {
+                await follow(listId);
+                const currentUser= await getCurrentUser();
+                const userId = currentUser._id; // Obtén el ID del usuario actual
+                await fetchFollowedLists(userId);
+                alert(t('listFollowed')); // Muestra un mensaje de éxito
+              } catch (err) {
+                console.error('Error following list:', err);
+                alert(t('errorFollowingList')); // Muestra un mensaje de error
+              }
+            }
+
+            const handleUnfollowList = async (listId) => {
+              try {
+                await unfollow(listId);
+                const currentUser= await getCurrentUser();
+                const userId = currentUser._id; // Obtén el ID del usuario actual
+                await fetchFollowedLists(userId);
+                alert(t('listUnfollowed')); // Muestra un mensaje de éxito
+              } catch (err) {
+                console.error('Error unfollowing list:', err);
+                alert(t('errorUnfollowingList')); // Muestra un mensaje de error
+              }
+            }
             return (
               <Box>
                 <Menu />
                 <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: '90vw', mx: 'auto' }}>
-                  <Typography variant="h6" sx={{ mb: 2 }}>{t('Listas')}</Typography>
+                  <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                     {userLists.map(l => (
                       <Card key={l._id} sx={{ width: '500px', p: 2 }}>
@@ -188,6 +210,28 @@ function ListPage() {
                             <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
                             </Button>
                          
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </Box>
+                </Box>
+                <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: '90vw', mx: 'auto' }}>
+                  <Typography variant="h6" sx={{ mb: 2 }}>{t('followLists')}</Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                    {followedLists.map(l => (
+                      <Card key={l._id} sx={{ width: '500px', p: 2 }}>
+                        <CardContent>
+                          <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
+                          <Divider sx={{ my: 1 }} />
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                            {t('Canciones')}: {l.songs.join(', ')}
+                          </Typography>
+                          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="body2" color="text.secondary">
+                              {t('Creador de la lista')}: {l.creator.name || t('unknown')}
+                            </Typography>
+                            <Button onClick={() => (handleUnfollowList(l._id))} color="error">{t('unfollow')}</Button>
                           </Box>
                         </CardContent>
                       </Card>
@@ -236,6 +280,7 @@ function ListPage() {
                           <Typography variant="body2" color="text.secondary">
                             {t('Creador de la lista')}: {l.creator.name || t('unknown')}
                           </Typography>
+                          <Button onClick={() => (handlefollowList(l._id))} color="error">{t('follow')}</Button>
                         </Box>
                       </CardContent>
                     </Card>

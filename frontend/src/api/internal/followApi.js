@@ -10,7 +10,7 @@ export const followUser = async (followedId, token) => {
 // Dejar de seguir a un usuario
 export const unfollowUser = async (followedId, token) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.delete(`/follows/${followedId}`);
+  const response = await apiClient.delete(`/follow/${followedId}`);
   return response.data;
 };
 

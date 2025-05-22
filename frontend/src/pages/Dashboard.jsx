@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import Menu from '../components/Menu';
 import { getAllUsers } from '../api/internal/userApi'
 import useUser from '../hooks/useUser';
@@ -9,49 +9,45 @@ import useFollow from '../hooks/useFollow';
 
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
-  const [users, setUsers] = useState([]);
   const [userUsername, setUserUsername] = useState('');
   const { token, role, logout, user} = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { follower, follow, fetchFollowing } = useFollow(token);
-  const { getCurrentUser, fetchAllUsers } = useUser(token);
-  const [followedIds, setFollowedIds] = useState([]);
- 
+  const { follower, follow, following, fetchFollowing } = useFollow(token);
+  const { users, fetchAllUsers, getCurrentUser } = useUser(token);
+  const [searches, setSearches] = useState([]);
+   
+  useEffect(() => {
+    fetchAllUsers(token);
+    
+  }, []);
 
-  const handleSearchUser = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const handleSearchUser = async () => {
     try {
-      // Obtén todos los usuarios
-      const data = await getAllUsers(token);
-      const currentUser = await getCurrentUser(token); // Obtiene el usuario actual
-
-      // Verifica que userUsername no sea undefined o vacío
-  
-      // Filtra los usuarios cuyo username contenga el texto ingresado
-      const filteredUsers = data.filter(user =>
-       user._id !== currentUser._id &&
-      user.username.toLowerCase().includes(userUsername.toLowerCase())
-    );
-  
-      setUsers(filteredUsers); // Actualiza el estado con los usuarios filtrados
-
-      const followingList = await fetchFollowing(currentUser._id); // Obtiene la lista de usuarios seguidos por el usuario actual
-      const followedIds = followingList.map(f => f.followed._id); // Extrae los IDs de los usuarios seguidos
-      setFollowedIds(followedIds); // Guardar en estado
-
+      const user = await getCurrentUser();
+      await fetchFollowing(user._id);
+      if (users.length > 0) {
+      const filtered = users
+        .filter(u => u._id !== user._id)
+        .filter(u => u.username.toLowerCase().includes(userUsername.toLowerCase()));
+        setSearches(filtered);
+      };
     } catch (err) {
       setError(err.message || 'Error fetching users');
-    } finally {
-      setLoading(false);
     }
-  }, [token, userUsername]);
+  };
+
+  const isFollowing = useCallback((userId) => {
+    return following.some(f => f.followed && f.followed._id === userId);
+  }, [following]);
+  
+ 
 
   const handleFollow = async (followedId) => {
     try {
-      await follow(followedId); // Llama a la función `follow`
-      setFollowedIds(prev => [...prev, followedId]);
+      await follow(followedId); // Llama a la función follow
+      const user = await getCurrentUser()
+      await fetchFollowing(user._id);
       alert(t('userFollowed')); // Muestra un mensaje de éxito
     } catch (err) {
       console.error('Error following user:', err);
@@ -104,12 +100,17 @@ function Dashboard() {
               <Typography>{t('loading')}</Typography>
             ) : error ? (
               <Typography color="error">{error}</Typography>
-            ) : users.length > 0 ? (
+            ) : searches.length > 0 ? (
               <ul>
-                {users.map(user => (
+                {searches.map(user => (
                   <li key={user._id}>
+                    <Avatar
+                      src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/default-avatar.png'}
+                       alt={user.name}
+                       sx={{ width: 56, height: 56, mr: 2 }}
+                    />
                     {user.name} ({user.username})
-                    {followedIds.includes(user._id) ? (
+                    {isFollowing(user._id) ? (
                       <Typography sx={{ ml: 2, color: 'green', display: 'inline-block' }}>
                         {t('following')}
                       </Typography>
