@@ -38,7 +38,6 @@ function TestBuscador() {
   const [artistResults, setArtistResults] = useState([]);
   const [selectedAlbums, setSelectedAlbums] = useState([]);
   const [albumSongs, setAlbumSongs] = useState([]);
-  const [visibleMbids, setVisibleMbids] = useState([]);
   const [favoriteCounts, setFavoriteCounts] = useState({
     artists: {},
     albums: {},
@@ -158,8 +157,6 @@ function TestBuscador() {
       ...albumSongs.map((s) => s.id),
     ];
 
-    setVisibleMbids(allMbids);
-
     if (token && allMbids.length > 0) {
       fetchMultipleItemRatings(allMbids).catch((err) =>
         console.error("Error al obtener ratings", err)
@@ -258,7 +255,6 @@ function TestBuscador() {
               </Typography>
               <ol>
                 {albumSongs.map((song) => {
-                  const stats = getItemStats(song.id) || {};
                   return (
                     <li key={song.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       {song.title}

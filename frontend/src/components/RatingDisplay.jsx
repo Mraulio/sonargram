@@ -3,7 +3,7 @@ import Rating from "@mui/material/Rating";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { styled } from "@mui/material/styles";
-import { faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
+import { faRecordVinyl, faUser, faMusic } from "@fortawesome/free-solid-svg-icons";
 
 const RatingDisplay = ({
   mbid,
@@ -28,16 +28,31 @@ const RatingDisplay = ({
 
   const StyledRating = styled(Rating)({
     "& .MuiRating-iconFilled": {
-      color: "#FFD700",
+      color: "#FFCC33", // amarillo dorado brillante
+      textShadow: "0 0 8px #FF9900", // resplandor anaranjado
     },
     "& .MuiRating-iconHover": {
-      color: "#FFC107",
+      color: "#FF9900", // dorado anaranjado fuerte
     },
     "& .MuiRating-icon": {
       fontSize: "18px",
       marginRight: "2px",
     },
   });
+
+  const getIconByType = (type) => {
+  switch (type) {
+    case "artist":
+      return faUser;
+    case "album":
+      return faRecordVinyl;
+    case "song":
+      return faMusic;
+    default:
+      return faRecordVinyl;
+  }
+};
+
 
   return (
     <Box display="flex" alignItems="center" gap={1}>
@@ -46,8 +61,8 @@ const RatingDisplay = ({
         precision={0.5}
         value={userRating}
         onChange={handleChange}
-        icon={<FontAwesomeIcon icon={faRecordVinyl} fontSize="inherit" />}
-        emptyIcon={<FontAwesomeIcon icon={faRecordVinyl} fontSize="inherit" />}
+        icon={<FontAwesomeIcon icon={getIconByType(type)} fontSize="inherit" />}
+        emptyIcon={<FontAwesomeIcon icon={getIconByType(type)} fontSize="inherit" />}
       />
       <Typography variant="body2" color="text.secondary">
         {average !== null ? `${average.toFixed(1)} (${count})` : "Sin valoraciones"}
