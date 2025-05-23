@@ -1,10 +1,10 @@
-// components/RatingDisplay.js
 import { Box, Typography, IconButton } from "@mui/material";
 import Rating from "@mui/material/Rating";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { styled } from '@mui/material/styles';
-import { faRecordVinyl } from '@fortawesome/free-solid-svg-icons';
+import { styled } from "@mui/material/styles";
+import { faRecordVinyl } from "@fortawesome/free-solid-svg-icons";
+
 const RatingDisplay = ({
   mbid,
   type,
@@ -26,24 +26,22 @@ const RatingDisplay = ({
     deleteRating(mbid);
   };
 
-  // Estilo personalizado para el Rating
   const StyledRating = styled(Rating)({
-    '& .MuiRating-iconFilled': {
-      color: '#FFD700', // dorado
+    "& .MuiRating-iconFilled": {
+      color: "#FFD700",
     },
-    '& .MuiRating-iconHover': {
-      color: '#FFC107', // dorado más intenso al pasar el mouse
+    "& .MuiRating-iconHover": {
+      color: "#FFC107",
     },
-    '& .MuiRating-icon': {
-      fontSize: '18px', // tamaño más pequeño
-      marginRight: '2px', // espacio entre íconos
+    "& .MuiRating-icon": {
+      fontSize: "18px",
+      marginRight: "2px",
     },
   });
 
-
   return (
     <Box display="flex" alignItems="center" gap={1}>
-       <StyledRating
+      <StyledRating
         name={`rating-${mbid}`}
         precision={0.5}
         value={userRating}
@@ -52,11 +50,11 @@ const RatingDisplay = ({
         emptyIcon={<FontAwesomeIcon icon={faRecordVinyl} fontSize="inherit" />}
       />
       <Typography variant="body2" color="text.secondary">
-        {average ? `${average.toFixed(1)} (${count})` : "Sin valoraciones"}
+        {average !== null ? `${average.toFixed(1)} (${count})` : "Sin valoraciones"}
       </Typography>
       {userRating && (
-        <IconButton onClick={handleDelete}>
-            <FontAwesomeIcon icon={faTrashAlt} style={{ color: "gray" }} />
+        <IconButton onClick={handleDelete} size="small">
+          <FontAwesomeIcon icon={faTrashAlt} style={{ color: "gray" }} />
         </IconButton>
       )}
     </Box>

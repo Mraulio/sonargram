@@ -5,9 +5,17 @@ export default function useRatings(token) {
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [itemStats, setItemStats] = useState({}); // { [mbid]: { average, count } }
+  const [itemStats, setItemStats] = useState({}); // { [mbid]: { average, count, userRating, type } }
 
-  // Cargar valoraciones del usuario autenticado
+  const refreshItemStats = async (mbid) => {
+    try {
+      const data = await api.getRatingsByMbids([mbid], token);
+      setItemStats(prev => ({ ...prev, ...data }));
+    } catch (err) {
+      console.error("Error refreshing item stats", err);
+    }
+  };
+
   useEffect(() => {
     const fetchRatings = async () => {
       if (!token) return;
@@ -33,10 +41,14 @@ export default function useRatings(token) {
       setRatings(prev => {
         const exists = prev.find(r => r.mbid === mbid && r.type === type);
         if (exists) {
-          return prev.map(r => r.mbid === mbid && r.type === type ? updated : r);
+          return prev.map(r =>
+            r.mbid === mbid && r.type === type ? updated : r
+          );
         }
         return [...prev, updated];
       });
+
+      refreshItemStats(mbid);
     } catch (err) {
       setError(err.message);
     }
@@ -46,6 +58,7 @@ export default function useRatings(token) {
     try {
       await api.deleteRating(mbid, token);
       setRatings(prev => prev.filter(r => r.mbid !== mbid));
+      refreshItemStats(mbid);
     } catch (err) {
       setError(err.message);
     }
@@ -54,35 +67,40 @@ export default function useRatings(token) {
   const getRatingFor = (mbid, type) =>
     ratings.find(r => r.mbid === mbid && r.type === type)?.rating ?? null;
 
-  const fetchMultipleItemRatings = useCallback (async (mbids) => {
+  const fetchMultipleItemRatings = useCallback(async (mbids) => {
     try {
       const data = await api.getRatingsByMbids(mbids, token);
-      console.log(data); // Para verificar la estructura
+      console.log(data); // útil para depurar
+
       setItemStats(prev => ({ ...prev, ...data }));
-      // Actualizar ratings del usuario autenticado
+
       const updatedUserRatings = Object.entries(data)
         .filter(([_, stats]) => stats.userRating != null)
-        .map(([mbid, stats]) => ({ mbid, rating: stats.userRating }));
-  
+        .map(([mbid, stats]) => ({
+          mbid,
+          rating: stats.userRating,
+          type: stats.type || 'unknown' // fallback por si llega vacío
+        }));
+
       setRatings(prev => {
-        const map = new Map(prev.map(r => [`${r.mbid}`, r]));
+        const key = r => `${r.mbid}-${r.type}`;
+        const map = new Map(prev.map(r => [key(r), r]));
         for (const r of updatedUserRatings) {
-          map.set(r.mbid, r);
+          map.set(key(r), r);
         }
         return Array.from(map.values());
       });
-  
+
       return data;
     } catch (err) {
       setError(err.message);
       return null;
     }
   }, [token]);
-  
 
   const getItemStats = (mbid) =>
     itemStats[mbid] || { average: null, count: 0, userRating: null };
-  
+
   return {
     ratings,
     rateItem,
