@@ -114,3 +114,19 @@ export const getSongsByRelease = async (releaseId, limit = 10, offset = 0) => {
     throw error;
   }
 };
+
+// Obtener nombre (title o name) por MBID y tipo
+// Alternativa sin lookup
+/* export const fetchNameByMBID = async (mbid, type) => {
+  try {
+    fetch('https://musicbrainz.org/ws/2/artist/65f4f0c5-ef9e-490c-aee3-909e7ae6b2ab?fmt=json')
+  .then(res => res.json())
+  .then(data => {console.log('AAAAA', data)});
+
+    return mbid;
+  } catch (error) {
+    console.error(`Error buscando por MBID:`, error);
+    return mbid;
+  }
+};
+ */

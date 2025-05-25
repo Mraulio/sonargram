@@ -1,4 +1,5 @@
 const Favorite = require('../models/Favorite');
+const { lookupByMBID } = require('./musicBrainzService');
 
 async function addFavorite(userId, favoriteId, favoriteType) {
   const exists = await Favorite.findOne({ user: userId, favoriteId, favoriteType });
@@ -85,8 +86,24 @@ async function getTopFavoritesByType(limitPerType = 5) {
   //   { _id: "album", favorites: [...] },
   //   { _id: "artist", favorites: [...] }
   // ]
+
+  for (const typeGroup of result) {
+  for (const fav of typeGroup.favorites) {
+    try {
+      await delay(300); // 200ms entre llamadas (~5 por segundo)
+      fav.data = await lookupByMBID(typeGroup._id, fav.favoriteId);
+    } catch (error) {
+      console.error(`Error MB (${fav.favoriteId}): ${error.message}`);
+      fav.data = null;
+    }
+  }
+}
+
   return result;
 }
 
-  
+  function delay(ms) {
+  return new Promise((res) => setTimeout(res, ms));
+}
+
 module.exports = { addFavorite, removeFavorite, getFavorites, countFavorites, getTopFavoritesByType };
