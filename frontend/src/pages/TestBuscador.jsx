@@ -33,12 +33,8 @@ function TestBuscador() {
     getRatingFor,
     fetchMultipleItemRatings,
   } = useRatings(token);
-  const {
-    addFavorite,
-    removeFavorite,
-    isFavorite,
-    getFavoriteCount,
-  } = useFavorites(token);
+  const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } =
+    useFavorites(token);
 
   // Estados para búsquedas
   const [searchTermArtist, setSearchTermArtist] = useState("");
@@ -52,9 +48,54 @@ function TestBuscador() {
 
   // Selecciones para cargar info relacionada
   const [selectedArtistAlbums, setSelectedArtistAlbums] = useState([]);
-  const [selectedAlbumSongsFromArtist, setSelectedAlbumSongsFromArtist] = useState([]);
+  const [selectedAlbumSongsFromArtist, setSelectedAlbumSongsFromArtist] =
+    useState([]);
 
   const [selectedAlbumSongs, setSelectedAlbumSongs] = useState([]);
+
+  // Resultados generales
+  const [searchTerm, setSearchTerm] = useState("");
+  const handleGeneralSearch = async () => {
+    try {
+      const [artists, albums, songs] = await Promise.all([
+        searchArtists(searchTerm),
+        searchAlbums(searchTerm),
+        searchSongs(searchTerm),
+      ]);
+      setArtistResults(artists);
+      setAlbumResults(albums);
+      setSongResults(songs);
+      setSelectedArtistAlbums([]);
+      setSelectedAlbumSongs([]);
+      setSelectedAlbumSongsFromArtist([]);
+
+      // Contadores favoritos (puedes mover esto a una función auxiliar si prefieres)
+      const artistCounts = {};
+      const albumCounts = {};
+      const songCounts = {};
+
+      await Promise.all([
+        ...artists.map(async (a) => {
+          artistCounts[a.id] = (await getFavoriteCount(a.id)) || 0;
+        }),
+        ...albums.map(async (a) => {
+          albumCounts[a.id] = (await getFavoriteCount(a.id)) || 0;
+        }),
+        ...songs.map(async (s) => {
+          songCounts[s.id] = (await getFavoriteCount(s.id)) || 0;
+        }),
+      ]);
+
+      setFavoriteCounts({
+        artists: artistCounts,
+        albums: albumCounts,
+        songs: songCounts,
+      });
+    } catch (e) {
+      alert("Error en la búsqueda general");
+      console.error(e);
+    }
+  };
 
   // Favoritos contadores
   const [favoriteCounts, setFavoriteCounts] = useState({
@@ -242,7 +283,14 @@ function TestBuscador() {
 
   // Helper para mostrar lista con rating y favorito
   const renderItemList = (items, type, onClickItem, highlightColor) => (
-    <ul style={{ paddingLeft: 0, listStyle: "none", maxHeight: "30vh", overflowY: "auto" }}>
+    <ul
+      style={{
+        paddingLeft: 0,
+        listStyle: "none",
+        maxHeight: "30vh",
+        overflowY: "auto",
+      }}
+    >
       {items.map((item) => (
         <li
           key={item.id}
@@ -278,7 +326,9 @@ function TestBuscador() {
             color={isFavorite(item.id) ? "error" : "default"}
             size="small"
           >
-            <FontAwesomeIcon icon={isFavorite(item.id) ? solidHeart : regularHeart} />
+            <FontAwesomeIcon
+              icon={isFavorite(item.id) ? solidHeart : regularHeart}
+            />
           </IconButton>
           <Typography variant="body2" sx={{ ml: 1, minWidth: 25 }}>
             {favoriteCounts[`${type}s`][item.id] || 0}
@@ -289,8 +339,25 @@ function TestBuscador() {
   );
 
   return (
-    <Box sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}>
+    <Box
+      sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}
+    >
       <Menu />
+      <Box sx={{ p: 2, backgroundColor: "#fff" }}>
+        <Typography variant="h4" gutterBottom>Búsqueda general</Typography>
+        <TextField
+          fullWidth
+          label="Buscar artistas, álbumes o canciones"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleGeneralSearch()}
+          margin="normal"
+        />
+        <Button variant="contained" onClick={handleGeneralSearch}>
+          Buscar
+        </Button>
+      </Box>
+
       <Box
         sx={{
           display: "flex",
@@ -332,7 +399,12 @@ function TestBuscador() {
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Artistas encontrados</Typography>
-              {renderItemList(artistResults, "artist", handleSelectArtist, "blue")}
+              {renderItemList(
+                artistResults,
+                "artist",
+                handleSelectArtist,
+                "blue"
+              )}
             </>
           )}
 
@@ -340,7 +412,12 @@ function TestBuscador() {
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Álbumes del artista</Typography>
-              {renderItemList(selectedArtistAlbums, "album", handleSelectAlbumFromArtist, "darkgreen")}
+              {renderItemList(
+                selectedArtistAlbums,
+                "album",
+                handleSelectAlbumFromArtist,
+                "darkgreen"
+              )}
             </>
           )}
 
@@ -384,7 +461,12 @@ function TestBuscador() {
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Álbumes encontrados</Typography>
-              {renderItemList(albumResults, "album", handleSelectAlbumFromAlbumSearch, "blue")}
+              {renderItemList(
+                albumResults,
+                "album",
+                handleSelectAlbumFromAlbumSearch,
+                "blue"
+              )}
             </>
           )}
 
