@@ -311,7 +311,11 @@ function TestBuscador() {
               flexGrow: 1,
             }}
           >
-            {item.title || item.name}
+            {type === "album" && item.title
+              ? `${item.title}${item.artist ? " — " + item.artist : ""}`
+              : type === "song" && item.title
+              ? `${item.title}${item.album ? " — " + item.album : ""}${item.artist ? " — " + item.artist : ""}`
+              : item.name || item.title}
           </span>
           <RatingDisplay
             mbid={item.id}

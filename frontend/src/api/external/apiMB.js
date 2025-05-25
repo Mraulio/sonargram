@@ -28,32 +28,41 @@ export const searchAlbums = async (albumName) => {
     const result = await mbApi.search("release-group", {
       query: albumName,
       type: "album",
-      limit: 5,
+      limit: 10,
     });
-    console.log(result["release-groups"]);
 
-    return result["release-groups"];
+    return result["release-groups"].map((rg) => ({
+      id: rg.id,
+      title: rg.title,
+      artist: rg["artist-credit"]?.[0]?.name || "Artista desconocido",
+    }));
   } catch (error) {
     console.error("Error al buscar álbumes:", error);
     throw error;
   }
 };
 
-// Buscar canciones por nombre
+
 export const searchSongs = async (songName) => {
   try {
     const result = await mbApi.search("recording", {
       query: songName,
-      limit: 5,
+      limit: 10,
     });
-    console.log(result.recordings);
 
-    return result.recordings;
+    return result.recordings.map((rec) => ({
+      id: rec.id,
+      title: rec.title,
+      artist: rec["artist-credit"]?.[0]?.name || "Artista desconocido",
+      album: rec.releases?.[0]?.title || "Álbum desconocido",
+    }));
   } catch (error) {
     console.error("Error al buscar canciones:", error);
     throw error;
   }
 };
+
+
 
 export const getAlbumsByArtist = async (artistId, limit = 0, offset = 0) => {
   try {
