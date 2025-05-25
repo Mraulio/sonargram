@@ -47,5 +47,46 @@ async function countFavorites(favoriteId) {
       throw new Error('Error al contar los favoritos');
     }
   }
+
+
+async function getTopFavoritesByType(limitPerType = 5) {
+  const pipeline = [
+    {
+      $group: {
+        _id: { favoriteId: "$favoriteId", favoriteType: "$favoriteType" },
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    },
+    {
+      $group: {
+        _id: "$_id.favoriteType",
+        favorites: {
+          $push: {
+            favoriteId: "$_id.favoriteId",
+            count: "$count"
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        favorites: { $slice: ["$favorites", limitPerType] }
+      }
+    }
+  ];
+
+  const result = await Favorite.aggregate(pipeline);
+  // El resultado es un array con objetos por tipo, ej:
+  // [
+  //   { _id: "song", favorites: [{favoriteId, count}, ...] },
+  //   { _id: "album", favorites: [...] },
+  //   { _id: "artist", favorites: [...] }
+  // ]
+  return result;
+}
+
   
-module.exports = { addFavorite, removeFavorite, getFavorites, countFavorites };
+module.exports = { addFavorite, removeFavorite, getFavorites, countFavorites, getTopFavoritesByType };
