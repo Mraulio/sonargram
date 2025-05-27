@@ -23,6 +23,7 @@ import useFavorites from '../hooks/useFavorites';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
+import TopRatingsList from "../components/TopRatingsList";
 
 function Test() {
   const { t } = useTranslation();
@@ -363,7 +364,8 @@ const handleFavoriteToggle = async (id, type) => {
       sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}
     >
       <Menu />
-      <Box sx={{ p: 4, fontFamily: "sans-serif", maxWidth: 600, mx: "auto" }}>
+
+      <Box sx={{ p: 4, fontFamily: "sans-serif", maxWidth: 600, mx: "auto" }}>      
         <Card
           sx={{
             mb: 4,
@@ -426,7 +428,7 @@ const handleFavoriteToggle = async (id, type) => {
             )}
           </CardContent>
         </Card>
-
+        <TopRatingsList limit={5} title="Top 5 por Rating" />
         <div>
           <Button variant="outlined" onClick={() => navigate("/profile")}>
             {t("goToProfile")}
