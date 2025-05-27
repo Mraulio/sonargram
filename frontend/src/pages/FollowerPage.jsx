@@ -87,6 +87,7 @@ function FollowerPage() {
                         <CardContent sx={{ flexGrow: 1 }}>
                             <Typography variant="h6" sx={{ mb: 1 }}>{f.follower.name}</Typography>
                             <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.createdAt).toLocaleDateString()}</Typography>
+                            <Typography variant="body2" color="text.secondary">{t('bio')}: {f.follower.bio}</Typography>
                         </CardContent>
                         {isFollowing(f.follower._id) ? (
                             <Button

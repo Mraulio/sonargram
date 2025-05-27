@@ -68,6 +68,7 @@ function FollowedPage() {
                                 <CardContent>
                                     <Typography variant="h6" sx={{ mb: 1 }}>{f.followed.name}</Typography>
                                     <Typography variant="body2" color="text.secondary">{t('since')}: {f.createdAt}</Typography>
+                                    <Typography variant="body2" color="text.secondary">{t('bio')}: {f.followed.bio}</Typography>
                                 </CardContent>
                                 <Button
                                 variant="outlined"

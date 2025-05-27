@@ -22,7 +22,7 @@ function ListPage() {
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
     const [ followLists, setFollowLists ] = useState('');
     const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser } = useList(token);
-    const { followers, followersCount, followedLists, follow, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists,  } = useListFollowers(token);
+    const { followers, followersCount, followedLists, follow, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
         
          const handleSearchListByUser = async () => {
           try {
@@ -57,20 +57,26 @@ function ListPage() {
           setLoading(true);
           setError(null);
           try {
-        
-            // Filtra las listas cuyo nombre contenga el texto ingresado
+            const currentUser = await getCurrentUser(); // Asegúrate de obtener el usuario actual
+            if (!currentUser || !currentUser._id) {
+              alert(t('errorFetchingUserId'));
+              return;
+            }
+
             const filteredLists = lists.filter(list =>
-              list.name.toLowerCase().includes(searchListName.toLowerCase())
+              list.name.toLowerCase().includes(searchListName.toLowerCase()) &&
+              list.creator._id !== currentUser._id // Filtra las listas que no son del usuario actual
             );
-        
-            setSearchResults(filteredLists); // Actualiza el estado con las listas filtradas
-            console.log('Filtered lists:', filteredLists); // Depuración
+
+            setSearchResults(filteredLists);
+            console.log('Filtered lists (excluding user-owned):', filteredLists);
           } catch (err) {
             setError(err.message || 'Error fetching lists');
           } finally {
             setLoading(false);
           }
-        },);
+        }, [lists, searchListName, getCurrentUser, t]);
+
 
         const handleCreateList = async () => {
           try {
@@ -159,8 +165,7 @@ function ListPage() {
               try {
                 await follow(listId);
                 const currentUser= await getCurrentUser();
-                const userId = currentUser._id; // Obtén el ID del usuario actual
-                await fetchFollowedLists(userId);
+                await fetchFollowedLists(currentUser._id);
                 alert(t('listFollowed')); // Muestra un mensaje de éxito
               } catch (err) {
                 console.error('Error following list:', err);
@@ -171,9 +176,10 @@ function ListPage() {
             const handleUnfollowList = async (listId) => {
               try {
                 await unfollow(listId);
+                 
                 const currentUser= await getCurrentUser();
-                const userId = currentUser._id; // Obtén el ID del usuario actual
-                await fetchFollowedLists(userId);
+                await fetchFollowedLists(currentUser._id);
+                setFollowedLists(prev => prev.filter(list => list._id !== listId)); // ✅ Elimina del estado
                 alert(t('listUnfollowed')); // Muestra un mensaje de éxito
               } catch (err) {
                 console.error('Error unfollowing list:', err);
@@ -280,7 +286,11 @@ function ListPage() {
                           <Typography variant="body2" color="text.secondary">
                             {t('Creador de la lista')}: {l.creator.name || t('unknown')}
                           </Typography>
-                          <Button onClick={() => (handlefollowList(l._id))} color="error">{t('follow')}</Button>
+                          {followedLists.some(followed => followed._id === l._id) ? (
+                            <Typography color="success.main">{t('following')}</Typography>
+                          ) : (
+                            <Button onClick={() => handlefollowList(l._id)} color="error">{t('follow')}</Button>
+                          )}
                         </Box>
                       </CardContent>
                     </Card>

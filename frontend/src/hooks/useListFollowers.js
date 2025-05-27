@@ -73,6 +73,7 @@ const useListFollowers = (token) => {
     fetchFollowers,
     fetchFollowersCount,
     fetchFollowedLists,
+    setFollowedLists
   };
 };
 
