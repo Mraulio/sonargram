@@ -12,25 +12,39 @@ import {
   Divider,
   Modal,
   IconButton,
-  ButtonBase
+  ButtonBase,
 } from "@mui/material";
 import Menu from "../components/Menu";
 import useUser from "../hooks/useUser";
 import useList from "../hooks/useList";
-import { searchArtists, getAlbumsByArtist, getSongsByRelease, getReleasesByReleaseGroup } from "../api/external/apiMB";
-import useFavorites from '../hooks/useFavorites';
+import {
+  searchArtists,
+  getAlbumsByArtist,
+  getSongsByRelease,
+  getReleasesByReleaseGroup,
+} from "../api/external/apiMB";
+import useFavorites from "../hooks/useFavorites";
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
+import TopRatingsList from "../components/TopRatingsList";
+import TopFavoritosList from "../components/TopFavoritosList";
 
 function Test() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { token, role, logout } = useContext(UserContext);
 
-  const { users, fetchAllUsers, getUserById, getCurrentUser, registerNewUser, uploadProfilePic, deleteProfilePic } =
-    useUser(token);
+  const {
+    users,
+    fetchAllUsers,
+    getUserById,
+    getCurrentUser,
+    registerNewUser,
+    uploadProfilePic,
+    deleteProfilePic,
+  } = useUser(token);
 
   const { lists, fetchAllLists, createNewList, removeList } = useList(token);
 
@@ -47,19 +61,15 @@ function Test() {
   const [favoriteCounts, setFavoriteCounts] = useState({
     artists: {},
     albums: {},
-    songs: {}
+    songs: {},
   });
   const [previewImage, setPreviewImage] = useState(null);
   const [resizedImage, setResizedImage] = useState(null);
   const fileInputRef = useRef(null);
-  const { 
-    addFavorite, 
-    removeFavorite, 
-    isFavorite,
-    getFavoriteCount
-  } = useFavorites(token); // o el nombre de tu variable/token
+  const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } =
+    useFavorites(token); // o el nombre de tu variable/token
 
-  const [profilePic, setProfilePic] = useState(null)
+  const [profilePic, setProfilePic] = useState(null);
 
   useEffect(() => {
     if (token && role === "admin") fetchAllUsers();
@@ -73,10 +83,12 @@ function Test() {
     const fetchCurrent = async () => {
       try {
         const user = await getCurrentUser();
-        setCurrentUser(user);   
-        setProfilePic (user && user.profilePic 
-          ? `http://localhost:5000/uploads/${user.profilePic}` 
-          : "/assets/images/profilepic_default.png");         
+        setCurrentUser(user);
+        setProfilePic(
+          user && user.profilePic
+            ? `http://localhost:5000/uploads/${user.profilePic}`
+            : "/assets/images/profilepic_default.png"
+        );
       } catch (err) {
         console.error("Error fetching current user", err);
       }
@@ -85,10 +97,12 @@ function Test() {
     if (token) fetchCurrent();
   }, [token, getCurrentUser]);
 
-  useEffect (() => {
-    setProfilePic (currentUser && currentUser.profilePic 
-      ? `http://localhost:5000/uploads/${currentUser.profilePic}` 
-      : "/assets/images/profilepic_default.png");     
+  useEffect(() => {
+    setProfilePic(
+      currentUser && currentUser.profilePic
+        ? `http://localhost:5000/uploads/${currentUser.profilePic}`
+        : "/assets/images/profilepic_default.png"
+    );
   }, [currentUser]);
 
   const handleUserClick = async (userId) => {
@@ -156,128 +170,128 @@ function Test() {
     setSelectedUser(null); // Limpiamos los detalles del usuario
   };
 
-const [searchTerm, setSearchTerm] = useState("");
-const [artistResults, setArtistResults] = useState([]);
-const [selectedAlbums, setSelectedAlbums] = useState([]);
-const [albumSongs, setAlbumSongs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [artistResults, setArtistResults] = useState([]);
+  const [selectedAlbums, setSelectedAlbums] = useState([]);
+  const [albumSongs, setAlbumSongs] = useState([]);
 
-const handleSearchArtist = async () => {
-  try {
-    const results = await searchArtists(searchTerm);
-    setArtistResults(results);
+  const handleSearchArtist = async () => {
+    try {
+      const results = await searchArtists(searchTerm);
+      setArtistResults(results);
 
-    // Crear un objeto para los conteos de artistas
-    const artistCounts = {};
-    for (const artist of results) {
-      try {
-        const count = await getFavoriteCount(artist.id);
-        artistCounts[artist.id] = count || 0;
-      } catch {
-        artistCounts[artist.id] = 0;
+      // Crear un objeto para los conteos de artistas
+      const artistCounts = {};
+      for (const artist of results) {
+        try {
+          const count = await getFavoriteCount(artist.id);
+          artistCounts[artist.id] = count || 0;
+        } catch {
+          artistCounts[artist.id] = 0;
+        }
       }
+
+      // Actualizamos solo la parte de artistas de favoriteCounts
+      setFavoriteCounts((prevCounts) => ({
+        ...prevCounts, // Mantener los conteos anteriores
+        artists: artistCounts, // Actualizar solo los conteos de los artistas
+      }));
+
+      setSelectedAlbums([]);
+      setAlbumSongs([]);
+    } catch (err) {
+      alert("Error al buscar artistas");
+      console.error(err);
     }
+  };
 
-    // Actualizamos solo la parte de artistas de favoriteCounts
-    setFavoriteCounts((prevCounts) => ({
-      ...prevCounts, // Mantener los conteos anteriores
-      artists: artistCounts // Actualizar solo los conteos de los artistas
-    }));
+  const handleSelectArtist = async (artistId) => {
+    try {
+      const albums = await getAlbumsByArtist(artistId);
 
-    setSelectedAlbums([]);
-    setAlbumSongs([]);
-  } catch (err) {
-    alert("Error al buscar artistas");
-    console.error(err);
-  }
-};
-
-const handleSelectArtist = async (artistId) => {
-  try {
-    const albums = await getAlbumsByArtist(artistId);
-
-     // Crear un objeto para los conteos de artistas
-     const albumCounts = {};
-     for (const album of albums) {
-       try {
-         const count = await getFavoriteCount(album.id);
-         albumCounts[album.id] = count || 0;
-       } catch {
-        albumCounts[album.id] = 0;
-       }
-     }
- 
-     // Actualizamos solo la parte de artistas de favoriteCounts
-     setFavoriteCounts((prevCounts) => ({
-       ...prevCounts, // Mantener los conteos anteriores
-       albums: albumCounts // Actualizar solo los conteos de los artistas
-     }));
-    setSelectedAlbums(albums);
-    setAlbumSongs([]);
-  } catch (err) {
-    alert("Error al obtener álbumes");
-    console.error(err);
-  }
-};
-
-const handleSelectAlbum = async (releaseGroupId) => {
-  try {
-    const releases = await getReleasesByReleaseGroup(releaseGroupId);
-    if (releases.length > 0) {
-      const releaseId = releases[0].id;
-      const songs = await getSongsByRelease(releaseId);
-
-       // Crear un objeto para los conteos de artistas
-     const songCounts = {};
-     for (const song of songs) {
-       try {
-         const count = await getFavoriteCount(song.id);
-         songCounts[song.id] = count || 0;
-       } catch {
-        songCounts[song.id] = 0;
-       }
-     }
- 
-     // Actualizamos solo la parte de artistas de favoriteCounts
-     setFavoriteCounts((prevCounts) => ({
-       ...prevCounts, // Mantener los conteos anteriores
-       songs: songCounts // Actualizar solo los conteos de los artistas
-     }));
-
-      setAlbumSongs(songs);
-    }
-  } catch (err) {
-    alert("Error al obtener canciones del álbum");
-    console.error(err);
-  }
-};
-
-const handleFavoriteToggle = async (id, type) => {
-  try {
-    if (isFavorite(id)) {
-      await removeFavorite(id);
-    } else {
-      await addFavorite(id, type);
-    }
-
-    const newCount = await getFavoriteCount(id);
-
-    setFavoriteCounts(prev => ({
-      ...prev,
-      [type + "s"]: {
-        ...prev[type + "s"],
-        [id]: newCount
+      // Crear un objeto para los conteos de artistas
+      const albumCounts = {};
+      for (const album of albums) {
+        try {
+          const count = await getFavoriteCount(album.id);
+          albumCounts[album.id] = count || 0;
+        } catch {
+          albumCounts[album.id] = 0;
+        }
       }
-    }));
-  } catch (err) {
-    console.error("Error toggling favorite", err);
-  }
-};
 
- // ****************** IMAGEN DE PERFIL ********************************* //
+      // Actualizamos solo la parte de artistas de favoriteCounts
+      setFavoriteCounts((prevCounts) => ({
+        ...prevCounts, // Mantener los conteos anteriores
+        albums: albumCounts, // Actualizar solo los conteos de los artistas
+      }));
+      setSelectedAlbums(albums);
+      setAlbumSongs([]);
+    } catch (err) {
+      alert("Error al obtener álbumes");
+      console.error(err);
+    }
+  };
+
+  const handleSelectAlbum = async (releaseGroupId) => {
+    try {
+      const releases = await getReleasesByReleaseGroup(releaseGroupId);
+      if (releases.length > 0) {
+        const releaseId = releases[0].id;
+        const songs = await getSongsByRelease(releaseId);
+
+        // Crear un objeto para los conteos de artistas
+        const songCounts = {};
+        for (const song of songs) {
+          try {
+            const count = await getFavoriteCount(song.id);
+            songCounts[song.id] = count || 0;
+          } catch {
+            songCounts[song.id] = 0;
+          }
+        }
+
+        // Actualizamos solo la parte de artistas de favoriteCounts
+        setFavoriteCounts((prevCounts) => ({
+          ...prevCounts, // Mantener los conteos anteriores
+          songs: songCounts, // Actualizar solo los conteos de los artistas
+        }));
+
+        setAlbumSongs(songs);
+      }
+    } catch (err) {
+      alert("Error al obtener canciones del álbum");
+      console.error(err);
+    }
+  };
+
+  const handleFavoriteToggle = async (id, type) => {
+    try {
+      if (isFavorite(id)) {
+        await removeFavorite(id);
+      } else {
+        await addFavorite(id, type);
+      }
+
+      const newCount = await getFavoriteCount(id);
+
+      setFavoriteCounts((prev) => ({
+        ...prev,
+        [type + "s"]: {
+          ...prev[type + "s"],
+          [id]: newCount,
+        },
+      }));
+    } catch (err) {
+      console.error("Error toggling favorite", err);
+    }
+  };
+
+  // ****************** IMAGEN DE PERFIL ********************************* //
   const handleProfilePicClick = () => {
     fileInputRef.current.click(); // abre el file picker
   };
-  
+
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -290,37 +304,36 @@ const handleFavoriteToggle = async (id, type) => {
       reader.readAsDataURL(file);
     }
   };
-  
+
   const resizeImage = (dataUrl) => {
     const img = new Image();
     img.onload = () => {
       const maxSize = 200;
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
-  
+
       canvas.width = maxSize;
       canvas.height = maxSize;
-  
+
       // Calcular el tamaño redimensionado manteniendo proporción
       const ratio = Math.min(maxSize / img.width, maxSize / img.height);
       const newWidth = img.width * ratio;
       const newHeight = img.height * ratio;
-  
+
       // Centrar la imagen en el canvas
       const offsetX = (maxSize - newWidth) / 2;
       const offsetY = (maxSize - newHeight) / 2;
-  
+
       // Fondo blanco opcional (puedes cambiar a transparente si prefieres)
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, maxSize, maxSize);
-  
+
       ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
       const resizedDataUrl = canvas.toDataURL("image/jpeg");
       setResizedImage(resizedDataUrl);
     };
     img.src = dataUrl;
   };
-  
 
   const handleSaveImage = async () => {
     try {
@@ -328,15 +341,15 @@ const handleFavoriteToggle = async (id, type) => {
       const blob = await response.blob();
       const formData = new FormData();
       formData.append("profilePic", blob, "profile.jpg");
-  
+
       // Subir la imagen usando el hook
       const resp = await uploadProfilePic(formData); // Esta es la llamada a la API
-      
+
       // Crear URL temporal para previsualización
       const objectUrl = URL.createObjectURL(blob);
       setProfilePic(objectUrl); // Se mostrará mientras no recargues
 
-      setCurrentUser({...currentUser, profilePic: resp.profilePic}) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
+      setCurrentUser({ ...currentUser, profilePic: resp.profilePic }); // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
 
       setOpenProfilePicModal(false); // Cerrar el modal
     } catch (err) {
@@ -346,27 +359,39 @@ const handleFavoriteToggle = async (id, type) => {
   };
 
   const handleDeleteProfilePic = async () => {
-      try {
-        const resp = await deleteProfilePic();
-        setCurrentUser({...currentUser, profilePic: resp.updatedUser.profilePic});
-      } catch (err) {
-        alert("Error al eliminar foto de perfil");
-        console.error(err);
-      } 
+    try {
+      const resp = await deleteProfilePic();
+      setCurrentUser({
+        ...currentUser,
+        profilePic: resp.updatedUser.profilePic,
+      });
+    } catch (err) {
+      alert("Error al eliminar foto de perfil");
+      console.error(err);
+    }
   };
 
-  
- // ****************** FIN IMAGEN DE PERFIL ********************************* //
+  // ****************** FIN IMAGEN DE PERFIL ********************************* //
 
   return (
+  <Box sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}>
+    <Menu />
     <Box
-      sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        p: 4,
+        gap: 4,
+        fontFamily: "sans-serif",
+        maxWidth: "1500px",
+        mx: "auto",
+      }}
     >
-      <Menu />
-      <Box sx={{ p: 4, fontFamily: "sans-serif", maxWidth: 600, mx: "auto" }}>
+      {/* COLUMNA IZQUIERDA */}
+      <Box sx={{ flex:2, display: "flex", flexDirection: "column", gap: 4 }}>
+        {/* Tarjeta Usuario */}
         <Card
           sx={{
-            mb: 4,
             backgroundColor: token ? "#e8f5e9" : "#ffebee",
             border: "1px solid",
             borderColor: token ? "green" : "red",
@@ -376,7 +401,6 @@ const handleFavoriteToggle = async (id, type) => {
             <Typography variant="h6" sx={{ color: token ? "green" : "red" }}>
               {token ? t("userLoggedIn", { role }) : t("noUserLoggedIn")}
             </Typography>
-
             {currentUser && (
               <>
                 <Typography variant="body1" sx={{ mt: 1 }}>
@@ -403,7 +427,6 @@ const handleFavoriteToggle = async (id, type) => {
                     alt="Profile Pic"
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
-
                 </ButtonBase>
                 <input
                   type="file"
@@ -412,67 +435,39 @@ const handleFavoriteToggle = async (id, type) => {
                   ref={fileInputRef}
                   onChange={handleImageChange}
                 />
-                 <Button variant="outlined" onClick={handleDeleteProfilePic} sx={{ mt: 2 }}>
-                Delete profile pic
+                <Button
+                  variant="outlined"
+                  onClick={handleDeleteProfilePic}
+                  sx={{ mt: 2 }}
+                >
+                  Delete profile pic
                 </Button>
-
               </>
             )}
-            <br></br>
             {token && (
               <Button variant="outlined" onClick={logout} sx={{ mt: 2 }}>
                 {t("logout")}
               </Button>
             )}
           </CardContent>
-        </Card>
+        </Card>        
 
-        <div>
-          <Button variant="outlined" onClick={() => navigate("/profile")}>
-            {t("goToProfile")}
-          </Button>
-        </div>
+        <Button variant="outlined" onClick={() => navigate("/profile")}>
+          {t("goToProfile")}
+        </Button>
 
+        {/* Crear usuario (admin) */}
         {role === "admin" && (
-          <Card sx={{ mb: 4 }}>
+          <Card>
             <CardContent>
               <Typography variant="h5" gutterBottom>
                 {t("createUser")}
               </Typography>
-              <TextField
-                fullWidth
-                label={t("name")}
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label={t("username")}
-                value={userUsername}
-                onChange={(e) => setUserUsername(e.target.value)}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label={t("email")}
-                value={userEmail}
-                onChange={(e) => setUserEmail(e.target.value)}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                type="password"
-                label={t("password")}
-                value={userPassword}
-                onChange={(e) => setUserPassword(e.target.value)}
-                margin="normal"
-              />
-              <Button
-                variant="contained"
-                onClick={handleCreateUser}
-                sx={{ mt: 2 }}
-              >
+              <TextField fullWidth label={t("name")} value={userName} onChange={(e) => setUserName(e.target.value)} margin="normal" />
+              <TextField fullWidth label={t("username")} value={userUsername} onChange={(e) => setUserUsername(e.target.value)} margin="normal" />
+              <TextField fullWidth label={t("email")} value={userEmail} onChange={(e) => setUserEmail(e.target.value)} margin="normal" />
+              <TextField fullWidth type="password" label={t("password")} value={userPassword} onChange={(e) => setUserPassword(e.target.value)} margin="normal" />
+              <Button variant="contained" onClick={handleCreateUser} sx={{ mt: 2 }}>
                 {t("createUserButton")}
               </Button>
 
@@ -480,15 +475,7 @@ const handleFavoriteToggle = async (id, type) => {
               <Typography variant="h6">{t("existingUsers")}</Typography>
               <ul>
                 {users.map((u) => (
-                  <li
-                    key={u._id}
-                    style={{
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                      color: "blue",
-                    }}
-                    onClick={() => handleUserClick(u._id)}
-                  >
+                  <li key={u._id} style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }} onClick={() => handleUserClick(u._id)}>
                     {u.username} - {u.email}
                   </li>
                 ))}
@@ -497,96 +484,15 @@ const handleFavoriteToggle = async (id, type) => {
           </Card>
         )}
 
-        {/* Modal con los detalles del usuario */}
-        {selectedUser && (
-          <Modal
-            open={openModal}
-            onClose={handleCloseModal}
-            aria-labelledby="user-details-modal"
-            aria-describedby="user-details-description"
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                backgroundColor: "white",
-                padding: 4,
-                borderRadius: 2,
-                boxShadow: 24,
-                width: 400,
-                maxHeight: "80vh",
-                overflowY: "auto",
-              }}
-            >
-              <Typography variant="h6" id="user-details-modal">
-                {t("userDetails")}
-              </Typography>
-              <Typography variant="body1">
-                <strong>{t("name")}:</strong> {selectedUser.name}
-              </Typography>
-              <Typography variant="body1">
-                <strong>{t("username")}:</strong> {selectedUser.username}
-              </Typography>
-              <Typography variant="body1">
-                <strong>{t("email")}:</strong> {selectedUser.email}
-              </Typography>
-              <Typography variant="body1">
-                <strong>{t("bio")}:</strong> {selectedUser.bio}
-              </Typography>
-              <Typography variant="body1">
-                <strong>{t("status")}:</strong> {selectedUser.status}
-              </Typography>
-              <Typography variant="body1">
-                <strong>{t("role")}:</strong> {selectedUser.role}
-              </Typography>
-              <Typography variant="body1">
-                <strong>{t("createdAt")}:</strong> {selectedUser.createdAt}
-              </Typography>
-              <img
-                src={
-                  selectedUser.profilePic
-                    ? `http://localhost:5000/uploads/${selectedUser.profilePic}`
-                    : '/assets/images/profilepic_default.png'  // Accede directamente a la carpeta public
-                }
-                alt="Profile Pic"
-                style={{ width: '150px', height: '150px', borderRadius: '50%' }}
-              />
-              <Button
-                variant="contained"
-                onClick={handleCloseModal}
-                sx={{ mt: 2 }}
-              >
-                {t("close")}
-              </Button>
-            </Box>
-          </Modal>
-        )}
+        {/* Crear Lista */}
         <Card>
           <CardContent>
             <Typography variant="h5" gutterBottom>
               {t("createList")}
             </Typography>
-            <TextField
-              fullWidth
-              label={t("listName")}
-              value={listName}
-              onChange={(e) => setListName(e.target.value)}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label={t("songIds")}
-              value={songs}
-              onChange={(e) => setSongs(e.target.value)}
-              margin="normal"
-            />
-            <Button
-              variant="contained"
-              onClick={handleCreateList}
-              sx={{ mt: 2 }}
-            >
+            <TextField fullWidth label={t("listName")} value={listName} onChange={(e) => setListName(e.target.value)} margin="normal" />
+            <TextField fullWidth label={t("songIds")} value={songs} onChange={(e) => setSongs(e.target.value)} margin="normal" />
+            <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>
               {t("createListButton")}
             </Button>
 
@@ -594,22 +500,9 @@ const handleFavoriteToggle = async (id, type) => {
             <Typography variant="h6">{t("existingLists")}</Typography>
             <ul>
               {lists.map((l) => (
-                <li
-                  key={l._id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
+                <li key={l._id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span>{l.name}</span>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    onClick={() => handleDeleteList(l._id)}
-                    sx={{ ml: 2 }}
-                  >
+                  <Button variant="outlined" color="error" size="small" onClick={() => handleDeleteList(l._id)}>
                     {t("delete")}
                   </Button>
                 </li>
@@ -617,21 +510,12 @@ const handleFavoriteToggle = async (id, type) => {
             </ul>
           </CardContent>
         </Card>
-
-        
-        {/* MusicBrainz búsqueda canciones */}
-        <Card sx={{ mt: 4 }}>
+        <Card>
           <CardContent>
             <Typography variant="h5" gutterBottom>
               Buscar Artista
             </Typography>
-            <TextField
-              fullWidth
-              label="Nombre del artista"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              margin="normal"
-            />
+            <TextField fullWidth label="Nombre del artista" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} margin="normal" />
             <Button variant="contained" onClick={handleSearchArtist}>
               Buscar
             </Button>
@@ -641,24 +525,13 @@ const handleFavoriteToggle = async (id, type) => {
                 <Typography variant="h6" sx={{ mt: 3 }}>Resultados:</Typography>
                 <ul>
                   {artistResults.map((artist) => (
-                    <li
-                      key={artist.id}
-                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
-                    >
-                      <span
-                        onClick={() => handleSelectArtist(artist.id)}
-                        style={{ color: "blue", textDecoration: "underline" }}
-                      >
+                    <li key={artist.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
+                      <span onClick={() => handleSelectArtist(artist.id)} style={{ color: "blue", textDecoration: "underline" }}>
                         {artist.name}
-                      </span>                                        
-                      <IconButton onClick={() => handleFavoriteToggle(artist.id, "artist")}>
-                        <FontAwesomeIcon
-                          icon={isFavorite(artist.id) ? solidHeart : regularHeart}
-                          style={{ color: isFavorite(artist.id) ? "red" : "gray" }}
-                        />
-                      <span>
-                        ({favoriteCounts.artists?.[artist.id] || 0})
                       </span>
+                      <IconButton onClick={() => handleFavoriteToggle(artist.id, "artist")}>
+                        <FontAwesomeIcon icon={isFavorite(artist.id) ? solidHeart : regularHeart} style={{ color: isFavorite(artist.id) ? "red" : "gray" }} />
+                        <span>({favoriteCounts.artists?.[artist.id] || 0})</span>
                       </IconButton>
                     </li>
                   ))}
@@ -668,31 +541,20 @@ const handleFavoriteToggle = async (id, type) => {
           </CardContent>
         </Card>
 
+        {/* Álbumes del artista */}
         {selectedAlbums.length > 0 && (
-          <Card sx={{ mt: 2 }}>
+          <Card>
             <CardContent>
               <Typography variant="h6">Álbumes del artista</Typography>
               <ul>
                 {selectedAlbums.map((album) => (
-                  <li
-                    key={album.id}
-                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
-                  >
-                    <span
-                      onClick={() => handleSelectAlbum(album.id)}
-                      style={{ color: "green", textDecoration: "underline" }}
-                    >
+                  <li key={album.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
+                    <span onClick={() => handleSelectAlbum(album.id)} style={{ color: "green", textDecoration: "underline" }}>
                       {album.title}
-                    </span>                    
+                    </span>
                     <IconButton onClick={() => handleFavoriteToggle(album.id, "album")}>
-
-                      <FontAwesomeIcon
-                        icon={isFavorite(album.id) ? solidHeart : regularHeart}
-                        style={{ color: isFavorite(album.id) ? "red" : "gray" }}
-                      />
-                      <span>
-                        ({favoriteCounts.albums?.[album.id] || 0})
-                      </span>
+                      <FontAwesomeIcon icon={isFavorite(album.id) ? solidHeart : regularHeart} style={{ color: isFavorite(album.id) ? "red" : "gray" }} />
+                      <span>({favoriteCounts.albums?.[album.id] || 0})</span>
                     </IconButton>
                   </li>
                 ))}
@@ -701,26 +563,18 @@ const handleFavoriteToggle = async (id, type) => {
           </Card>
         )}
 
+        {/* Canciones del álbum */}
         {albumSongs.length > 0 && (
-          <Card sx={{ mt: 2 }}>
+          <Card>
             <CardContent>
-              <Typography variant="h6">Canciones del álbum {}</Typography>
+              <Typography variant="h6">Canciones del álbum</Typography>
               <ol>
                 {albumSongs.map((song) => (
-                  <li
-                    key={song.id}
-                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
-                  >
-                    {song.title}                    
+                  <li key={song.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    {song.title}
                     <IconButton onClick={() => handleFavoriteToggle(song.id, "song")}>
-
-                      <FontAwesomeIcon
-                        icon={isFavorite(song.id) ? solidHeart : regularHeart}
-                        style={{ color: isFavorite(song.id) ? "red" : "gray" }}
-                      />
-                      <span>
-                        ({favoriteCounts.songs?.[song.id] || 0})
-                      </span>
+                      <FontAwesomeIcon icon={isFavorite(song.id) ? solidHeart : regularHeart} style={{ color: isFavorite(song.id) ? "red" : "gray" }} />
+                      <span>({favoriteCounts.songs?.[song.id] || 0})</span>
                     </IconButton>
                   </li>
                 ))}
@@ -728,14 +582,57 @@ const handleFavoriteToggle = async (id, type) => {
             </CardContent>
           </Card>
         )}
+      </Box>
 
-      </Box>  
-      {token && (
-          <Typography sx={{ mt: 4 }} fontSize="small" color="text.secondary">
-            {t("tokenLabel")}: {token}
-          </Typography>
+      {/* COLUMNA MEDIA */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <TopRatingsList limit={5} title="Top 5 por Rating" />        
+      </Box>
+      {/* COLUMNA DERECHA */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <TopFavoritosList limit={5}/>        
+      </Box>
+    </Box>
+
+    {token && (
+      <Typography sx={{ mt: 4 }} fontSize="small" color="text.secondary" textAlign="center">
+        {t("tokenLabel")}: {token}
+      </Typography>
+    )}
+
+    {/* Modal Imagen Perfil */}
+    <Modal open={openProfilePicModal} onClose={() => setOpenProfilePicModal(false)}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          backgroundColor: "white",
+          padding: 4,
+          borderRadius: 2,
+          boxShadow: 24,
+          width: 300,
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="h6">Actualizar imagen de perfil</Typography>
+        {previewImage && (
+          <img
+            src={resizedImage || previewImage}
+            alt="Preview"
+            style={{ width: 200, height: 200, borderRadius: "50%", marginTop: 16 }}
+          />
         )}
-        <Modal open={openProfilePicModal} onClose={() => setOpenProfilePicModal(false)}>
+        <Button variant="contained" sx={{ mt: 2 }} onClick={handleSaveImage}>
+          Guardar Imagen
+        </Button>
+      </Box>
+    </Modal>
+
+    {/* Modal Detalle Usuario */}
+    {selectedUser && (
+      <Modal open={openModal} onClose={handleCloseModal}>
         <Box
           sx={{
             position: "absolute",
@@ -746,30 +643,37 @@ const handleFavoriteToggle = async (id, type) => {
             padding: 4,
             borderRadius: 2,
             boxShadow: 24,
-            width: 300,
-            textAlign: "center"
+            width: 400,
+            maxHeight: "80vh",
+            overflowY: "auto",
           }}
         >
-          <Typography variant="h6">Actualizar imagen de perfil</Typography>
-          {previewImage && (
-            <img
-              src={resizedImage || previewImage}
-              alt="Preview"
-              style={{ width: 200, height: 200, borderRadius: "50%", marginTop: 16 }}
-            />
-          )}
-          <Button
-            variant="contained"
-            sx={{ mt: 2 }}
-            onClick={handleSaveImage}
-          >
-            Guardar Imagen
+          <Typography variant="h6">{t("userDetails")}</Typography>
+          <Typography><strong>{t("name")}:</strong> {selectedUser.name}</Typography>
+          <Typography><strong>{t("username")}:</strong> {selectedUser.username}</Typography>
+          <Typography><strong>{t("email")}:</strong> {selectedUser.email}</Typography>
+          <Typography><strong>{t("bio")}:</strong> {selectedUser.bio}</Typography>
+          <Typography><strong>{t("status")}:</strong> {selectedUser.status}</Typography>
+          <Typography><strong>{t("role")}:</strong> {selectedUser.role}</Typography>
+          <Typography><strong>{t("createdAt")}:</strong> {selectedUser.createdAt}</Typography>
+          <img
+            src={
+              selectedUser.profilePic
+                ? `http://localhost:5000/uploads/${selectedUser.profilePic}`
+                : "/assets/images/profilepic_default.png"
+            }
+            alt="Profile Pic"
+            style={{ width: "150px", height: "150px", borderRadius: "50%" }}
+          />
+          <Button variant="contained" onClick={handleCloseModal} sx={{ mt: 2 }}>
+            {t("close")}
           </Button>
         </Box>
       </Modal>
-    </Box>
-    
-  );
+    )}
+  </Box>
+);
+
 }
 
 export default Test;
