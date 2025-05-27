@@ -3,7 +3,9 @@ import * as api from '../api/internal/ratingApi';
 
 export default function useRatings(token) {
   const [ratings, setRatings] = useState([]);
+  const [topRatingsByType, setTopRatingsByType] = useState({ artist: [], album: [], song: [] });
   const [loading, setLoading] = useState(true);
+  const [loadingTop, setLoadingTop] = useState(true);
   const [error, setError] = useState(null);
   const [itemStats, setItemStats] = useState({}); // { [mbid]: { average, count, userRating, type } }
 
@@ -31,6 +33,32 @@ export default function useRatings(token) {
     };
 
     fetchRatings();
+  }, [token]);
+
+  // NUEVO: función para obtener top ratings por tipo
+  const fetchTopRatingsByType = async (limit = 5) => {
+    if (!token) return;
+    setLoadingTop(true);
+    try {
+      const data = await api.getTopRatingsByType(limit, token);
+
+      // Transformar respuesta para usarla fácilmente en UI
+      const formatted = data.reduce((acc, curr) => {
+        acc[curr._id] = curr.favorites;
+        return acc;
+      }, { artist: [], album: [], song: [] });
+
+      setTopRatingsByType(formatted);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoadingTop(false);
+    }
+  };
+
+  // Si quieres que se cargue automáticamente al montar:
+  useEffect(() => {
+    fetchTopRatingsByType(5);
   }, [token]);
 
   const rateItem = async (mbid, type, rating) => {
@@ -70,7 +98,6 @@ export default function useRatings(token) {
   const fetchMultipleItemRatings = useCallback(async (mbids) => {
     try {
       const data = await api.getRatingsByMbids(mbids, token);
-      console.log(data); // útil para depurar
 
       setItemStats(prev => ({ ...prev, ...data }));
 
@@ -79,7 +106,7 @@ export default function useRatings(token) {
         .map(([mbid, stats]) => ({
           mbid,
           rating: stats.userRating,
-          type: stats.type || 'unknown' // fallback por si llega vacío
+          type: stats.type || 'unknown'
         }));
 
       setRatings(prev => {
@@ -103,12 +130,15 @@ export default function useRatings(token) {
 
   return {
     ratings,
+    topRatingsByType,    // <-- aquí expongo el nuevo estado
+    loading,
+    loadingTop,           // <-- indicador separado para top ratings
+    error,
     rateItem,
     deleteRating,
     getRatingFor,
     fetchMultipleItemRatings,
+    fetchTopRatingsByType, // <-- expongo función para recargar top ratings
     getItemStats,
-    loading,
-    error,
   };
 }

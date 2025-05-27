@@ -1,4 +1,5 @@
 const Rating = require('../models/Rating.js');
+const ratingService = require('../services/ratingService.js');
 
 const rateItem = async (req, res) => {
   const { mbid, type, rating } = req.body;
@@ -98,9 +99,21 @@ const deleteRating = async (req, res) => {
   }
 };
 
+const getTopRatings = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 5;
+    const topRatings = await ratingService.getTopRatingsByType(limit);
+    res.status(200).json(topRatings);
+  } catch (err) {
+    console.error('Error in getTopRatings:', err.message);
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   rateItem,
   getRatingsByUser,
   deleteRating,
   getRatingsByMbids,
+  getTopRatings,
 };

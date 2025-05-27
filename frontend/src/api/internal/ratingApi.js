@@ -40,3 +40,17 @@ export const getRatingsByMbids = async (mbidList, token) => {
     const response = await apiClient.get(`/rating/ratings?mbids=${query}`);
     return response.data; // → { mbid1: { average, count }, mbid2: {...}, ... }
   };
+
+  /**
+ * Obtiene los items con mejor rating para un tipo específico (artist, album, song)
+ * @param {string} type - Tipo del item ('artist', 'album', 'song')
+ * @param {number} limit - Cantidad máxima de resultados
+ * @param {string} token - Token de autenticación
+ * @returns {Promise<Array>} Array de objetos con la info de los items y sus ratings
+ */
+export const getTopRatingsByType = async (limit = 5, token) => {
+  const apiClient = createApiClient(token);
+  // Suponiendo que el endpoint es así:
+  const response = await apiClient.get(`/rating/top?limit=${limit}`);
+  return response.data;
+};

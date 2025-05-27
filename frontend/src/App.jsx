@@ -26,7 +26,8 @@ import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import i18n from './i18n';
 import Test from './pages/Test';
 import TestBuscador from './pages/TestBuscador';
-import TestContadorPage from './pages/TestContadorPage';
+import TestTopFavoritos from './pages/TestTopFavoritos';
+import TestTopRatings from './pages/TestTopRatings';
 
 
 function App() {
@@ -47,7 +48,8 @@ function App() {
         <Route path="/followed" element={<PrivateRoute><FollowedPage/></PrivateRoute>} />
         <Route path="/test" element={<PrivateRoute><Test/></PrivateRoute>} />
         <Route path="/test2" element={<PrivateRoute><TestBuscador/></PrivateRoute>} />
-        <Route path="/test3" element={<PrivateRoute><TestContadorPage/></PrivateRoute>} />
+        <Route path="/test3" element={<PrivateRoute><TestTopFavoritos/></PrivateRoute>} />
+        <Route path="/test4" element={<PrivateRoute><TestTopRatings/></PrivateRoute>} />
 
         <Route path="*" element={<Navigate to={token ? "/dashboard" : "/"} />} />
       </Routes>
