@@ -30,3 +30,10 @@ export const getFavoriteCount = async (favoriteId, token) => {
   const response = await apiClient.get(`/favorites/count/${favoriteId}`);
   return response.data;
 };
+
+// Obtener los favoritos más populares por tipo, con límite opcional (default 5)
+export const getTopFavorites = async (limit = 5, token) => {
+  const apiClient = createApiClient(token);
+  const response = await apiClient.get(`/favorites/top?limit=${limit}`);
+  return response.data;
+};

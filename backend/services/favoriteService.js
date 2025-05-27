@@ -1,4 +1,5 @@
 const Favorite = require('../models/Favorite');
+const { lookupByMBID } = require('./musicBrainzService');
 
 async function addFavorite(userId, favoriteId, favoriteType) {
   const exists = await Favorite.findOne({ user: userId, favoriteId, favoriteType });
@@ -9,43 +10,84 @@ async function addFavorite(userId, favoriteId, favoriteType) {
 }
 
 async function removeFavorite(userId, favoriteId) {
-    // Elimina el favorito solo para un usuario específico y un favoriteId
-    const deleted = await Favorite.findOneAndDelete({ user: userId, favoriteId });
-  
-    if (!deleted) {
-      throw new Error('Favorite not found');
-    }
-  
-    return deleted;
-  }
-  
+  const deleted = await Favorite.findOneAndDelete({ user: userId, favoriteId });
+  if (!deleted) throw new Error('Favorite not found');
+  return deleted;
+}
+
 async function getFavorites(userId) {
   return await Favorite.find({ user: userId });
 }
 
-// Contar cuántos "me gusta" tiene un favorito específico (por ejemplo, una canción)
 async function countFavorites(favoriteId) {
-    try {
-      const result = await Favorite.aggregate([
-        {
-          $match: { favoriteId } // Filtramos por favoriteId y favoriteType
-        },
-        {
-          $group: { 
-            _id: '$favoriteId',    // Agrupamos por favoriteId
-            count: { $sum: 1 }      // Contamos cuántas veces aparece
+  const result = await Favorite.aggregate([
+    { $match: { favoriteId } },
+    {
+      $group: {
+        _id: '$favoriteId',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  return result.length > 0 ? result[0].count : 0;
+}
+
+async function getTopFavoritesByType(limitPerType = 5) {
+  const pipeline = [
+    {
+      $group: {
+        _id: { favoriteId: "$favoriteId", favoriteType: "$favoriteType" },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { count: -1 } },
+    {
+      $group: {
+        _id: "$_id.favoriteType",
+        favorites: {
+          $push: {
+            favoriteId: "$_id.favoriteId",
+            count: "$count"
           }
         }
-      ]);
-      
-      if (result.length > 0) {
-        return result[0].count;  // Devuelve la cantidad de veces que se repite
-      } else {
-        return 0;  // Si no hay favoritos, retorna 0
       }
-    } catch (err) {
-      throw new Error('Error al contar los favoritos');
+    },
+    {
+      $project: {
+        favorites: { $slice: ["$favorites", limitPerType] }
+      }
     }
-  }
-  
-module.exports = { addFavorite, removeFavorite, getFavorites, countFavorites };
+  ];
+
+  const result = await Favorite.aggregate(pipeline);
+
+  for (const typeGroup of result) {
+  typeGroup.favorites = await Promise.all(
+    typeGroup.favorites.map(async (fav) => {
+      try {
+        fav.data = await lookupByMBID(typeGroup._id, fav.favoriteId);
+      } catch (error) {
+        console.error(`Error MB: ${error.message}`);
+        fav.data = null;
+      }
+      return fav;
+    })
+  );
+}
+
+
+  return result;
+}
+
+function delay(ms) {
+  return new Promise((res) => setTimeout(res, ms));
+}
+
+module.exports = {
+  addFavorite,
+  removeFavorite,
+  getFavorites,
+  countFavorites,
+  getTopFavoritesByType
+};

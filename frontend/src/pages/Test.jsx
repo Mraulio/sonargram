@@ -354,7 +354,7 @@ const handleFavoriteToggle = async (id, type) => {
         console.error(err);
       } 
   };
-  
+
   
  // ****************** FIN IMAGEN DE PERFIL ********************************* //
 
@@ -650,7 +650,7 @@ const handleFavoriteToggle = async (id, type) => {
                         style={{ color: "blue", textDecoration: "underline" }}
                       >
                         {artist.name}
-                      </span>                      
+                      </span>                                        
                       <IconButton onClick={() => handleFavoriteToggle(artist.id, "artist")}>
                         <FontAwesomeIcon
                           icon={isFavorite(artist.id) ? solidHeart : regularHeart}
@@ -683,7 +683,7 @@ const handleFavoriteToggle = async (id, type) => {
                       style={{ color: "green", textDecoration: "underline" }}
                     >
                       {album.title}
-                    </span>
+                    </span>                    
                     <IconButton onClick={() => handleFavoriteToggle(album.id, "album")}>
 
                       <FontAwesomeIcon
@@ -711,7 +711,7 @@ const handleFavoriteToggle = async (id, type) => {
                     key={song.id}
                     style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
                   >
-                    {song.title}
+                    {song.title}                    
                     <IconButton onClick={() => handleFavoriteToggle(song.id, "song")}>
 
                       <FontAwesomeIcon
