@@ -17,8 +17,7 @@ function TestContadorPage() {
     async function fetchTopFavorites() {
       try {
         const data = await getTopFavorites(5, token);
-        // data es un array [{_id: "album", favorites: [...]}, {...}, {...}]
-        console.log('DATA', data);
+
         // Transformar a objeto con claves:
         const formattedData = data.reduce((acc, curr) => {
         acc[curr._id] = curr.favorites;
