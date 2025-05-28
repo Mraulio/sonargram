@@ -30,6 +30,7 @@ import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import TopRatingsList from "../components/TopRatingsList";
 import TopFavoritosList from "../components/TopFavoritosList";
+import TopFollowedLists from "../components/TopFollowedLists";
 
 function Test() {
   const { t } = useTranslation();
@@ -584,13 +585,17 @@ function Test() {
         )}
       </Box>
 
-      {/* COLUMNA MEDIA */}
+      {/* COLUMNA 2 */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
         <TopRatingsList limit={5} title="Top 5 por Rating" />        
       </Box>
-      {/* COLUMNA DERECHA */}
+      {/* COLUMNA 3 */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
         <TopFavoritosList limit={5}/>        
+      </Box>
+      {/* COLUMNA 4 */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <TopFollowedLists limit={5}/>        
       </Box>
     </Box>
 

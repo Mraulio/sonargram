@@ -144,6 +144,38 @@ const deleteList = async (req, res) => {
   }
 };
 
+// Obtener listas más seguidas (ordenadas por followers)
+const getMostFollowedLists = async (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+
+  try {
+    const lists = await List.aggregate([
+      {
+        $lookup: {
+          from: 'listfollowers',
+          localField: '_id',
+          foreignField: 'list',
+          as: 'followers'
+        }
+      },
+      {
+        $addFields: {
+          followersCount: { $size: '$followers' }
+        }
+      },
+      {
+        $sort: { followersCount: -1 }
+      },
+      {
+        $limit: limit
+      }
+    ]);
+    res.status(200).json(lists);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createList,
   getLists,
@@ -152,5 +184,6 @@ module.exports = {
   addSongToList,
   removeSongFromList,
   updateListName,
-  deleteList
+  deleteList,
+  getMostFollowedLists
 };

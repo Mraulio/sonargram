@@ -55,3 +55,10 @@ export const deleteList = async (listId, token) => {
   const response = await apiClient.delete(`/lists/${listId}`);
   return response.data;
 };
+
+// Obtener las listas más seguidas
+export const getMostFollowedLists = async (token, limit = 10) => {
+  const apiClient = createApiClient(token);
+  const response = await apiClient.get(`/lists/most-followed?limit=${limit}`);
+  return response.data;
+};

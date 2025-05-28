@@ -100,6 +100,20 @@ export default function useList(token) {
     }
   };
 
+  const fetchMostFollowedLists = useCallback(async (limit = 10) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await listaApi.getMostFollowedLists(token, limit);
+      return data;
+    } catch (err) {
+      setError(err.message || 'Error fetching most followed lists');
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+
   return {
     lists,
     loading,
@@ -111,6 +125,7 @@ export default function useList(token) {
     renameList,
     addSong,
     removeSong,
-    fetchListById
+    fetchListById,
+    fetchMostFollowedLists
   };
 }
