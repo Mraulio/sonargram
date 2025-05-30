@@ -12,7 +12,6 @@ export default function useFavorites(token) {
     const fetchFavorites = async () => {
       try {
         const data = await api.getFavoritesByUser(token);
-        console.log('data', data)
         setFavorites(data);
       } catch (err) {
         setError(err.message);
