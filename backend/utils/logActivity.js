@@ -1,21 +1,23 @@
 const Activity = require('../models/Activity');
-const MBIDCache = require('../models/MBIDCache'); // si usas caching MB
+const MBIDCache = require('../models/MBIDCache');
 
 async function logActivity({ user, action, targetType, targetId, metadata = {} }) {
   try {
-    // Si el targetType es de MB (song, album, artist), cacheamos nombre si no existe
+    // Si el targetType es de MB (song, album, artist), cacheamos si no existe
     if (['song', 'album', 'artist'].includes(targetType)) {
       const exists = await MBIDCache.findOne({ mbid: targetId });
-      if (!exists && metadata.name) {
+      if (!exists && metadata.title) {
         await MBIDCache.create({
           mbid: targetId,
           type: targetType,
-          name: metadata.name
+          title: metadata.title,
+          artistName: metadata.artistName || undefined,
+          coverUrl: metadata.coverUrl || undefined
         });
       }
     }
 
-    // Crear el activity
+    // Crear la actividad
     await Activity.create({
       user,
       action,

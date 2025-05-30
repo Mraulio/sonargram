@@ -236,24 +236,43 @@ function TestBuscador() {
 
   // Toggle favorito para cualquier tipo
   const handleFavoriteToggle = async (id, type) => {
-    try {
-      if (isFavorite(id)) {
-        await removeFavorite(id);
-      } else {
-        await addFavorite(id, type);
+  try {
+    if (isFavorite(id)) {
+      await removeFavorite(id);
+    } else {
+      // Aquí buscamos el item en la lista correcta para sacar título, artista, cover
+      let item;
+
+      if (type === "artist") {
+        item = artistResults.find(a => a.id === id);
+      } else if (type === "album") {
+        item = albumResults.find(a => a.id === id) || selectedArtistAlbums.find(a => a.id === id);
+      } else if (type === "song") {
+        item = songResults.find(s => s.id === id) || selectedAlbumSongsFromArtist.find(s => s.id === id) || selectedAlbumSongs.find(s => s.id === id);
       }
-      const newCount = await getFavoriteCount(id);
-      setFavoriteCounts((prev) => ({
-        ...prev,
-        [`${type}s`]: {
-          ...prev[`${type}s`],
-          [id]: newCount,
-        },
-      }));
-    } catch (e) {
-      console.error("Error alternando favorito", e);
+
+      await addFavorite(
+        id,
+        type,
+        item?.title || item?.name || "",          // título o nombre
+        item?.artist || item?.artistName || "",   // nombre artista
+        item?.coverUrl || ""                       // url de portada si tienes
+      );
     }
-  };
+
+    const newCount = await getFavoriteCount(id);
+    setFavoriteCounts((prev) => ({
+      ...prev,
+      [`${type}s`]: {
+        ...prev[`${type}s`],
+        [id]: newCount,
+      },
+    }));
+  } catch (e) {
+    console.error("Error alternando favorito", e);
+  }
+};
+
 
   // Fetch ratings para todos los mbids visibles
   useEffect(() => {

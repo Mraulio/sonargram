@@ -11,7 +11,7 @@ const activitySchema = new Schema({
   targetType: { 
     type: String, 
     required: true, 
-    enum: ['Song', 'Album', 'Artist', 'User', 'List', 'Comment'] 
+    enum: ['song', 'album', 'artist', 'user', 'list', 'comment'] 
   },
   targetId: { 
     type: Schema.Types.Mixed,  // Puede ser string (ID externo) o ObjectId
@@ -24,3 +24,5 @@ const activitySchema = new Schema({
   },
   createdAt: { type: Date, default: Date.now }
 });
+
+module.exports = mongoose.model('Activity', activitySchema);
