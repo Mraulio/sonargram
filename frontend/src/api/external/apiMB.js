@@ -1,4 +1,6 @@
+import axios from "axios";
 import { MusicBrainzApi } from "musicbrainz-api";
+const corsProxy = "https://cors-anywhere.herokuapp.com/";
 
 const mbApi = new MusicBrainzApi({
   appName: "Prueba",
@@ -35,6 +37,7 @@ export const searchAlbums = async (albumName) => {
       id: rg.id,
       title: rg.title,
       artist: rg["artist-credit"]?.[0]?.name || "Artista desconocido",
+      coverUrl: `https://coverartarchive.org/release-group/${rg.id}/front-250.jpg`,
     }));
   } catch (error) {
     console.error("Error al buscar álbumes:", error);
@@ -130,3 +133,13 @@ export const getSongsByRelease = async (releaseId, limit = 10, offset = 0) => {
   }
 };
  */
+
+async function getCoverUrl(releaseId) {
+  try {
+    const response = await axios.get(`https://coverartarchive.org/release/${releaseId}`);
+    const data = response.data;
+    return data.images?.[0]?.thumbnails?.small || data.images?.[0]?.image || null;
+  } catch {
+    return null;
+  }
+}

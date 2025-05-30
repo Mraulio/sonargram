@@ -301,65 +301,79 @@ function TestBuscador() {
   ]);
 
   // Helper para mostrar lista con rating y favorito
-  const renderItemList = (items, type, onClickItem, highlightColor) => (
-    <ul
-      style={{
-        paddingLeft: 0,
-        listStyle: "none",
-        maxHeight: "30vh",
-        overflowY: "auto",
-      }}
-    >
-      {items.map((item) => (
-        <li
-          key={item.id}
+const renderItemList = (items, type, onClickItem, highlightColor) => (
+  <ul
+    style={{
+      paddingLeft: 0,
+      listStyle: "none",
+      maxHeight: "30vh",
+      overflowY: "auto",
+    }}
+  >
+    {items.map((item) => (
+      <li
+        key={item.id}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: "1px solid #ddd",
+          padding: "6px 0",
+          cursor: onClickItem ? "pointer" : "default",
+        }}
+      >
+        {type === "album" && item.coverUrl && (
+          <img
+            src={item.coverUrl}
+            alt="Cover"
+            style={{
+              width: 40,
+              height: 40,
+              objectFit: "cover",
+              marginRight: 8,
+              borderRadius: 4,
+            }}
+          />
+        )}
+        <span
+          onClick={onClickItem ? () => onClickItem(item.id) : undefined}
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderBottom: "1px solid #ddd",
-            padding: "6px 0",
-            cursor: onClickItem ? "pointer" : "default",
+            color: highlightColor || "black",
+            textDecoration: onClickItem ? "underline" : "none",
+            flexGrow: 1,
           }}
         >
-          <span
-            onClick={onClickItem ? () => onClickItem(item.id) : undefined}
-            style={{
-              color: highlightColor || "black",
-              textDecoration: onClickItem ? "underline" : "none",
-              flexGrow: 1,
-            }}
-          >
-            {type === "album" && item.title
-              ? `${item.title}${item.artist ? " — " + item.artist : ""}`
-              : type === "song" && item.title
-              ? `${item.title}${item.album ? " — " + item.album : ""}${item.artist ? " — " + item.artist : ""}`
-              : item.name || item.title}
-          </span>
-          <RatingDisplay
-            mbid={item.id}
-            type={type}
-            getItemStats={getItemStats}
-            getRatingFor={getRatingFor}
-            rateItem={rateItem}
-            deleteRating={deleteRating}
+          {type === "album" && item.title
+            ? `${item.title}${item.artist ? " — " + item.artist : ""}`
+            : type === "song" && item.title
+            ? `${item.title}${item.album ? " — " + item.album : ""}${item.artist ? " — " + item.artist : ""}`
+            : item.name || item.title}
+        </span>
+        <RatingDisplay
+          mbid={item.id}
+          type={type}
+          getItemStats={getItemStats}
+          getRatingFor={getRatingFor}
+          rateItem={rateItem}
+          deleteRating={deleteRating}
+        />
+        <IconButton
+          onClick={() => handleFavoriteToggle(item.id, type)}
+          color={isFavorite(item.id) ? "error" : "default"}
+          size="small"
+        >
+          <FontAwesomeIcon
+            icon={isFavorite(item.id) ? solidHeart : regularHeart}
           />
-          <IconButton
-            onClick={() => handleFavoriteToggle(item.id, type)}
-            color={isFavorite(item.id) ? "error" : "default"}
-            size="small"
-          >
-            <FontAwesomeIcon
-              icon={isFavorite(item.id) ? solidHeart : regularHeart}
-            />
-          </IconButton>
-          <Typography variant="body2" sx={{ ml: 1, minWidth: 25 }}>
-            {favoriteCounts[`${type}s`][item.id] || 0}
-          </Typography>
-        </li>
-      ))}
-    </ul>
-  );
+        </IconButton>
+        <Typography variant="body2" sx={{ ml: 1, minWidth: 25 }}>
+          {favoriteCounts[`${type}s`][item.id] || 0}
+        </Typography>
+      </li>
+    ))}
+  </ul>
+);
+
 
   return (
     <Box
