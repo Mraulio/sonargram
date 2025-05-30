@@ -33,12 +33,16 @@ export const searchAlbums = async (albumName) => {
       limit: 10,
     });
 
-    return result["release-groups"].map((rg) => ({
-      id: rg.id,
-      title: rg.title,
-      artist: rg["artist-credit"]?.[0]?.name || "Artista desconocido",
-      coverUrl: `https://coverartarchive.org/release-group/${rg.id}/front-250.jpg`,
-    }));
+    const albums = await Promise.all(
+      result["release-groups"].map(async (rg) => ({
+        id: rg.id,
+        title: rg.title,
+        artist: rg["artist-credit"]?.[0]?.name || "Artista desconocido",
+        coverUrl: await getCoverUrl(rg.id, "release-group"),
+      }))
+    );
+
+    return albums;
   } catch (error) {
     console.error("Error al buscar álbumes:", error);
     throw error;
@@ -66,27 +70,35 @@ export const searchSongs = async (songName) => {
 };
 
 
-
 export const getAlbumsByArtist = async (artistId, limit = 0, offset = 0) => {
   try {
     const result = await mbApi.browse("release-group", {
-      artist: artistId, // ID del artista
-      type: "album", // Filtra solo álbumes
+      artist: artistId,
+      type: "album",
       limit,
       offset,
     });
 
-    // Filtrar álbumes que no tengan secondary-types
     const studioAlbums = result["release-groups"].filter(
       (album) => !album["secondary-types"] || album["secondary-types"].length === 0
     );
 
-    return studioAlbums; // Devuelve solo los álbumes de estudio
+    const albumsWithCovers = await Promise.all(
+      studioAlbums.map(async (album) => ({
+        id: album.id,
+        title: album.title,
+        artist: album["artist-credit"]?.[0]?.name || "Artista desconocido",
+        coverUrl: await getCoverUrl(album.id, "release-group"),
+      }))
+    );
+
+    return albumsWithCovers;
   } catch (error) {
     console.error("Error al obtener álbumes del artista:", error);
     throw error;
   }
 };
+
 
 export const getReleasesByReleaseGroup = async (releaseGroupId, limit = 10, offset = 0) => {
   try {
@@ -134,12 +146,12 @@ export const getSongsByRelease = async (releaseId, limit = 10, offset = 0) => {
 };
  */
 
-async function getCoverUrl(releaseId) {
+const getCoverUrl = async (mbid, type = "release-group") => {
   try {
-    const response = await axios.get(`https://coverartarchive.org/release/${releaseId}`);
+    const response = await axios.get(`https://coverartarchive.org/${type}/${mbid}`);
     const data = response.data;
     return data.images?.[0]?.thumbnails?.small || data.images?.[0]?.image || null;
   } catch {
-    return null;
+    return null; // Si no hay portada, devuelve null
   }
-}
+};
