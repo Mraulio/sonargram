@@ -1,5 +1,6 @@
 const ListFollower = require('../models/ListFollower');
 const List = require('../models/List');
+const logActivity = require('../utils/logActivity');
 
 // Seguir una lista
 const followList = async (req, res) => {
@@ -25,6 +26,14 @@ const followList = async (req, res) => {
     // Crear la relación de seguimiento
     const newFollow = new ListFollower({ list: listId, user: userId });
     await newFollow.save();
+
+    // Log de la actividad, con los datos recibidos
+    await logActivity({
+      user: userId,
+      action: 'followList',
+      targetType: 'list',
+      targetId: listId,      
+    });
 
     res.status(201).json({ message: 'List followed successfully' });
   } catch (err) {

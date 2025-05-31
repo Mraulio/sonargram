@@ -30,8 +30,6 @@ const addFavorite = async (req, res) => {
   }
 };
 
-  
-
 const removeFavorite = async (req, res) => {
     try {
       const { favoriteId } = req.params;  // favoriteId se pasa por parámetros
