@@ -71,9 +71,9 @@ export default function useList(token) {
   };
 
   // Añadir canción a una lista
-  const addSong = async (listId, musicbrainzId) => {
+  const addSong = async (listId, title, artistName, coverUrl, releaseDate, duration, musicbrainzId) => {
     try {
-      return await listaApi.addSongToList(listId, musicbrainzId, token);
+      return await listaApi.addSongToList(listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration, token);
     } catch (err) {
       setError(err.message);
       throw err;
