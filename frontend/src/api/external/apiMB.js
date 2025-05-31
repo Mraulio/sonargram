@@ -77,8 +77,6 @@ export const searchSongs = async (songName) => {
     throw error;
   }
 };
-
-
 export const getAlbumsByArtist = async (artistId, limit = 10, offset = 0) => {
   try {
     const result = await mbApi.browse("release-group", {
@@ -98,6 +96,7 @@ export const getAlbumsByArtist = async (artistId, limit = 10, offset = 0) => {
           title: album.title,
           artist: album["artist-credit"]?.[0]?.name || "Desconocido",
           coverUrl,
+          releaseDate: album["first-release-date"] || "",  // <-- Aquí
         };
       })
     );
