@@ -65,7 +65,7 @@ const RatingDisplay = ({
         emptyIcon={<FontAwesomeIcon icon={getIconByType(type)} fontSize="inherit" />}
       />
       <Typography variant="body2" color="text.secondary">
-        {average !== null ? `${average.toFixed(1)} (${count})` : "Sin valoraciones"}
+        {average !== null ? `${average.toFixed(1)} (${count})` : "(0)"}
       </Typography>
       {userRating && (
         <IconButton onClick={handleDelete} size="small">

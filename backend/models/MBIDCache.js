@@ -10,6 +10,8 @@ const mbidCacheSchema = new mongoose.Schema({
   title: { type: String, required: true }, // nombre o título genérico (artista, canción, álbum)
   artistName: { type: String }, // opcional, útil para álbum o canción
   coverUrl: { type: String }, // opcional, para portadas de álbum o canción
+  releaseDate: {type: String},
+  duration: {type: String},
   data: { type: Object }, // info completa en JSON, opcional
   cachedAt: { type: Date, default: Date.now, index: true }
 });

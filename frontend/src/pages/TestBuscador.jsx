@@ -261,7 +261,9 @@ function TestBuscador() {
           type,
           item?.title || item?.name || "", // título o nombre
           item?.artist || item?.artistName || "", // nombre artista
-          item?.coverUrl || "" // url de portada si tienes
+          item?.coverUrl || "", // url de portada si tienes
+          item?.releaseDate || "",
+          item?.duration || "",
         );
       }
 
@@ -362,7 +364,7 @@ function TestBuscador() {
             {type === "song"
               ? formatDuration(item.duration)
               : type === "album"
-              ? item?.releaseDate?.split("-")[0] || "AAA" // solo año si lo deseas
+              ? item?.releaseDate?.split("-")[0] || "" // Año de release
               : ""}
           </Typography>
           <RatingDisplay

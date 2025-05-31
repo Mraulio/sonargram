@@ -37,7 +37,6 @@ export const searchAlbums = async (albumName) => {
       result["release-groups"].map(async (rg) => {
         const coverUrl = await getCoverUrl(rg.id, "release-group");
         const releases = await getReleasesByReleaseGroup(rg.id, 1, 0);
-        console.log('releases', releases)
         const releaseDate = releases[0]?.date || null;
 
         return {
@@ -80,8 +79,7 @@ export const searchSongs = async (songName) => {
 };
 
 
-
-export const getAlbumsByArtist = async (artistId, limit = 0, offset = 0) => {
+export const getAlbumsByArtist = async (artistId, limit = 10, offset = 0) => {
   try {
     const result = await mbApi.browse("release-group", {
       artist: artistId,
@@ -90,35 +88,26 @@ export const getAlbumsByArtist = async (artistId, limit = 0, offset = 0) => {
       offset,
     });
 
-    const studioAlbums = result["release-groups"].filter(
-      (album) => !album["secondary-types"] || album["secondary-types"].length === 0
-    );
+    const albums = result["release-groups"];
 
-    const albumsWithDetails = await Promise.all(
-      studioAlbums.map(async (album) => {
-        const coverUrl = await getCoverUrl(album.id, "release-group");
-
-        // Obtener la primera release asociada
-        const releases = await getReleasesByReleaseGroup(album.id, 1, 0);
-        const releaseDate = releases[0]?.date || null;
-
+    const albumsWithCovers = await Promise.all(
+      albums.map(async (album) => {
+        const coverUrl = await getCoverUrl(album.id);
         return {
           id: album.id,
           title: album.title,
-          artist: album["artist-credit"]?.[0]?.name || "Artista desconocido",
+          artist: album["artist-credit"]?.[0]?.name || "Desconocido",
           coverUrl,
-          releaseDate,
         };
       })
     );
 
-    return albumsWithDetails;
+    return albumsWithCovers;
   } catch (error) {
-    console.error("Error al obtener álbumes del artista:", error);
+    console.error("Error al obtener álbumes con carátulas:", error);
     throw error;
   }
 };
-
 
 
 export const getReleasesByReleaseGroup = async (releaseGroupId, limit = 10, offset = 0) => {

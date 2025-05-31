@@ -52,7 +52,7 @@ async function lookupByMBID(type, mbid) {
     await MBIDCache.create({
       mbid,
       type: mappedType,
-      name,
+      title,
       data: result,
     });
 

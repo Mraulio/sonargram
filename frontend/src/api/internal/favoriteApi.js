@@ -1,7 +1,7 @@
 import createApiClient from "./apiClient";
 
 // Agregar a favoritos
-export const addFavorite = async (favoriteId, favoriteType, title, artistName, coverUrl, token) => {
+export const addFavorite = async (favoriteId, favoriteType, title, artistName, coverUrl, releaseDate, duration, token) => {
   const apiClient = createApiClient(token);
   const response = await apiClient.post('/favorites', {
     favoriteId,
@@ -9,6 +9,8 @@ export const addFavorite = async (favoriteId, favoriteType, title, artistName, c
     title,
     artistName,
     coverUrl,
+    releaseDate,
+    duration,
   });
   return response.data;
 };

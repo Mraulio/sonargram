@@ -3,7 +3,7 @@ const logActivity = require('../utils/logActivity');
 
 const addFavorite = async (req, res) => {
   const userId = req.user.userId;
-  const { favoriteId, favoriteType, title, artistName, coverUrl } = req.body;
+  const { favoriteId, favoriteType, title, artistName, coverUrl, releaseDate, duration } = req.body;
 
   try {
     // Añadir a favoritos (lógica de negocio)
@@ -18,7 +18,9 @@ const addFavorite = async (req, res) => {
       metadata: {
         title,
         artistName,
-        coverUrl
+        coverUrl,
+        releaseDate,
+        duration,
       }
     });
 
