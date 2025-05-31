@@ -61,7 +61,7 @@ const getListById = async (req, res) => {
 // Añadir canción a la lista (solo creador o admin)
 const addSongToList = async (req, res) => {
   const { listId } = req.params;
-  const { musicbrainzId } = req.body;
+  const { musicbrainzId, title, artistName, coverUrl, releaseDate, duration } = req.body;  // datos que te manda el front
   const { userId, role } = req.user;
 
   try {
@@ -78,6 +78,23 @@ const addSongToList = async (req, res) => {
     }
 
     list.songs.push({ musicbrainzId });
+
+    // Log de la actividad, con los datos recibidos
+    await logActivity({
+      user: userId,
+      action: 'addListSong',
+      targetType: 'song',
+      targetId: musicbrainzId,
+      metadata: {
+        title,
+        artistName,
+        coverUrl,
+        releaseDate,
+        duration,
+        listId
+      }
+    });
+
     await list.save();
     res.status(200).json(list);
   } catch (err) {

@@ -6,7 +6,7 @@ const activitySchema = new Schema({
   action: { 
     type: String, 
     required: true, 
-    enum: ['favorite', 'comment', 'rate', 'followUser', 'followList', 'createList', 'recommendComment'] 
+    enum: ['favorite', 'comment', 'rate', 'followUser', 'followList', 'createList', 'addListSong', 'recommendComment'] 
   },
   targetType: { 
     type: String, 
@@ -16,6 +16,11 @@ const activitySchema = new Schema({
   targetId: { 
     type: Schema.Types.Mixed,  // Puede ser string (ID externo) o ObjectId
     required: true
+  },
+  list: {   // <-- Aquí agregas referencia a la lista (opcional)
+    type: Schema.Types.ObjectId,
+    ref: 'List',
+    required: false
   },
   activityRef: { // para referenciar el documento Mongo si aplica (comment, list, follow...)
     type: Schema.Types.ObjectId,

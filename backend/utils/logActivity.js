@@ -1,7 +1,7 @@
 const Activity = require('../models/Activity');
 const MBIDCache = require('../models/MBIDCache');
 
-async function logActivity({ user, action, targetType, targetId, metadata = {} }) {
+async function logActivity({ user, action, targetType, targetId, metadata = {}, listId }) {
   try {
     // Si el targetType es de MB (song, album, artist), cacheamos si no existe
     if (['song', 'album', 'artist'].includes(targetType)) {
@@ -14,7 +14,7 @@ async function logActivity({ user, action, targetType, targetId, metadata = {} }
           artistName: metadata.artistName || undefined,
           coverUrl: metadata.coverUrl || undefined,
           releaseDate: metadata.releaseDate || undefined,
-          duration: metadata.duration || undefined,
+          duration: metadata.duration || undefined,          
         });
       }
     }
@@ -25,7 +25,8 @@ async function logActivity({ user, action, targetType, targetId, metadata = {} }
       action,
       targetType,
       targetId,
-      metadata
+      metadata,
+      list: listId  // guardas el id de la lista aquí
     });
   } catch (err) {
     console.error('Error logging activity:', err);
