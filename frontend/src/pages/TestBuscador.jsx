@@ -374,7 +374,13 @@ function TestBuscador() {
             getRatingFor={getRatingFor}
             rateItem={rateItem}
             deleteRating={deleteRating}
+            title={item.title || item.name}
+            artistName={item.artist || item.artistName || ""}
+            coverUrl={item.coverUrl || ""}
+            releaseDate={item.releaseDate || ""}
+            duration={item.duration || ""}
           />
+
           <IconButton
             onClick={() => handleFavoriteToggle(item.id, type)}
             color={isFavorite(item.id) ? "error" : "default"}

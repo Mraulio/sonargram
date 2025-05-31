@@ -12,13 +12,18 @@ const RatingDisplay = ({
   getRatingFor,
   rateItem,
   deleteRating,
+  title,
+  artistName,
+  coverUrl,
+  releaseDate,
+  duration,
 }) => {
   const { average, count } = getItemStats(mbid);
   const userRating = getRatingFor(mbid, type);
 
   const handleChange = (_, newValue) => {
     if (newValue !== null) {
-      rateItem(mbid, type, newValue);
+      rateItem(mbid, type, newValue, title, artistName, coverUrl, releaseDate, duration);
     }
   };
 
