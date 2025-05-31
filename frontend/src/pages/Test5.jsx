@@ -1,33 +1,44 @@
-import { useEffect, useState, useContext } from "react";
-import { UserContext } from "../context/UserContext";
+import { useEffect, useState, useContext, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { UserContext } from '../context/UserContext';
+import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, IconButton } from '@mui/material';
+import Menu2 from '../components/Menu2';
+import useUser from '../hooks/useUser';
+import useFollow from '../hooks/useFollow';
+import TopRatingsList from "../components/TopRatingsList";
+import TopFavoritosList from "../components/TopFavoritosList";
 import RatingDisplay from "../components/RatingDisplay";
 import useRatings from "../hooks/useRatings";
-import { Box, Typography, Button, TextField, IconButton, Divider } from "@mui/material";
-import Menu from "../components/Menu";
 import { searchArtists, searchAlbums, searchSongs, getAlbumsByArtist, getSongsByRelease, getReleasesByReleaseGroup } from "../api/external/apiMB";
 import useFavorites from "../hooks/useFavorites";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
-
-function TestBuscador() {
-  const { token } = useContext(UserContext);
+import Search from '../components/Search';
+function Test5() {
+  const { t } = useTranslation();  // Hook para obtener las traducciones
+  const [userUsername, setUserUsername] = useState('');
+  const { token, role, logout, user} = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { follower, follow, following, fetchFollowing } = useFollow(token);
+  const { users, fetchAllUsers, getCurrentUser } = useUser(token);
+  const [searches, setSearches] = useState([]);
   const {
-    rateItem,
-    deleteRating,
-    getItemStats,
-    getRatingFor,
-    fetchMultipleItemRatings,
-  } = useRatings(token);
-  const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } =
-    useFavorites(token);
+      rateItem,
+      deleteRating,
+      getItemStats,
+      getRatingFor,
+      fetchMultipleItemRatings,
+    } = useRatings(token);
+  const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } = useFavorites(token);
 
-  // Estados para búsquedas
+      // Estados para búsquedas
   const [searchTermArtist, setSearchTermArtist] = useState("");
   const [searchTermAlbum, setSearchTermAlbum] = useState("");
   const [searchTermSong, setSearchTermSong] = useState("");
 
-  // Resultados búsqueda
+ // Resultados búsqueda
   const [artistResults, setArtistResults] = useState([]);
   const [albumResults, setAlbumResults] = useState([]);
   const [songResults, setSongResults] = useState([]);
@@ -329,184 +340,25 @@ function TestBuscador() {
   );
 
   return (
-    <Box
-      sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}
-    >
-      <Menu />
-      <Box sx={{ p: 2, backgroundColor: "#fff" }}>
-        <Typography variant="h4" gutterBottom>Búsqueda general</Typography>
-        <TextField
-          fullWidth
-          label="Buscar artistas, álbumes o canciones"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleGeneralSearch()}
-          margin="normal"
-        />
-        <Button variant="contained" onClick={handleGeneralSearch}>
-          Buscar
-        </Button>
+    <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'end', width: "100vw" }}>
+      <Menu2 />
+      <Box sx={{ width: '95vw', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      
+
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, p: 2  }}>
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "row", gap: 4  }}>
+            <TopRatingsList limit={5} title="Top 5 por Rating" />        
+          </Box>
+          
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "row", gap: 4 }}>
+            <TopFavoritosList limit={5}/>        
+          </Box>
       </Box>
 
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          height: "calc(100vh - 64px)",
-          px: 2,
-          gap: 2,
-          overflow: "auto",
-        }}
-      >
-        {/* COLUMNA ARTISTAS */}
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "#fff",
-            borderRadius: 1,
-            p: 2,
-            overflowY: "auto",
-          }}
-        >
-          <Typography variant="h5" gutterBottom>
-            Buscar Artista
-          </Typography>
-          <TextField
-            fullWidth
-            label="Nombre del artista"
-            value={searchTermArtist}
-            onChange={(e) => setSearchTermArtist(e.target.value)}
-            margin="normal"
-            onKeyDown={(e) => e.key === "Enter" && handleSearchArtist()}
-          />
-          <Button variant="contained" onClick={handleSearchArtist}>
-            Buscar
-          </Button>
-
-          {artistResults.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Artistas encontrados</Typography>
-              {renderItemList(
-                artistResults,
-                "artist",
-                handleSelectArtist,
-                "blue"
-              )}
-            </>
-          )}
-
-          {selectedArtistAlbums.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Álbumes del artista</Typography>
-              {renderItemList(
-                selectedArtistAlbums,
-                "album",
-                handleSelectAlbumFromArtist,
-                "darkgreen"
-              )}
-            </>
-          )}
-
-          {selectedAlbumSongsFromArtist.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Canciones del álbum</Typography>
-              {renderItemList(selectedAlbumSongsFromArtist, "song", null, null)}
-            </>
-          )}
-        </Box>
-
-        {/* COLUMNA ALBUMES */}
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "#fff",
-            borderRadius: 1,
-            p: 2,
-            overflowY: "auto",
-          }}
-        >
-          <Typography variant="h5" gutterBottom>
-            Buscar Álbum
-          </Typography>
-          <TextField
-            fullWidth
-            label="Nombre del álbum"
-            value={searchTermAlbum}
-            onChange={(e) => setSearchTermAlbum(e.target.value)}
-            margin="normal"
-            onKeyDown={(e) => e.key === "Enter" && handleSearchAlbums()}
-          />
-          <Button variant="contained" onClick={handleSearchAlbums}>
-            Buscar
-          </Button>
-
-          {albumResults.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Álbumes encontrados</Typography>
-              {renderItemList(
-                albumResults,
-                "album",
-                handleSelectAlbumFromAlbumSearch,
-                "blue"
-              )}
-            </>
-          )}
-
-          {selectedAlbumSongs.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Canciones del álbum</Typography>
-              {renderItemList(selectedAlbumSongs, "song", null, null)}
-            </>
-          )}
-        </Box>
-
-        {/* COLUMNA CANCIONES */}
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "#fff",
-            borderRadius: 1,
-            p: 2,
-            overflowY: "auto",
-          }}
-        >
-          <Typography variant="h5" gutterBottom>
-            Buscar Canción
-          </Typography>
-          <TextField
-            fullWidth
-            label="Nombre de la canción"
-            value={searchTermSong}
-            onChange={(e) => setSearchTermSong(e.target.value)}
-            margin="normal"
-            onKeyDown={(e) => e.key === "Enter" && handleSearchSongs()}
-          />
-          <Button variant="contained" onClick={handleSearchSongs}>
-            Buscar
-          </Button>
-
-          {songResults.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Canciones encontradas</Typography>
-              {renderItemList(songResults, "song", null, null)}
-            </>
-          )}
-        </Box>
-      </Box>
+        <Search />
     </Box>
+  </Box>
   );
 }
 
-export default TestBuscador;
+export default Test5;

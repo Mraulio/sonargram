@@ -2,18 +2,7 @@ import { useEffect, useState, useContext, useRef, use } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { UserContext } from "../context/UserContext";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  TextField,
-  Divider,
-  Modal,
-  IconButton,
-  ButtonBase
-} from "@mui/material";
+import { Box, Typography, Card, CardContent, Button, TextField, Divider, Modal, IconButton, ButtonBase } from "@mui/material";
 import Menu from "../components/Menu";
 import useUser from "../hooks/useUser";
 import useList from "../hooks/useList";
@@ -58,12 +47,14 @@ function ArtistPage() {
   const [artistResults, setArtistResults] = useState([]);
   const [selectedAlbums, setSelectedAlbums] = useState([]);
   const [albumSongs, setAlbumSongs] = useState([]);
+  const [favoriteArtistData, setFavoriteArtistData] = useState([]);
 
   useEffect(() => {
     const fetchCurrent = async () => {
       try {
         const user = await getCurrentUser();
         setCurrentUser(user);
+ 
       } catch (err) {
         console.error("Error fetching current user", err);
       }
@@ -72,6 +63,45 @@ function ArtistPage() {
     if (token) fetchCurrent();
   }, [token, getCurrentUser]);
 
+  const fetchFavoritesAndArtists = async () => {
+  try {
+    const data = await getFavoritesByUser(token);
+    setFavorites(data);
+
+    const artistFavorites = data.filter(item => item.favoriteType === "artist");
+
+    const artistData = await Promise.all(
+      artistFavorites.map(async fav => {
+        try {
+          const result = await fetch(`https://musicbrainz.org/ws/2/artist/${fav.favoriteId}?fmt=json`);
+          const data = await result.json();
+          const count = await getFavoriteCount(fav.favoriteId);
+          return {
+            id: fav.favoriteId,
+            name: data.name,
+            count: count || 0,
+          };
+        } catch {
+          return {
+            id: fav.favoriteId,
+            name: 'Artista desconocido',
+            count: 0,
+          };
+        }
+      })
+    );
+
+    setFavoriteArtistData(artistData);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  if (token) fetchFavoritesAndArtists();
+}, [token]);
 
 const handleSearchArtist = async () => {
   try {
@@ -173,7 +203,6 @@ const handleFavoriteToggle = async (id, type) => {
     }
 
     const newCount = await getFavoriteCount(id);
-
     setFavoriteCounts(prev => ({
       ...prev,
       [type + "s"]: {
@@ -181,6 +210,12 @@ const handleFavoriteToggle = async (id, type) => {
         [id]: newCount
       }
     }));
+
+    // 🔁 Recargar lista de favoritos tras cambio
+    if (type === "artist") {
+      await fetchFavoritesAndArtists();
+    }
+
   } catch (err) {
     console.error("Error toggling favorite", err);
   }
@@ -202,6 +237,7 @@ useEffect(() => {
 
   if (token) fetchFavorites();
 }, [token]);
+
 
   return (
     <Box sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}>
@@ -318,11 +354,37 @@ useEffect(() => {
           </Card>
         )}
       </Box>  
-      
-        </Box>
-
-    
-  );
-}
+      {favoriteArtistData.length > 0 && (
+  <Card sx={{ mt: 2 }}>
+    <CardContent>
+      <Typography variant="h6">Tus artistas favoritos</Typography>
+      <ul>
+        {favoriteArtistData.map((artist) => (
+          <li
+            key={artist.id}
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+          >
+            <span
+              onClick={() => handleSelectArtist(artist.id)}
+              style={{ color: "blue", textDecoration: "underline" }}
+            >
+              {artist.name}
+            </span>
+              <IconButton onClick={() => handleFavoriteToggle(artist.id, "artist")}>
+                        <FontAwesomeIcon
+                          icon={isFavorite(artist.id) ? solidHeart : regularHeart}
+                          style={{ color: isFavorite(artist.id) ? "red" : "gray" }}
+                        />
+                      <span>({artist.count})</span>
+                      </IconButton>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+              </Box>
+              );
+            }
 
 export default ArtistPage;

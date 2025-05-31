@@ -6,6 +6,8 @@ import Menu from '../components/Menu';
 import { getAllUsers } from '../api/internal/userApi'
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
+import TopRatingsList from "../components/TopRatingsList";
+import TopFavoritosList from "../components/TopFavoritosList";
 
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -132,6 +134,15 @@ function Dashboard() {
             )}
           </CardContent>
         </Card>
+
+        {/* COLUMNA MEDIA */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <TopRatingsList limit={5} title="Top 5 por Rating" />        
+      </Box>
+      {/* COLUMNA DERECHA */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <TopFavoritosList limit={5}/>        
+      </Box>
 
       </Box>
     </Box>
