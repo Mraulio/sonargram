@@ -31,6 +31,7 @@ import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import TopRatingsList from "../components/TopRatingsList";
 import TopFavoritosList from "../components/TopFavoritosList";
 import TopFollowedLists from "../components/TopFollowedLists";
+import Timeline from "../components/Timeline";
 
 function Test() {
   const { t } = useTranslation();
@@ -596,6 +597,10 @@ function Test() {
       {/* COLUMNA 4 */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
         <TopFollowedLists limit={5}/>        
+      </Box>
+       {/* COLUMNA 5 */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <Timeline limit={5}/>        
       </Box>
     </Box>
 
