@@ -16,7 +16,7 @@ const createList = async (req, res) => {
     await logActivity({
       user: userId,
       action: 'createList',
-      targetType: 'list',
+      targetType: 'List',
       targetId: guardada.id,      
     });
 

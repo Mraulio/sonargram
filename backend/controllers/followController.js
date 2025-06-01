@@ -15,7 +15,7 @@ async function followUser(req, res) {
     await logActivity({
       user: userId,
       action: 'followUser',
-      targetType: 'user',
+      targetType: 'User',
       targetId: followedId,      
     });
 

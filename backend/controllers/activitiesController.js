@@ -18,12 +18,10 @@ const getTimeline = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
-      .populate('user', 'username avatar')
+      .populate('user', 'username profilePic')
       .populate('list', 'name')
-      .populate({
-        path: 'activityRef',
-        populate: { path: 'user', select: 'username' }
-      });
+      .populate('activityRef')  // Esto es suficiente para que Mongoose detecte el modelo desde `targetType`
+
 
     res.status(200).json(activities);
   } catch (err) {

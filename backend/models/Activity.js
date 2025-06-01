@@ -11,7 +11,7 @@ const activitySchema = new Schema({
   targetType: { 
     type: String, 
     required: true, 
-    enum: ['song', 'album', 'artist', 'user', 'list', 'comment'] 
+    enum: ['song', 'album', 'artist', 'User', 'List', 'Comment'] 
   },
   targetId: { 
     type: Schema.Types.Mixed,  // Puede ser string (ID externo) o ObjectId

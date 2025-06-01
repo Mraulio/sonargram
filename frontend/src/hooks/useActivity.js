@@ -13,6 +13,7 @@ export default function useActivity(token) {
     setError(null);
     try {
       const data = await getTimeline(token, page, limit);
+      console.log('data', data)
       setActivities(data);
     } catch (err) {
       setError(err.message || 'Error fetching timeline');

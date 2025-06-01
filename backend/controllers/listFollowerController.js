@@ -31,7 +31,7 @@ const followList = async (req, res) => {
     await logActivity({
       user: userId,
       action: 'followList',
-      targetType: 'list',
+      targetType: 'List',
       targetId: listId,      
     });
 
