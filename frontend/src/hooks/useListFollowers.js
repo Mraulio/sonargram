@@ -13,7 +13,7 @@ const useListFollowers = (token) => {
   const [followedLists, setFollowedLists] = useState([]);
 
   // Seguir una lista
-  const follow = useCallback(async (listId) => {
+  const followL = useCallback(async (listId) => {
     try {
       const data = await followList(listId, token);
       return data;
@@ -68,7 +68,7 @@ const useListFollowers = (token) => {
     followers,
     followersCount,
     followedLists,
-    follow,
+    followL,
     unfollow,
     fetchFollowers,
     fetchFollowersCount,

@@ -343,19 +343,11 @@ function Test5() {
     <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'end', width: "100vw" }}>
       <Menu2 />
       <Box sx={{ width: '95vw', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-      
-
-      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, p: 2  }}>
-          <Box sx={{ flex: 1, display: "flex", flexDirection: "row", gap: 4  }}>
-            <TopRatingsList limit={5} title="Top 5 por Rating" />        
-          </Box>
-          
-          <Box sx={{ flex: 1, display: "flex", flexDirection: "row", gap: 4 }}>
-            <TopFavoritosList limit={5}/>        
-          </Box>
-      </Box>
-
         <Search />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems:'center', gap: 1 }}>    
+            <TopRatingsList limit={5} title="Top 5 por Rating" />        
+            <TopFavoritosList limit={5}/>        
+        </Box>      
     </Box>
   </Box>
   );

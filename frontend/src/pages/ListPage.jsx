@@ -2,7 +2,7 @@ import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import Menu from '../components/Menu';
+import Menu2 from '../components/Menu2';
 import useList from '../hooks/useList';
 import useUser from '../hooks/useUser';
 import useListFollowers from '../hooks/useListFollowers';
@@ -22,7 +22,7 @@ function ListPage() {
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
     const [ followLists, setFollowLists ] = useState('');
     const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser } = useList(token);
-    const { followers, followersCount, followedLists, follow, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
+    const { followers, followersCount, followedLists, followL, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
         
          const handleSearchListByUser = async () => {
           try {
@@ -163,7 +163,7 @@ function ListPage() {
 
             const handlefollowList = async (listId) => {
               try {
-                await follow(listId);
+                await followL(listId);
                 const currentUser= await getCurrentUser();
                 await fetchFollowedLists(currentUser._id);
                 alert(t('listFollowed')); // Muestra un mensaje de éxito
@@ -187,46 +187,59 @@ function ListPage() {
               }
             }
             return (
-              <Box>
-                <Menu />
-                <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: '90vw', mx: 'auto' }}>
-                  <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                    {userLists.map(l => (
-                      <Card key={l._id} sx={{ width: '500px', p: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'end', width: "100vw" }}>
+                <Menu2 />
+                <Box sx={{ width: '95vw', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                  <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4 }}>
+                    <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+                      <Card sx={{ width: '45%', height: '300px' }}>
                         <CardContent>
-                          <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
-                          <Divider sx={{ my: 1 }} />
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                            {t('Canciones')}: {l.songs.join(', ')}
-                          </Typography>
-                          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="body2" color="text.secondary">
-                              {t('Creador de la lista')}: {l.creator.name || t('unknown')}
-                            </Typography>
-                            <Button
-                              variant="outlined"
-                              color="warning"
-                              size="small"
-                              onClick={() => handleOpenListModal(l)}
-                              sx={{ ml: 2 }}
-                            >
-                              {t('edit')}
-                            </Button>
-                            <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
-                            </Button>
-                         
-                          </Box>
+                          <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
+                          <TextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
+                          <TextField fullWidth label={t('songIds')} value={songs} onChange={e => setSongs(e.target.value)} margin="normal" />
+                          <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>
+                            { t('createListButton')}
+                          </Button>
                         </CardContent>
                       </Card>
-                    ))}
+                      
+                      {userLists.map(l => (
+                        <Card key={l._id} sx={{ width: '45%', height: '300px' }}>
+                          <CardContent>
+                            <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
+                            <Divider sx={{ my: 1 }} />
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                              {t('Canciones')}: {l.songs.join(', ')}
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Typography variant="body2" color="text.secondary">
+                                {t('Creador de la lista')}: {l.creator.name || t('unknown')}
+                              </Typography>
+                              <Button
+                                variant="outlined"
+                                color="warning"
+                                size="small"
+                                onClick={() => handleOpenListModal(l)}
+                                sx={{ ml: 2 }}
+                              >
+                                {t('edit')}
+                              </Button>
+                              <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
+                              </Button>
+                          
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </Box>
                   </Box>
-                </Box>
-                <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: '90vw', mx: 'auto' }}>
-                  <Typography variant="h6" sx={{ mb: 2 }}>{t('followLists')}</Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                
+                <Box sx={{ display: 'flex', width: '95vw',justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                  <Typography variant="h6">{t('followLists')}</Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw',justifyContent: 'center', alignItems: 'center' }}>
                     {followedLists.map(l => (
-                      <Card key={l._id} sx={{ width: '500px', p: 2 }}>
+                      <Card key={l._id} sx={{ width: '45%', height: '300px' }}>
                         <CardContent>
                           <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
                           <Divider sx={{ my: 1 }} />
@@ -244,38 +257,29 @@ function ListPage() {
                     ))}
                   </Box>
                 </Box>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
-                    <TextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
-                    <TextField fullWidth label={t('songIds')} value={songs} onChange={e => setSongs(e.target.value)} margin="normal" />
-                    <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>
-                      { t('createListButton')}
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card>
-                <CardContent>
-                    <Typography variant="h5" gutterBottom>{t('showList')}</Typography>
-                    <TextField
-                        fullWidth
-                        label={t('searchListName')}
-                        value={searchListName}
-                        onChange={e => setSearchListName(e.target.value)}
-                        margin="normal"
-                    />
-                    <Button variant="contained" onClick={handleSearchListByName} sx={{ mt: 2 }}>
-                        {t('searchListButton')}
-                    </Button>
-                </CardContent>
                 
-            </Card>
+                
             {searchResults.length > 0 && (
-              <CardContent>
+              <Box sx={{ p: 4, display: 'flex', width: '95vw',justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
                 <Typography variant="h6" sx={{ mt: 2 }}>{t('searchResults')}</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw',justifyContent: 'center', alignItems: 'center' }}>
+                  <Card sx={{ width: '45%', height: '300px'}}>
+                  <CardContent>
+                      <Typography variant="h5" gutterBottom>{t('showList')}</Typography>
+                      <TextField
+                          fullWidth
+                          label={t('searchListName')}
+                          value={searchListName}
+                          onChange={e => setSearchListName(e.target.value)}
+                          margin="normal"
+                      />
+                      <Button variant="contained" onClick={handleSearchListByName} sx={{ mt: 2 }}>
+                          {t('searchListButton')}
+                      </Button>
+                  </CardContent>  
+                </Card>  
                   {searchResults.map(l => (
-                    <Card key={l._id} sx={{ width: '500px', p: 2 }}>
+                    <Card key={l._id} sx={{ width: '45%', height: '300px' }}>
                       <CardContent>
                         <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
                         <Divider sx={{ my: 1 }} />
@@ -296,8 +300,9 @@ function ListPage() {
                     </Card>
                   ))}
                 </Box>
-              </CardContent>
-            )}     
+              </Box>
+              )}
+               
             {/* Modal para renombrar la lista */}
               <Dialog open={open} onClose={handleCloseListModal}>
                 <DialogTitle>{t('editList')}</DialogTitle>
@@ -319,6 +324,7 @@ function ListPage() {
                   </Button>
                 </DialogActions>
               </Dialog>
+              </Box>
             </Box>
             );
           }

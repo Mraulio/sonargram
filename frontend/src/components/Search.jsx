@@ -5,6 +5,8 @@ import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider,
 import Menu2 from '../components/Menu2';
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
+import useList from '../hooks/useList';
+import useListFollowers from '../hooks/useListFollowers';
 import TopRatingsList from "../components/TopRatingsList";
 import TopFavoritosList from "../components/TopFavoritosList";
 import RatingDisplay from "../components/RatingDisplay";
@@ -18,6 +20,7 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 function Search() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
+  //Estados de usuario
   const [userUsername, setUserUsername] = useState('');
   const { token, role, logout, user} = useContext(UserContext);
   const [loading, setLoading] = useState(false);
@@ -25,6 +28,7 @@ function Search() {
   const { follower, follow, following, fetchFollowing } = useFollow(token);
   const { users, fetchAllUsers, getCurrentUser } = useUser(token);
   const [searches, setSearches] = useState([]);
+  //estados de me gusta y ratings
   const {
       rateItem,
       deleteRating,
@@ -50,6 +54,16 @@ function Search() {
     useState([]);
 
   const [selectedAlbumSongs, setSelectedAlbumSongs] = useState([]);
+
+  //Estados para listas
+  const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser } = useList(token);
+  const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
+  const [searchListName, setSearchListName] = useState('');
+  const [ followLists, setFollowLists ] = useState('');
+  const { followers, followersCount, followedLists, followL, unfollowList, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
+
+  // Estados para usuarios
+ 
 
   // Resultados generales
   const [searchTerm, setSearchTerm] = useState("");
@@ -268,6 +282,8 @@ function Search() {
         console.error("Error obteniendo ratings", err)
       );
     }
+    fetchAllLists();
+    fetchAllUsers(token);
   }, [
     artistResults,
     selectedArtistAlbums,
@@ -339,43 +355,112 @@ function Search() {
       ))}
     </ul>
   );
+  /*Buscar listas */
+  const handleSearchListByName = useCallback(async () => {
+          setLoading(true);
+          setError(null);
+          try {
+            const currentUser = await getCurrentUser(); // Asegúrate de obtener el usuario actual
+            if (!currentUser || !currentUser._id) {
+              alert(t('errorFetchingUserId'));
+              return;
+            }
+            await fetchListsByUser(currentUser._id);
+            await fetchFollowedLists(currentUser._id);
+
+            const filteredLists = lists.filter(list =>
+              list.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+              list.creator._id !== currentUser._id // Filtra las listas que no son del usuario actual
+            );
+
+            setSearchResults(filteredLists);
+            console.log('Filtered lists (excluding user-owned):', filteredLists);
+          } catch (err) {
+            setError(err.message || 'Error fetching lists');
+          } finally {
+            setLoading(false);
+          }
+        }, [lists, searchTerm, getCurrentUser, t]);
+
+        const handlefollowList = async (listId) => {
+              try {
+                console.log('List followed successfully:', listId);
+                await followL(listId);
+                
+                const currentUser= await getCurrentUser();
+                await fetchFollowedLists(currentUser._id);
+                alert(t('listFollowed')); // Muestra un mensaje de éxito
+              } catch (err) {
+                console.error('Error following list:', err);
+                alert(t('errorFollowingList')); // Muestra un mensaje de error
+              }
+            }
+    // Buscar usuarios
+    const handleSearchUser = async () => {
+    try {
+      const user = await getCurrentUser();
+      await fetchFollowing(user._id);
+      if (users.length > 0) {
+      const filtered = users
+        .filter(u => u._id !== user._id)
+        .filter(u => u.username.toLowerCase().includes(searchTerm.toLowerCase()));
+         
+        setSearches(filtered);
+        console.log('Filtered users:', filtered);
+      };
+    } catch (err) {
+      setError(err.message || 'Error fetching users');
+    }
+  };
+
+  const isFollowing = useCallback((userId) => {
+    return following.some(f => f.followed && f.followed._id === userId);
+  }, [following]);
+  
+ 
+
+  const handleFollow = async (followedId) => {
+    try {
+      await follow(followedId); // Llama a la función follow
+      const user = await getCurrentUser()
+      await fetchFollowing(user._id);
+      alert(t('userFollowed')); // Muestra un mensaje de éxito
+    } catch (err) {
+      console.error('Error following user:', err);
+      alert(t('errorFollowingUser')); // Muestra un mensaje de error
+    }
+  };
+
 
   return (
-        <Box sx={{ width: '50vw' }}>
+        <Box >
           <Box sx={{ display: 'flex', justifyContent:'center', alignItems: "center", gap: 2 }}>
           <TextField
-            fullWidth
-            label="Buscar artistas, álbumes o canciones"
+            sx={{ width: '80vw' }}
+            label="Buscar artistas, álbumes, canciones, listas, usuarios "
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleGeneralSearch()}
             margin="normal"/>
-          <Button variant="contained" onClick={handleGeneralSearch}> <FontAwesomeIcon icon= {faMagnifyingGlass} /> </Button>
+          <Button variant="contained"   onClick={() => { handleGeneralSearch(); handleSearchListByName(); handleSearchUser(); }}> <FontAwesomeIcon icon= {faMagnifyingGlass} /> </Button>
         </Box>
 
         <Box sx={{ display: "flex", gap: 2, overflow: "auto", flexWrap: "wrap" }} >
           {/* COLUMNA ARTISTAS */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', minWidth: '15vw', gap: 2 }} >
-            <Card sx={{ width: '15vw', minminHeight: '25vh', backgroundColor: 'lightblue' }}>
-            <Typography variant="h6" sx={{ p: 2 }}>Buscar por Artista</Typography>
-            <TextField fullWidth label="Nombre del artista" value={searchTermArtist} onChange={(e) => setSearchTermArtist(e.target.value)} margin="normal"
-              onKeyDown={(e) => e.key === "Enter" && handleSearchArtist()} />
-            <Button variant="contained" onClick={handleSearchArtist}> <FontAwesomeIcon icon= {faMagnifyingGlass} /> </Button>
-            </Card>
-
-            
+          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%' }} >
             {artistResults.map((artist) => (
               <Card 
                 key={artist.id}
-                sx={{ width: '30%', cursor: "pointer", minminHeight: '25vh' }}
-                onClick={() => handleSelectArtist(artist.id)}
-              >
+                sx={{ width: "30%", cursor: "pointer", minHeight: '25vh' }}
+                onClick={() => handleSelectArtist(artist.id)}>
                 <CardContent>
-                  <Typography variant="h6" color="primary">
+                  <Typography variant="h6" color="primary">{t('artist')}</Typography>
+                  <Divider />
+                  <Typography variant="h5" color="primary">
                     {artist.name}
                   </Typography>
-                  <Divider />
-                  <Box sx={{ display: 'flex', flexDirection:'column', mt: 1 }}>
+             
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                     <RatingDisplay
                       mbid={artist.id}
                       type="artist"
@@ -403,8 +488,6 @@ function Search() {
                   </CardContent>
                 </Card>
                 ))}
-
-
             {selectedArtistAlbums.length > 0 && (
               <>
                 <Divider sx={{ my: 2 }} />
@@ -425,27 +508,24 @@ function Search() {
                 {renderItemList(selectedAlbumSongsFromArtist, "song", null, null)}
               </>
             )}
+            
           </Box>
 
           {/* COLUMNA ALBUMES */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', minWidth: '15vw', gap: 2 }} >
-            <Card sx={{ width:  '15vw', minminHeight: '25vh',  backgroundColor: 'lightblue'}}>
-              <Typography variant="h6" sx={{ p: 2 }}>Buscar por Álbum</Typography>
-              <TextField fullWidth label="Nombre del álbum" value={searchTermAlbum} onChange={(e) => setSearchTermAlbum(e.target.value)} margin="normal"
-                onKeyDown={(e) => e.key === "Enter" && handleSearchAlbums()} />
-              <Button variant="contained" onClick={handleSearchAlbums}> <FontAwesomeIcon icon= {faMagnifyingGlass} /> </Button>
-            </Card>
+          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%' }} >
             {albumResults.length > 0 && (
               <>
                 {albumResults.map((album) => (
                   <Card
                     key={album.id}
-                    sx={{ width: "30%", cursor: "pointer", minminminHeight: '25vh' }}
+                    sx={{ width: "30%", cursor: "pointer", minHeight: '25vh' }}
                     onClick={() => handleSelectAlbumFromAlbumSearch(album.id)}
                   >
                     <CardContent>
-                      <Typography variant="h6" color="primary">
-                        {album.title}
+                      <Typography variant="h6" color="primary">{t('album')}</Typography>
+                      <Divider />
+                      <Typography variant="h5" color="primary">
+                         {album.title}
                       </Typography>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                         <RatingDisplay
@@ -488,19 +568,16 @@ function Search() {
           </Box>
 
           {/* COLUMNA CANCIONES */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', minWidth: '15vw',gap: 2}} >
-            <Card sx={{ width: '15vw', minHeight: '25vh', backgroundColor: 'lightblue' }}> 
-              <Typography variant="h6" sx={{ p: 2 }}>Buscar por Canción</Typography>
-              <TextField fullWidth label="Nombre de la canción"  value={searchTermSong} onChange={(e) => setSearchTermSong(e.target.value)} margin="normal" />
-              <Button variant="contained" onClick={handleSearchSongs}> <FontAwesomeIcon icon= {faMagnifyingGlass} /> </Button>
-            </Card>
+          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
             {songResults.length > 0 && (
               <>
                 {songResults.map((song) => (
                   <Card key={song.id} sx={{ width: "30%" }}>
                     <CardContent>
-                      <Typography variant="subtitle1" color="primary">
-                        {song.title}
+                      <Typography variant="h6" color="primary">{t('song')}</Typography>
+                      <Divider />
+                      <Typography variant="h5" color="primary">
+                       {song.title}
                       </Typography>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                         <RatingDisplay
@@ -530,7 +607,78 @@ function Search() {
               </>
             )}
           </Box>
-        </Box>
+
+          {/* COLUMNA LISTAS */}
+          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
+          {searchResults.length > 0 && (
+              <>
+                  {searchResults.map(l => (
+                    <Card key={l._id} sx={{ width: "45%" }}> 
+                      <CardContent>
+                        <Typography variant="h6" color="primary">{t('list')}</Typography>
+                        <Divider />
+                        <Typography variant="h5" sx={{ mb: 1 }}>{l.name}</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                          {t('Canciones')}: {l.songs.join(', ')}
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant="body2" color="text.secondary">
+                            {t('Creador de la lista')}: {l.creator.name || t('unknown')}
+                          </Typography>
+                          {followedLists.some(followed => followed._id === l._id) ? (
+                            <Typography color="success.main">{t('following')}</Typography>
+                          ) : (
+                            <Button onClick={() => handlefollowList(l._id)} color="error">{t('follow')}</Button>
+                          )}
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  ))}    
+                   </>
+                )}     
+          </Box>
+          { /* COLUMNA USUARIOS */}
+          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
+                {searches.map(user => (
+                  <Card key={user._id} sx={{ width: "45%" }}>
+                  <CardContent>
+                  <Typography variant="h6" color="primary">{t('user')}</Typography>
+                    <Divider />
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Avatar
+                      src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/default-avatar.png'}
+                       alt={user.name}
+                       sx={{ width: 56, height: 56, mr: 2 }}
+                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant="h5" color="primary">{user.name} </Typography>
+                    <Typography variant="h6" color="primary">({user.username}) </Typography>
+                    <Typography>{t('bio')}:{user.bio} </Typography>
+                    </Box>
+                    
+                    
+                    
+                    
+                    {isFollowing(user._id) ? (
+                      <Typography sx={{ ml: 2, color: 'green', display: 'inline-block' }}>
+                        {t('following')}
+                      </Typography>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleFollow(user._id)}
+                        sx={{ ml: 2 }}
+                      >
+                        {t('follow')}
+                      </Button>
+                    )}
+                    </Box>
+                    </CardContent>
+                  </Card>
+                ))}
+          </Box>
+    </Box>
     </Box>
 
   );
