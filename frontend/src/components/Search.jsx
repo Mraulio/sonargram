@@ -1,15 +1,12 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, IconButton } from '@mui/material';
-import Menu2 from '../components/Menu2';
+import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
 import useList from '../hooks/useList';
 import useListFollowers from '../hooks/useListFollowers';
-import TopRatingsList from "../components/TopRatingsList";
-import TopFavoritosList from "../components/TopFavoritosList";
-import RatingDisplay from "../components/RatingDisplay";
+import RatingDisplay from "./RatingDisplay";
 import useRatings from "../hooks/useRatings";
 import { searchArtists, searchAlbums, searchSongs, getAlbumsByArtist, getSongsByRelease, getReleasesByReleaseGroup } from "../api/external/apiMB";
 import useFavorites from "../hooks/useFavorites";
@@ -28,6 +25,9 @@ function Search() {
   const { follower, follow, following, fetchFollowing } = useFollow(token);
   const { users, fetchAllUsers, getCurrentUser } = useUser(token);
   const [searches, setSearches] = useState([]);
+  const [open, setOpen] = useState(false); // Estado para controlar el modal
+  const [selectedSongId, setSelectedSongId] = useState(null); //canciones dentro del modal
+  const [selectedListId, setSelectedListId] = useState("");
   //estados de me gusta y ratings
   const {
       rateItem,
@@ -56,14 +56,11 @@ function Search() {
   const [selectedAlbumSongs, setSelectedAlbumSongs] = useState([]);
 
   //Estados para listas
-  const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser } = useList(token);
+  const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, addSong } = useList(token);
   const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
   const [searchListName, setSearchListName] = useState('');
   const [ followLists, setFollowLists ] = useState('');
   const { followers, followersCount, followedLists, followL, unfollowList, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
-
-  // Estados para usuarios
- 
 
   // Resultados generales
   const [searchTerm, setSearchTerm] = useState("");
@@ -430,6 +427,29 @@ function Search() {
       alert(t('errorFollowingUser')); // Muestra un mensaje de error
     }
   };
+  const handleOpenListModal = async (song) => {
+    const user = await getCurrentUser();
+    await fetchListsByUser(user._id);
+    setSelectedSongId(song.id); // Guarda el id de la canción
+    setOpen(true);
+  };
+
+  const handleAddSong = async () => {
+  try {
+    await addSong(selectedListId, selectedSongId);
+    alert('Canción añadida correctamente');
+    setOpen(false); // Cierra el modal si quieres
+  } catch (err) {
+    alert('Error al añadir la canción');
+    console.error(err);
+  }
+};
+
+  const handleCloseListModal = () => {
+    setOpen(false); // Cierra el modal
+  };
+
+ 
 
 
   return (
@@ -440,7 +460,13 @@ function Search() {
             label="Buscar artistas, álbumes, canciones, listas, usuarios "
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleGeneralSearch()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleGeneralSearch();
+                handleSearchListByName();
+                handleSearchUser();
+              }
+            }}
             margin="normal"/>
           <Button variant="contained"   onClick={() => { handleGeneralSearch(); handleSearchListByName(); handleSearchUser(); }}> <FontAwesomeIcon icon= {faMagnifyingGlass} /> </Button>
         </Box>
@@ -602,12 +628,41 @@ function Search() {
                       <Typography variant="body2" sx={{ mt: 1 }}>
                         {favoriteCounts.songs[song.id] || 0} favoritos
                       </Typography>
+                      <Button variant='contained' size="small" onClick={() => handleOpenListModal(song)}>+</Button>
                     </CardContent>
                   </Card>
                 ))}
               </>
             )}
+            <Dialog open={open} onClose={handleCloseListModal}>
+              <DialogTitle>{t('addsong')}</DialogTitle>
+              <DialogContent>
+                <select
+                  value={selectedListId}
+                  onChange={e => setSelectedListId(e.target.value)}>
+                    <option value="" disabled>{t('selectAList') || 'Selecciona una lista'}</option>
+                    {userLists.map((list) => (
+                    <option key={list._id} value={list._id}>
+                    {list.name}
+                    </option>
+                  ))}
+                </select>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddSong}
+                  disabled={!selectedSongId || !selectedListId}>
+                  {t('save')}
+                </Button>
+                <Button onClick={handleCloseListModal} color="secondary">
+                  {t('cancel')}
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Box>
+
 
           {/* COLUMNA LISTAS */}
           <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
@@ -657,9 +712,6 @@ function Search() {
                     <Typography>{t('bio')}:{user.bio} </Typography>
                     </Box>
                     
-                    
-                    
-                    
                     {isFollowing(user._id) ? (
                       <Typography sx={{ ml: 2, color: 'green', display: 'inline-block' }}>
                         {t('following')}
@@ -684,5 +736,6 @@ function Search() {
 
   );
 }
+
 
 export default Search;

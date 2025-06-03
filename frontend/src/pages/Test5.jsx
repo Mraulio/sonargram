@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import Search from '../components/Search';
+
 function Test5() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const [userUsername, setUserUsername] = useState('');
@@ -344,7 +345,7 @@ function Test5() {
       <Menu2 />
       <Box sx={{ width: '95vw', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Search />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems:'center', gap: 1 }}>    
+        <Box sx={{ display: 'flex', gap: 1 }}>    
             <TopRatingsList limit={5} title="Top 5 por Rating" />        
             <TopFavoritosList limit={5}/>        
         </Box>      

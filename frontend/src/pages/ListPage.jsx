@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import Menu2 from '../components/Menu2';
+import SearchBar from '../components/Search';
 import useList from '../hooks/useList';
 import useUser from '../hooks/useUser';
 import useFavorites from '../hooks/useFavorites';
@@ -25,7 +26,7 @@ function ListPage() {
     const [error, setError] = useState(null);
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
     const [ followLists, setFollowLists ] = useState('');
-    const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser } = useList(token);
+    const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong } = useList(token);
     const { followers, followersCount, followedLists, followL, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
     const [searchTermSong, setSearchTermSong] = useState("");
     const [songResults, setSongResults] = useState([]);
@@ -101,7 +102,7 @@ function ListPage() {
               const currentUser= await getCurrentUser();
               fetchListsByUser(currentUser._id); // Actualiza la lista de listas
           
-              alert('List created');
+              alert(t('createListGoFill'));
               setListName('');
               setSongs('');
               } catch (err) {
@@ -198,21 +199,16 @@ function ListPage() {
               }
             }
 
-            const handleSearchSongs = async () => {
+            const handleDeleteSongList = async (listId, musicbrainzId) => {
               try {
-                const results = await searchSongs(searchTermSong);
-                setSongResults(results);
-                // Favoritos canciones
-                const counts = {};
-                await Promise.all(
-                  results.map(async (song) => {
-                    counts[song.id] = (await getFavoriteCount(song.id)) || 0;
-                  })
-                );
-                setFavoriteCounts((prev) => ({ ...prev, songs: counts }));
-              } catch (e) {
-                alert("Error al buscar canciones");
-                console.error(e);
+                await removeSong(listId, musicbrainzId);
+                alert('Canción eliminada correctamente de la lista');
+                const user = await getCurrentUser();
+                await fetchListsByUser(user._id)
+                // Si necesitas refrescar la lista, llama aquí a fetchListById o fetchListsByUser
+              } catch (err) {
+                alert('Error al eliminar la canción de la lista');
+                console.error(err);
               }
             };
             return (
@@ -235,32 +231,26 @@ function ListPage() {
                       {userLists.map(l => (
                         <Card key={l._id} sx={{ width: '45%', minHeight: '300px' }}>
                           <CardContent>
-                            <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
+                            <Typography variant="h5" sx={{ mb: 1 }}>{l.name}</Typography>
                             <Divider sx={{ my: 1 }} />
-                            <TextField 
-                              fullWidth
-                              value={searchTermSong}
-                              onChange={(e) => setSearchTermSong(e.target.value)}
-                              onKeyDown={(e) => e.key === "Enter" && handleSearchSongs()}>
-                            </TextField>
-                            <Button variant="contained"   onClick={ handleSearchSongs }> <FontAwesomeIcon icon= {faMagnifyingGlass} /> </Button>
-                            <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
-                              {songResults.length > 0 && (
-                                <>
-                                  {songResults.map((song) => (
-                                    <li key={song.id}>
-                                        <ul>
-                                          <Typography variant="h5" color="primary"> {song.title}  </Typography>
-                                          <Typography variant="h6" color="text.secondary">{ t('artist')}:{song.artist}</Typography>
-                                        </ul>
-                                    </li>
-                                  ))}
-                                </>
-                              )}
-                            </Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                              {t('Canciones')}: {l.songs.join(', ')}
-                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{t('songs')}:</Typography>
+                            
+                            <ul>
+                              {l.songs.map((song, index) => (
+                                <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'space-between'}}>
+                                  {song.musicbrainzId}
+                                  <Button
+                                    size="small"
+                                    color="error"
+                                    variant="contained"
+                                    sx={{ ml: 1 }}
+                                    onClick={() => handleDeleteSongList(l._id, song.musicbrainzId)}
+                                  >
+                                    X
+                                  </Button>
+                                </li>
+                              ))}
+                            </ul>
                             <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                               <Typography variant="body2" color="text.secondary">
                                 {t('Creador de la lista')}: {l.creator.name || t('unknown')}
@@ -292,9 +282,14 @@ function ListPage() {
                         <CardContent>
                           <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
                           <Divider sx={{ my: 1 }} />
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                            {t('Canciones')}: {l.songs.join(', ')}
-                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{t('songs')}:</Typography>
+                            
+                            <ul>
+                              {l.songs.map((song, index) => (
+                                <li key={index}>{song.musicbrainzId}</li>
+                              ))}
+                            </ul>
+                          
                           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Typography variant="body2" color="text.secondary">
                               {t('Creador de la lista')}: {l.creator.name || t('unknown')}
