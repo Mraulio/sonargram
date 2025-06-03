@@ -524,9 +524,8 @@ function Search() {
                     <CardContent>
                       <Typography variant="h6" color="primary">{t('album')}</Typography>
                       <Divider />
-                      <Typography variant="h5" color="primary">
-                         {album.title}
-                      </Typography>
+                      <Typography variant="h5" color="primary">{album.title}</Typography>
+                      <Typography variant="h6" color="text.secondary">{t('artist')}: {album.artist}</Typography>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                         <RatingDisplay
                           mbid={album.id}
@@ -579,6 +578,8 @@ function Search() {
                       <Typography variant="h5" color="primary">
                        {song.title}
                       </Typography>
+                      <Typography variant="h6" color="text.secondary">{t('artist')}: {song.artist}</Typography>
+                      <Typography variant="h6" color="text.secondary">{t('album')}: {song.album}</Typography>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                         <RatingDisplay
                           mbid={song.id}

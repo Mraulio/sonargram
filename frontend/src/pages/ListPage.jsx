@@ -5,7 +5,11 @@ import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog,
 import Menu2 from '../components/Menu2';
 import useList from '../hooks/useList';
 import useUser from '../hooks/useUser';
+import useFavorites from '../hooks/useFavorites';
 import useListFollowers from '../hooks/useListFollowers';
+import { searchArtists, searchAlbums, searchSongs, getAlbumsByArtist, getSongsByRelease, getReleasesByReleaseGroup } from "../api/external/apiMB";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 function ListPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -23,7 +27,14 @@ function ListPage() {
     const [ followLists, setFollowLists ] = useState('');
     const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser } = useList(token);
     const { followers, followersCount, followedLists, followL, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
-        
+    const [searchTermSong, setSearchTermSong] = useState("");
+    const [songResults, setSongResults] = useState([]);
+    const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } = useFavorites(token);
+    const [favoriteCounts, setFavoriteCounts] = useState({
+        artists: {},
+        albums: {},
+        songs: {},
+      });
          const handleSearchListByUser = async () => {
           try {
             // Obtén el usuario actual utilizando getCurrentUser
@@ -186,6 +197,24 @@ function ListPage() {
                 alert(t('errorUnfollowingList')); // Muestra un mensaje de error
               }
             }
+
+            const handleSearchSongs = async () => {
+              try {
+                const results = await searchSongs(searchTermSong);
+                setSongResults(results);
+                // Favoritos canciones
+                const counts = {};
+                await Promise.all(
+                  results.map(async (song) => {
+                    counts[song.id] = (await getFavoriteCount(song.id)) || 0;
+                  })
+                );
+                setFavoriteCounts((prev) => ({ ...prev, songs: counts }));
+              } catch (e) {
+                alert("Error al buscar canciones");
+                console.error(e);
+              }
+            };
             return (
               <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'end', width: "100vw" }}>
                 <Menu2 />
@@ -193,11 +222,10 @@ function ListPage() {
                   <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4 }}>
                     <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
-                      <Card sx={{ width: '45%', height: '300px' }}>
-                        <CardContent>
+                      <Card sx={{ width: '45%', height: '300px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+                        <CardContent sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
                           <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
                           <TextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
-                          <TextField fullWidth label={t('songIds')} value={songs} onChange={e => setSongs(e.target.value)} margin="normal" />
                           <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>
                             { t('createListButton')}
                           </Button>
@@ -205,10 +233,31 @@ function ListPage() {
                       </Card>
                       
                       {userLists.map(l => (
-                        <Card key={l._id} sx={{ width: '45%', height: '300px' }}>
+                        <Card key={l._id} sx={{ width: '45%', minHeight: '300px' }}>
                           <CardContent>
                             <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
                             <Divider sx={{ my: 1 }} />
+                            <TextField 
+                              fullWidth
+                              value={searchTermSong}
+                              onChange={(e) => setSearchTermSong(e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && handleSearchSongs()}>
+                            </TextField>
+                            <Button variant="contained"   onClick={ handleSearchSongs }> <FontAwesomeIcon icon= {faMagnifyingGlass} /> </Button>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
+                              {songResults.length > 0 && (
+                                <>
+                                  {songResults.map((song) => (
+                                    <li key={song.id}>
+                                        <ul>
+                                          <Typography variant="h5" color="primary"> {song.title}  </Typography>
+                                          <Typography variant="h6" color="text.secondary">{ t('artist')}:{song.artist}</Typography>
+                                        </ul>
+                                    </li>
+                                  ))}
+                                </>
+                              )}
+                            </Box>
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                               {t('Canciones')}: {l.songs.join(', ')}
                             </Typography>
