@@ -1,14 +1,25 @@
 const List = require('../models/List');
 const { deleteFollowersByList } = require('./listFollowerController');
+const logActivity = require('../utils/logActivity');
 
 // Crear lista
 const createList = async (req, res) => {
   try {
+    const userId = req.user.userId;
     const nueva = new List({
       ...req.body,
-      creator: req.user.userId  // Asegúrate de usar middleware auth
+      creator: userId 
     });
     const guardada = await nueva.save();
+
+    // Log de la actividad, con los datos recibidos
+    await logActivity({
+      user: userId,
+      action: 'createList',
+      targetType: 'List',
+      targetId: guardada.id,      
+    });
+
     res.status(201).json(guardada);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -50,7 +61,7 @@ const getListById = async (req, res) => {
 // Añadir canción a la lista (solo creador o admin)
 const addSongToList = async (req, res) => {
   const { listId } = req.params;
-  const { musicbrainzId } = req.body;
+  const { musicbrainzId, title, artistName, coverUrl, releaseDate, duration } = req.body;  // datos que te manda el front
   const { userId, role } = req.user;
 
   try {
@@ -67,6 +78,23 @@ const addSongToList = async (req, res) => {
     }
 
     list.songs.push({ musicbrainzId });
+
+    // Log de la actividad, con los datos recibidos
+    await logActivity({
+      user: userId,
+      action: 'addListSong',
+      targetType: 'song',
+      targetId: musicbrainzId,
+      metadata: {
+        title,
+        artistName,
+        coverUrl,
+        releaseDate,
+        duration,
+        listId
+      }
+    });
+
     await list.save();
     res.status(200).json(list);
   } catch (err) {
@@ -145,6 +173,38 @@ const deleteList = async (req, res) => {
   }
 };
 
+// Obtener listas más seguidas (ordenadas por followers)
+const getMostFollowedLists = async (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+
+  try {
+    const lists = await List.aggregate([
+      {
+        $lookup: {
+          from: 'listfollowers',
+          localField: '_id',
+          foreignField: 'list',
+          as: 'followers'
+        }
+      },
+      {
+        $addFields: {
+          followersCount: { $size: '$followers' }
+        }
+      },
+      {
+        $sort: { followersCount: -1 }
+      },
+      {
+        $limit: limit
+      }
+    ]);
+    res.status(200).json(lists);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createList,
   getLists,
@@ -153,5 +213,6 @@ module.exports = {
   addSongToList,
   removeSongFromList,
   updateListName,
-  deleteList
+  deleteList,
+  getMostFollowedLists
 };

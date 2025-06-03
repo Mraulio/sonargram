@@ -1,10 +1,10 @@
 const CommentRecommendation = require('../models/CommentRecommendation');
 const Comment = require('../models/Comment');  // Asegúrate de que tienes el modelo de Comment
-const mongoose = require('mongoose');
+const logActivity = require('../utils/logActivity');
 
 // Insertar un nuevo comentario
 const addComment = async (req, res) => {
-    const { user, targetId, targetType, comment } = req.body;
+    const { user, targetId, targetType, comment, title, artistName, coverUrl, releaseDate, duration } = req.body;
   
     try {
       // Verificar si ya existe un comentario del mismo usuario para el mismo target
@@ -23,6 +23,22 @@ const addComment = async (req, res) => {
       });
   
       await newComment.save();
+
+      // Log de la actividad, con los datos recibidos
+          await logActivity({
+            user: user,
+            action: 'comment',
+            targetType: targetType,
+            targetId: targetId,
+             metadata: {
+            title,
+            artistName,
+            coverUrl,
+            releaseDate,
+            duration,
+          }
+        });         
+
       res.status(201).json(newComment);
     } catch (error) {
       console.error('Error al agregar comentario:', error);
@@ -32,7 +48,6 @@ const addComment = async (req, res) => {
   
 
 // Eliminar comentario (marcar como "Deleted")
-// Eliminar comentario
 const deleteComment = async (req, res) => {
     const { commentId } = req.params;
   

@@ -12,13 +12,18 @@ const RatingDisplay = ({
   getRatingFor,
   rateItem,
   deleteRating,
+  title,
+  artistName,
+  coverUrl,
+  releaseDate,
+  duration,
 }) => {
   const { average, count } = getItemStats(mbid);
   const userRating = getRatingFor(mbid, type);
 
   const handleChange = (_, newValue) => {
     if (newValue !== null) {
-      rateItem(mbid, type, newValue);
+      rateItem(mbid, type, newValue, title, artistName, coverUrl, releaseDate, duration);
     }
   };
 
@@ -65,7 +70,7 @@ const RatingDisplay = ({
         emptyIcon={<FontAwesomeIcon icon={getIconByType(type)} fontSize="inherit" />}
       />
       <Typography variant="body2" color="text.secondary">
-        {average !== null ? `${average.toFixed(1)} (${count})` : "Sin valoraciones"}
+        {average !== null ? `${average.toFixed(1)} (${count})` : "(0)"}
       </Typography>
       {userRating && (
         <IconButton onClick={handleDelete} size="small">

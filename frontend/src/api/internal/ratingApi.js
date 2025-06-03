@@ -1,12 +1,17 @@
 import createApiClient from './apiClient';
 
 // Crear o actualizar una valoración
-export const rateItem = async (mbid, type, rating, token) => {
+export const rateItem = async (mbid, type, rating, title, artistName, coverUrl, releaseDate, duration, token) => {
   const apiClient = createApiClient(token);
   const response = await apiClient.post('/rating/rate', {
     mbid,
     type,
-    rating
+    rating, 
+    title,
+    artistName,
+    coverUrl,
+    releaseDate,
+    duration,
   });
   return response.data;
 };

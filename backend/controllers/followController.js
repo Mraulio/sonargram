@@ -1,5 +1,6 @@
 // controllers/followController.js
 const followService = require('../services/followService');
+const logActivity = require('../utils/logActivity');
 
 // Seguir a un usuario
 async function followUser(req, res) {
@@ -9,6 +10,15 @@ async function followUser(req, res) {
   try {
     // Llamamos al servicio para seguir al usuario
     await followService.followUser(userId, followedId);
+
+    // Log de la actividad, con los datos recibidos
+    await logActivity({
+      user: userId,
+      action: 'followUser',
+      targetType: 'User',
+      targetId: followedId,      
+    });
+
     res.status(200).json({ message: 'User followed successfully' });
   } catch (err) {
     console.error(err);

@@ -72,9 +72,9 @@ export default function useList(token) {
   };
 
   // Añadir canción a una lista
-  const addSong = async (listId, musicbrainzId) => {
+  const addSong = async (listId, title, artistName, coverUrl, releaseDate, duration, musicbrainzId) => {
     try {
-      return await listaApi.addSongToList(listId, musicbrainzId, token);
+      return await listaApi.addSongToList(listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration, token);
     } catch (err) {
       setError(err.message);
       throw err;
@@ -101,6 +101,21 @@ export default function useList(token) {
     }
     
   };
+
+  const fetchMostFollowedLists = useCallback(async (limit = 10) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await listaApi.getMostFollowedLists(token, limit);
+      return data;
+    } catch (err) {
+      setError(err.message || 'Error fetching most followed lists');
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+
   return {
     lists,
     userLists,
@@ -114,5 +129,6 @@ export default function useList(token) {
     addSong,
     removeSong,
     fetchListById,
+    fetchMostFollowedLists
   };
 }

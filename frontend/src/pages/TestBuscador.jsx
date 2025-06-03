@@ -226,8 +226,33 @@ function TestBuscador() {
       if (isFavorite(id)) {
         await removeFavorite(id);
       } else {
-        await addFavorite(id, type);
+        // Aquí buscamos el item en la lista correcta para sacar título, artista, cover
+        let item;
+
+        if (type === "artist") {
+          item = artistResults.find((a) => a.id === id);
+        } else if (type === "album") {
+          item =
+            albumResults.find((a) => a.id === id) ||
+            selectedArtistAlbums.find((a) => a.id === id);
+        } else if (type === "song") {
+          item =
+            songResults.find((s) => s.id === id) ||
+            selectedAlbumSongsFromArtist.find((s) => s.id === id) ||
+            selectedAlbumSongs.find((s) => s.id === id);
+        }
+
+        await addFavorite(
+          id,
+          type,
+          item?.title || item?.name || "", // título o nombre
+          item?.artist || item?.artistName || "", // nombre artista
+          item?.coverUrl || "", // url de portada si tienes
+          item?.releaseDate || "",
+          item?.duration || "",
+        );
       }
+
       const newCount = await getFavoriteCount(id);
       setFavoriteCounts((prev) => ({
         ...prev,
@@ -289,6 +314,19 @@ function TestBuscador() {
             cursor: onClickItem ? "pointer" : "default",
           }}
         >
+          {type === "album" && item.coverUrl && (
+            <img
+              src={item.coverUrl}
+              alt="Cover"
+              style={{
+                width: 40,
+                height: 40,
+                objectFit: "cover",
+                marginRight: 8,
+                borderRadius: 4,
+              }}
+            />
+          )}
           <span
             onClick={onClickItem ? () => onClickItem(item.id) : undefined}
             style={{
@@ -300,9 +338,21 @@ function TestBuscador() {
             {type === "album" && item.title
               ? `${item.title}${item.artist ? " — " + item.artist : ""}`
               : type === "song" && item.title
-              ? `${item.title}${item.album ? " — " + item.album : ""}${item.artist ? " — " + item.artist : ""}`
+              ? `${item.title}${item.album ? " — " + item.album : ""}${
+                  item.artist ? " — " + item.artist : ""
+                }`
               : item.name || item.title}
           </span>
+          <Typography
+            variant="body2"
+            sx={{ mr: 3, minWidth: 60, textAlign: "right" }}
+          >
+            {type === "song"
+              ? formatDuration(item.duration)
+              : type === "album"
+              ? item?.releaseDate?.split("-")[0] || "" // Año de release
+              : ""}
+          </Typography>
           <RatingDisplay
             mbid={item.id}
             type={type}
@@ -310,7 +360,13 @@ function TestBuscador() {
             getRatingFor={getRatingFor}
             rateItem={rateItem}
             deleteRating={deleteRating}
+            title={item.title || item.name}
+            artistName={item.artist || item.artistName || ""}
+            coverUrl={item.coverUrl || ""}
+            releaseDate={item.releaseDate || ""}
+            duration={item.duration || ""}
           />
+
           <IconButton
             onClick={() => handleFavoriteToggle(item.id, type)}
             color={isFavorite(item.id) ? "error" : "default"}
@@ -322,11 +378,18 @@ function TestBuscador() {
           </IconButton>
           <Typography variant="body2" sx={{ ml: 1, minWidth: 25 }}>
             {favoriteCounts[`${type}s`][item.id] || 0}
-          </Typography>
+          </Typography>          
         </li>
       ))}
     </ul>
   );
+  const formatDuration = (ms) => {
+    if (!ms) return "";
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
 
   return (
     <Box
@@ -334,7 +397,9 @@ function TestBuscador() {
     >
       <Menu />
       <Box sx={{ p: 2, backgroundColor: "#fff" }}>
-        <Typography variant="h4" gutterBottom>Búsqueda general</Typography>
+        <Typography variant="h4" gutterBottom>
+          Búsqueda general
+        </Typography>
         <TextField
           fullWidth
           label="Buscar artistas, álbumes o canciones"

@@ -23,6 +23,7 @@ const followRoutes = require('./routes/followRoutes');
 const listFollowerRoutes = require('./routes/listFollowerRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
 const mbRoutes = require('./routes/musicBrainzRoutes');
+const activityRoutes = require('./routes/activityRoutes');
 
 
 app.use('/api/users', userRoutes);
@@ -33,6 +34,8 @@ app.use('/api/follow', followRoutes);
 app.use('/api/listfollow', listFollowerRoutes);
 app.use('/api/rating', ratingRoutes);
 app.use('/api/mbroutes', mbRoutes);
+app.use('/api/activities', activityRoutes);
+
 
 // 🖼️ Servir archivos estáticos de /uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

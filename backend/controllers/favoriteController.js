@@ -1,18 +1,34 @@
 const favoriteService = require('../services/favoriteService');
+const logActivity = require('../utils/logActivity');
 
 const addFavorite = async (req, res) => {
-    try {
-      const result = await favoriteService.addFavorite(
-        req.user.userId, // 🔐 viene del token
-        req.body.favoriteId,
-        req.body.favoriteType
-      );
-      res.status(201).json(result);
-    } catch (err) {
-      res.status(400).json({ message: err.message });
-    }
-  };
-  
+  const userId = req.user.userId;
+  const { favoriteId, favoriteType, title, artistName, coverUrl, releaseDate, duration } = req.body;
+
+  try {
+    // Añadir a favoritos (lógica de negocio)
+    const result = await favoriteService.addFavorite(userId, favoriteId, favoriteType);
+
+    // Log de la actividad, con los datos recibidos
+    await logActivity({
+      user: userId,
+      action: 'favorite',
+      targetType: favoriteType,
+      targetId: favoriteId,
+      metadata: {
+        title,
+        artistName,
+        coverUrl,
+        releaseDate,
+        duration,
+      }
+    });
+
+    res.status(201).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
 
 const removeFavorite = async (req, res) => {
     try {

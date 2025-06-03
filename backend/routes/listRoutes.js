@@ -12,8 +12,12 @@ router.get('/', requireAuth, listController.getLists);
 // Obtener listas de un usuario específico
 router.get('/user/:userId', requireAuth, listController.getListsByUser);
 
-// Obtener listas de un usuario en específico 
+// Obtener las listas más seguidas
+router.get('/most-followed', requireAuth, listController.getMostFollowedLists);
+
+// Obtener lista por su id
 router.get('/:listId', listController.getListById);
+
 
 // Añadir canción a una lista (autenticado)
 router.post('/:listId/songs', requireAuth, listController.addSongToList);

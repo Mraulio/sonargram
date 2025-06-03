@@ -61,9 +61,9 @@ export default function useRatings(token) {
     fetchTopRatingsByType(5);
   }, [token]);
 
-  const rateItem = async (mbid, type, rating) => {
+  const rateItem = async (mbid, type, rating, title, artistName, coverUrl, releaseDate, duration) => {
     try {
-      const response = await api.rateItem(mbid, type, rating, token);
+      const response = await api.rateItem(mbid, type, rating,title, artistName, coverUrl, releaseDate, duration, token);
       const updated = response.rating;
 
       setRatings(prev => {

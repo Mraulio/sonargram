@@ -29,9 +29,9 @@ export const getListById = async (listId, token) => {
 };
 
 // Añadir canción a lista
-export const addSongToList = async (listId, musicbrainzId, token) => {
+export const addSongToList = async (listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration, token) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.post(`/lists/${listId}/songs`, { musicbrainzId });
+  const response = await apiClient.post(`/lists/${listId}/songs`, { musicbrainzId, title, artistName, coverUrl, releaseDate, duration, });
   return response.data;
 };
 
@@ -54,5 +54,12 @@ export const deleteList = async (listId, token) => {
   const apiClient = createApiClient(token);
   console.log('Deleting list with ID:', listId); // Debugging line
   const response = await apiClient.delete(`/lists/${listId}`);
+  return response.data;
+};
+
+// Obtener las listas más seguidas
+export const getMostFollowedLists = async (token, limit = 10) => {
+  const apiClient = createApiClient(token);
+  const response = await apiClient.get(`/lists/most-followed?limit=${limit}`);
   return response.data;
 };
