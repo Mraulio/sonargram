@@ -238,7 +238,7 @@ function ListPage() {
                             <ul>
                               {l.songs.map((song, index) => (
                                 <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'space-between'}}>
-                                  {song.musicbrainzId}
+                                  {song.title} - {song.artist}
                                   <Button
                                     size="small"
                                     color="error"
@@ -286,7 +286,7 @@ function ListPage() {
                             
                             <ul>
                               {l.songs.map((song, index) => (
-                                <li key={index}>{song.musicbrainzId}</li>
+                                <li key={index}>{song.title} - {song.artist} </li>
                               ))}
                             </ul>
                           

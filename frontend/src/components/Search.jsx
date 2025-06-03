@@ -26,7 +26,7 @@ function Search() {
   const { users, fetchAllUsers, getCurrentUser } = useUser(token);
   const [searches, setSearches] = useState([]);
   const [open, setOpen] = useState(false); // Estado para controlar el modal
-  const [selectedSongId, setSelectedSongId] = useState(null); //canciones dentro del modal
+  const [selectedSong, setSelectedSong] = useState(null); //canciones dentro del modal
   const [selectedListId, setSelectedListId] = useState("");
   //estados de me gusta y ratings
   const {
@@ -430,13 +430,13 @@ function Search() {
   const handleOpenListModal = async (song) => {
     const user = await getCurrentUser();
     await fetchListsByUser(user._id);
-    setSelectedSongId(song.id); // Guarda el id de la canción
+    setSelectedSong(song); // Guarda el id de la canción
     setOpen(true);
   };
 
   const handleAddSong = async () => {
   try {
-    await addSong(selectedListId, selectedSongId);
+    await addSong(selectedListId, selectedSong.id, selectedSong.title, selectedSong.artist, selectedSong.coverUrl, selectedSong.releaseDate, selectedSong.duration);
     alert('Canción añadida correctamente');
     setOpen(false); // Cierra el modal si quieres
   } catch (err) {
@@ -653,7 +653,7 @@ function Search() {
                   variant="contained"
                   color="primary"
                   onClick={handleAddSong}
-                  disabled={!selectedSongId || !selectedListId}>
+                  disabled={!selectedSong || !selectedListId}>
                   {t('save')}
                 </Button>
                 <Button onClick={handleCloseListModal} color="secondary">
