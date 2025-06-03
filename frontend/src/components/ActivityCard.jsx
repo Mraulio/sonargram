@@ -41,7 +41,7 @@ const iconColors = {
   recommendComment: "#43a047",
 };
 
-const getActionDescription = (action, user) => {
+const getActionDescription = (action, user, activity) => {
   const username = user || "Alguien";
 
   const StyledUsername = (
@@ -59,7 +59,7 @@ const getActionDescription = (action, user) => {
     case "favorite":
       return <>{StyledUsername} marcó como favorito</>;
     case "rate":
-      return <>{StyledUsername} calificó</>;
+      return <>{StyledUsername} calificó con nota {activity.rating}</>;
     case "createList":
       return <>{StyledUsername} creó la lista</>;
     case "addListSong":
@@ -152,7 +152,7 @@ const ActivityCard = ({ activity }) => {
       ? `http://localhost:5000/uploads/${user.profilePic}`
       : "/assets/images/profilepic_default.png";
 
-  const description = getActionDescription(action, user?.username);
+  const description = getActionDescription(action, user?.username, activity);
   const relatedContent = getRelatedContent(action, activity);
 
   return (

@@ -1,8 +1,8 @@
-const Activity = require('../models/Activity');
-const MBIDCache = require('../models/MBIDCache');
+const Activity = require("../models/Activity");
+const MBIDCache = require("../models/MBIDCache");
+const Rating = require("../models/Rating");
 
-const followService = require('../services/followService');
-
+const followService = require("../services/followService");
 
 const getTimeline = async (req, res) => {
   const { userId } = req.user;
@@ -11,28 +11,41 @@ const getTimeline = async (req, res) => {
   try {
     // Obtienes los usuarios seguidos
     const followDocs = await followService.getFollowing(userId);
-    const followedUserIds = followDocs.map(doc => doc.followed._id.toString());
+    const followedUserIds = followDocs.map((doc) =>
+      doc.followed._id.toString()
+    );
 
     // Obtienes las actividades
     const activities = await Activity.find({ user: { $in: followedUserIds } })
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
-      .populate('user', 'username profilePic')
-      .populate('list', 'name')
-      .populate('activityRef');  // para User, List, Comment
+      .populate("user", "username profilePic")
+      .populate("list", "name")
+      .populate("activityRef"); // para User, List, Comment
 
-    // Para cada actividad que es de MusicBrainz, traemos datos del cache
     const enrichedActivities = await Promise.all(
       activities.map(async (activity) => {
-        if (['song', 'album', 'artist'].includes(activity.targetType)) {
+        const enriched = activity.toObject();
+
+        // Si el target es externo (MBID), intenta traer los datos cacheados
+        if (["song", "album", "artist"].includes(activity.targetType)) {
           const mbidDoc = await MBIDCache.findOne({ mbid: activity.targetId });
-          return {
-            ...activity.toObject(),
-            mbidData: mbidDoc ? mbidDoc.toObject() : null,
-          };
+          enriched.mbidData = mbidDoc ? mbidDoc.toObject() : null;
         }
-        return activity;
+
+        // Si es una calificación, busca la puntuación del usuario para ese target
+        if (activity.action === "rate") {
+          const rating = await Rating.findOne({
+            userId: activity.user._id,
+            mbid: activity.targetId, // Asegúrate que sea string
+            type: activity.targetType.toLowerCase(),
+          }).lean();
+
+          enriched.rating = rating?.rating || null;
+        }
+
+        return enriched;
       })
     );
 
@@ -50,11 +63,11 @@ const getActivitiesByUser = async (req, res) => {
     const activities = await Activity.find({ user: userId })
       .sort({ createdAt: -1 })
       .limit(50)
-      .populate('user', 'username avatar')
-      .populate('list', 'name')
+      .populate("user", "username avatar")
+      .populate("list", "name")
       .populate({
-        path: 'activityRef',
-        populate: { path: 'user', select: 'username' }
+        path: "activityRef",
+        populate: { path: "user", select: "username" },
       });
 
     res.status(200).json(activities);
@@ -65,5 +78,5 @@ const getActivitiesByUser = async (req, res) => {
 
 module.exports = {
   getTimeline,
-  getActivitiesByUser
+  getActivitiesByUser,
 };
