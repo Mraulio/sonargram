@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import * as api from '../api/internal/userApi';
 
+
 export default function useUsers(token) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -18,9 +19,11 @@ export default function useUsers(token) {
       setLoading(false);
     }
   }, [token]);
+  
 
   const deleteUser = async (userId) => {
     try {
+      
       await api.deleteUser(userId, token);
       setUsers(prev => prev.filter(user => user._id !== userId));
     } catch (err) {

@@ -6,7 +6,7 @@ const { requireAuth } = require('../middleware/auth');
 // Crear nueva lista (autenticado)
 router.post('/', requireAuth, listController.createList);
 
-// Obtener todas las listas
+// Obtener todas las listas (público o como prefieras)
 router.get('/', requireAuth, listController.getLists);
 
 // Obtener listas de un usuario específico

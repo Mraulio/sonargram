@@ -5,10 +5,9 @@ import { UserContext } from '../context/UserContext';
 import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import useFollow from '../hooks/useFollow';
 import useUser from '../hooks/useUser';
-import Menu from '../components/Menu';
 
 
-function FollowerPage() {
+function Followers() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
     const { token } = useContext(UserContext);
     const { followers, fetchFollowers, following, fetchFollowing, follow, unfollow } = useFollow(token);
@@ -67,10 +66,9 @@ function FollowerPage() {
   }, []);
 
     return(
-        <Box>
-            <Menu/>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'column', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollower')}</Typography>
+  
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'column', alignItems:'center', gap: 2, width: '45%' }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollowers')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
                     {followers.map(f => (
                         f.follower ? (
@@ -110,8 +108,7 @@ function FollowerPage() {
                     ))}
                 </Box>
             </Box>
-        </Box>
     );
 }
     
-export default FollowerPage;
+export default Followers;

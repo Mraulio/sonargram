@@ -45,13 +45,14 @@ export const removeSongFromList = async (listId, musicbrainzId, token) => {
 // Actualizar nombre de lista
 export const updateListName = async (listId, newName, token) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.put(`/lists/${listId}`, { name: newName });
+  const response = await apiClient.put(`/lists/${listId}/name`, { name: newName } );
   return response.data;
 };
 
 // Eliminar lista
 export const deleteList = async (listId, token) => {
   const apiClient = createApiClient(token);
+  console.log('Deleting list with ID:', listId); // Debugging line
   const response = await apiClient.delete(`/lists/${listId}`);
   return response.data;
 };

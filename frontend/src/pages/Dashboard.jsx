@@ -1,221 +1,150 @@
-import { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import Menu from '../components/Menu';
-import { registerUser, getAllUsers } from '../api/internal/userApi'
-import apiClient from '../api/internal/apiClient';
-import { getAllLists, createList, deleteList } from '../api/internal/listApi'; 
-import { getUserByEmail } from '../api/internal/userApi';
+import { getAllUsers } from '../api/internal/userApi'
+import useUser from '../hooks/useUser';
+import useFollow from '../hooks/useFollow';
+import TopRatingsList from "../components/TopRatingsList";
+import TopFavoritosList from "../components/TopFavoritosList";
 
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
-  const [users, setUsers] = useState([]);
-  const [userName, setUserName] = useState('');
   const [userUsername, setUserUsername] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-  const [userPassword, setUserPassword] = useState('');
-  const [lists, setLists] = useState([]);
-  const [listName, setListName] = useState('');
-  const [songs, setSongs] = useState('');
-  const [creator, setCreator] = useState('');
   const { token, role, logout, user} = useContext(UserContext);
-  const navigate = useNavigate();
-
-  const [userData, setUserData] = useState(null);
-
-  // Obtener usuarios solo si es admin
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { follower, follow, following, fetchFollowing } = useFollow(token);
+  const { users, fetchAllUsers, getCurrentUser } = useUser(token);
+  const [searches, setSearches] = useState([]);
+   
   useEffect(() => {
-    if (role === 'admin') {
-      getAllUsers(token) // Usamos la función getAllUsers de userApi
-        .then(data => setUsers(data))
-        .catch(err => console.error(err));
-    }
-  }, [role, token]);
+    fetchAllUsers(token);
+    
+  }, []);
 
-  // Obtener listas
-  useEffect(() => {
-    if (token) {
-      getAllLists(token) // Usamos la función getAllLists de userApi
-        .then(data => setLists(data))
-        .catch(err => console.error(err));
-    }
-  }, [token]);
-
-  // Crear un usuario utilizando la función de userApi
-  const createUser = async () => {
+  const handleSearchUser = async () => {
     try {
-      const newUser = { name: userName, username: userUsername, email: userEmail, password: userPassword };
-      const res = await registerUser(newUser); // Usamos la función registerUser
-      setUsers([...users, res.data]);
-      setUserName('');
-      setUserUsername('');
-      setUserEmail('');
-      setUserPassword('');
+      const user = await getCurrentUser();
+      await fetchFollowing(user._id);
+      if (users.length > 0) {
+      const filtered = users
+        .filter(u => u._id !== user._id)
+        .filter(u => u.username.toLowerCase().includes(userUsername.toLowerCase()));
+        setSearches(filtered);
+      };
     } catch (err) {
-      alert('Error creating user');
-      console.error(err);
+      setError(err.message || 'Error fetching users');
     }
   };
 
-  // Crear una lista utilizando la función de userApi
-  const createNewList = async () => {
+  const isFollowing = useCallback((userId) => {
+    return following.some(f => f.followed && f.followed._id === userId);
+  }, [following]);
+  
+ 
+
+  const handleFollow = async (followedId) => {
     try {
-      const songArray = songs
-        .split(',')
-        .map(s => s.trim())
-        .filter(s => s !== '')
-        .map(id => ({ musicbrainzId: id }));
-  
-      const newList = await createList({ name: listName, songs: songArray }, token);
-      
-      // Agregar al estado local
-      setLists([...lists, newList]);
-  
-      alert('List created');
-      setListName('');
-      setSongs('');
+      await follow(followedId); // Llama a la función follow
+      const user = await getCurrentUser()
+      await fetchFollowing(user._id);
+      alert(t('userFollowed')); // Muestra un mensaje de éxito
     } catch (err) {
-      alert('Error creating list');
-      console.error(err);
+      console.error('Error following user:', err);
+      alert(t('errorFollowingUser')); // Muestra un mensaje de error
     }
   };
-
-  const handleDeleteList = async (listId) => {
-    if (!window.confirm(t('confirmDeleteList'))) return;
-  
-    try {
-      await deleteList(listId, token);
-      setLists(prev => prev.filter(l => l._id !== listId));
-    } catch (err) {
-      alert(t('errorDeletingList'));
-      console.error(err);
-    }
-  };
-
 
 
   return (
     <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', width: '100vw' }}>
-    <Menu></Menu>
-    <Typography variant="h1" sx={{ textAlign: 'center', mt: 4 }}>
- 
-  </Typography>
-    <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
-      
-      {/* Estado de sesión */}
-      <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ color: token ? 'green' : 'red' }}>
-            {token ? t('userLoggedIn', { role }) : t('noUserLoggedIn')}
-          </Typography>
-          {token && (
-            <Button variant="outlined" onClick={logout} sx={{ mt: 1 }}>
-              {t('logout')}
-            </Button>
-          )}
-        </CardContent>
-      </Card>     
-      
-      <div>
-        <Button variant="outlined" onClick={() => navigate('/profile')}>
-            {t('goToProfile')}
-        </Button>
-      </div>
-
-      {role === 'admin' && (
-        <Card sx={{ mb: 4 }}>
+      <Menu></Menu>
+      <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
+        
+        {/* Estado de sesión */}
+        <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
           <CardContent>
-            <Typography variant="h5" gutterBottom>{t('createUser')}</Typography>
+            <Typography variant="h6" sx={{ color: token ? 'green' : 'red' }}>
+              {token ? t('userLoggedIn', { role }) : t('noUserLoggedIn')}
+            </Typography>
+            {token && (
+              <Button variant="outlined" onClick={logout} sx={{ mt: 1 }}>
+                {t('logout')}
+              </Button>
+            )}
+          </CardContent>
+        </Card>     
+        
+        <Card>
+          <CardContent>
+            <Typography variant="h5">{t('findUsers')}</Typography>
             <TextField
               fullWidth
-              label={t('name')}
-              value={userName}
-              onChange={e => setUserName(e.target.value)}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label={t('username')}
-              value={userUsername}
+              label={t('userName')}
               onChange={e => setUserUsername(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  handleSearchUser();
+                }
+              }}
               margin="normal"
             />
-            <TextField
-              fullWidth
-              label={t('email')}
-              value={userEmail}
-              onChange={e => setUserEmail(e.target.value)}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              type="password"
-              label={t('password')}
-              value={userPassword}
-              onChange={e => setUserPassword(e.target.value)}
-              margin="normal"
-            />
-            <Button variant="contained" onClick={createUser} sx={{ mt: 2 }}>
-              {t('createUserButton')}
-            </Button>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="h6">{t('existingUsers')}</Typography>
-            
           </CardContent>
         </Card>
-      )}
 
-      <Card>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
-          <TextField
-            fullWidth
-            label={t('listName')}
-            value={listName}
-            onChange={e => setListName(e.target.value)}
-            margin="normal"
-          />
-          <TextField
-            fullWidth
-            label={t('songIds')}
-            value={songs}
-            onChange={e => setSongs(e.target.value)}
-            margin="normal"
-          />          
-          <Button variant="contained" onClick={createNewList} sx={{ mt: 2 }}>
-            {t('createListButton')}
-          </Button>
+        {/* Mostrar los usuarios obtenidos */}
+        <Card>
+          <CardContent>
+            <Typography variant="h6">{t('searchResults')}</Typography>
+            {loading ? (
+              <Typography>{t('loading')}</Typography>
+            ) : error ? (
+              <Typography color="error">{error}</Typography>
+            ) : searches.length > 0 ? (
+              <ul>
+                {searches.map(user => (
+                  <li key={user._id}>
+                    <Avatar
+                      src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/default-avatar.png'}
+                       alt={user.name}
+                       sx={{ width: 56, height: 56, mr: 2 }}
+                    />
+                    {user.name} ({user.username})
+                    {isFollowing(user._id) ? (
+                      <Typography sx={{ ml: 2, color: 'green', display: 'inline-block' }}>
+                        {t('following')}
+                      </Typography>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleFollow(user._id)}
+                        sx={{ ml: 2 }}
+                      >
+                        {t('follow')}
+                      </Button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Typography>{t('noResults')}</Typography>
+            )}
+          </CardContent>
+        </Card>
 
-          <Divider sx={{ my: 2 }} />
-          <Typography variant="h6">{t('existingLists')}</Typography>
-          <ul>
-            {lists.map(l => (
-              <li key={l._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span>{l.name}</span>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  size="small"
-                  onClick={() => handleDeleteList(l._id)}
-                  sx={{ ml: 2 }}
-                >
-                  {t('delete')}
-                </Button>
-              </li>
-            ))}
-        </ul>
+        {/* COLUMNA MEDIA */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <TopRatingsList limit={5} title="Top 5 por Rating" />        
+      </Box>
+      {/* COLUMNA DERECHA */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <TopFavoritosList limit={5}/>        
+      </Box>
 
-        </CardContent>
-      </Card>
-
-      {token && (
-        <Typography sx={{ mt: 4 }} fontSize="small" color="text.secondary">
-          {t('tokenLabel')}: {token}
-        </Typography>
-      )}
-    </Box>
+      </Box>
     </Box>
   );
 }

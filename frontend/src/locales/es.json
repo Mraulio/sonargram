@@ -20,7 +20,10 @@
     "createListButton": "Crear lista",
     "existingLists": "Listas existentes",
     "tokenLabel": "Token",
-    "goToProfile": "Perfil de usuario"
-
-  }
-  
+    "goToProfile": "Perfil de usuario",
+    "updateUser": "Editar usuario",
+    "editUserButton": "Editar usuario",
+    "deleteUserButton": "Borrar cuenta",
+    "confirmDeleteUser": "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.",
+    "userDeleted": "Usuario eliminado con éxito"
+  }  

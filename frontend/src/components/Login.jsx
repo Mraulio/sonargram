@@ -16,8 +16,8 @@ function Login() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '5rem' }}>
-      <Card sx={{ maxWidth: 400 }}>
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <Card sx={{ width: '400px', height: '290px' }}>
         <CardContent>
           <Typography variant="h5" component="div" gutterBottom>
             Login

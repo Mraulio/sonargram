@@ -56,13 +56,13 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
   }
 
   return (
-    <Box>
+     <Box sx={{ width: "100%" }}>
       <Typography variant="h5" mb={2}>
         {title}
       </Typography>
-
+      <Box sx={{ display: 'flex', justifyContent: 'start', gap: 1, flexWrap: 'wrap' }}>
       {["artist", "album", "song"].map((type) => (
-        <Box key={type} mb={4}>
+        <Box key={type} mb={4} sx={{ width: "30%", display: 'flex' }}>
           <Card>
             <CardContent>
               <Typography variant="h6" mb={1} textTransform="capitalize">
@@ -97,6 +97,7 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
           </Card>
         </Box>
       ))}
+    </Box>
     </Box>
   );
 }

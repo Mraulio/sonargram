@@ -79,6 +79,7 @@ const updateUser = async (req, res) => {
 
 const uploadProfilePic = async (req, res) => {
   const { userId, role } = req.user; // Info del token
+  
 
   try {
     // Reglas de autorización (solo el propio usuario o un admin puede subir la imagen)

@@ -5,10 +5,9 @@ import { UserContext } from '../context/UserContext';
 import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import useFollow from '../hooks/useFollow';
 import useUser from '../hooks/useUser';
-import Menu from '../components/Menu';
 
 
-function FollowedPage() {
+function Followed() {
     const navigate = useNavigate();
     const { t } = useTranslation();  // Hook para obtener las traducciones
     const { token } = useContext(UserContext);
@@ -52,14 +51,12 @@ function FollowedPage() {
   }, []);
 
     return(
-        <Box>
-            <Menu/>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'column', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'column', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2, width: '45%' }}>
                 <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollower')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
                     {following.map(f => (
                         f.followed ? (
-                            <Card key={f.followed._id} sx={{ width: '500px', p: 2 }}>
+                            <Card key={f.follower._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }}>
                                <Avatar
                                   src={f.followed.profilePic ? `http://localhost:5000/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
                                   alt={f.followed.name}
@@ -82,8 +79,8 @@ function FollowedPage() {
                     ))}
                 </Box>
             </Box>
-        </Box>
+ 
     );
 }
     
-export default FollowedPage;
+export default Followed;
