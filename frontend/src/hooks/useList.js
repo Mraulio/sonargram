@@ -73,7 +73,7 @@ export default function useList(token) {
   };
 
   // Añadir canción a una lista
-  const addSong = async (listId, title, artistName, coverUrl, releaseDate, duration, musicbrainzId) => {
+  const addSong = async (listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration) => {
     try {
       return await listaApi.addSongToList(listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration, token);
     } catch (err) {
