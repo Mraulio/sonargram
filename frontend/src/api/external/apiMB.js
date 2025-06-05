@@ -1,23 +1,13 @@
-import axios from "axios";
-import { MusicBrainzApi } from "musicbrainz-api";
-const corsProxy = "https://cors-anywhere.herokuapp.com/";
-
-const mbApi = new MusicBrainzApi({
-  appName: "Prueba",
-  appVersion: "0.1.0",
-  appContactInfo: "tuemail@ejemplo.com",
-});
+import { getCoverFromProxy, getMusicBrainzDataFromProxy } from "../internal/proxyApi";
 
 // Buscar artistas
-export const searchArtists = async (artista) => {
+export const searchArtists = async (artista, token) => {
   try {
-    const result = await mbApi.search("artist", {
-      query: artista,
-      limit: 5,
-    });
-    console.log(result.artists);
-
-    return result.artists;
+    const data = await getMusicBrainzDataFromProxy(
+      `ws/2/artist?query=${encodeURIComponent(artista)}&limit=1&fmt=json`,
+      token
+    );
+    return data.artists;
   } catch (error) {
     console.error("Error al buscar artistas:", error);
     throw error;
@@ -25,23 +15,22 @@ export const searchArtists = async (artista) => {
 };
 
 // Buscar álbumes por nombre
-export const searchAlbums = async (albumName) => {
+export const searchAlbums = async (albumName, token) => {
   try {
-    const result = await mbApi.search("release-group", {
-      query: albumName,
-      type: "album",
-      limit: 10,
-    });
+    const data = await getMusicBrainzDataFromProxy(
+      `ws/2/release-group?query=${encodeURIComponent(albumName)}&type=album&limit=5&fmt=json`,
+      token
+    );
 
     const albums = await Promise.all(
-      result["release-groups"].map(async (rg) => {
-        const coverUrl = await getCoverUrl(rg.id, "release-group");
-        const releases = await getReleasesByReleaseGroup(rg.id, 1, 0);
+      data["release-groups"].map(async (rg) => {
+        const coverUrl = await getCoverFromProxy(rg.id, "release-group", token);
+        const releases = await getReleasesByReleaseGroup(rg.id, token, 1, 0);
         const releaseDate = releases[0]?.date || null;
 
         return {
           id: rg.id,
-          title: rg.title,
+          title: rg.title || "Título desconocido",
           artist: rg["artist-credit"]?.[0]?.name || "Artista desconocido",
           coverUrl,
           releaseDate,
@@ -56,47 +45,46 @@ export const searchAlbums = async (albumName) => {
   }
 };
 
-
-
-export const searchSongs = async (songName) => {
+// Buscar canciones
+export const searchSongs = async (songName, token) => {
   try {
-    const result = await mbApi.search("recording", {
-      query: songName,
-      limit: 10,
-    });
+    const data = await getMusicBrainzDataFromProxy(
+      `ws/2/recording?query=${encodeURIComponent(songName)}&limit=5&fmt=json`,
+      token
+    );
 
-    return result.recordings.map((rec) => ({
+    return data.recordings.map((rec) => ({
       id: rec.id,
       title: rec.title,
       artist: rec["artist-credit"]?.[0]?.name || "Artista desconocido",
       album: rec.releases?.[0]?.title || "Álbum desconocido",
-      duration: rec.length || null, // Duración en milisegundos
+      duration: rec.length || null,
     }));
   } catch (error) {
     console.error("Error al buscar canciones:", error);
     throw error;
   }
 };
-export const getAlbumsByArtist = async (artistId, limit = 10, offset = 0) => {
-  try {
-    const result = await mbApi.browse("release-group", {
-      artist: artistId,
-      type: "album",
-      limit,
-      offset,
-    });
 
-    const albums = result["release-groups"];
+// Álbumes por artista
+export const getAlbumsByArtist = async (artistId, token, limit = 5, offset = 0) => {
+  try {
+    const data = await getMusicBrainzDataFromProxy(
+      `ws/2/release-group?artist=${artistId}&type=album&limit=${limit}&offset=${offset}&fmt=json`,
+      token
+    );
+
+    const albums = data["release-groups"];
 
     const albumsWithCovers = await Promise.all(
       albums.map(async (album) => {
-        const coverUrl = await getCoverUrl(album.id);
+        const coverUrl = await getCoverFromProxy(album.id, "release-group", token);
         return {
           id: album.id,
           title: album.title,
           artist: album["artist-credit"]?.[0]?.name || "Desconocido",
           coverUrl,
-          releaseDate: album["first-release-date"] || "",  // <-- Aquí
+          releaseDate: album["first-release-date"] || "",
         };
       })
     );
@@ -108,65 +96,38 @@ export const getAlbumsByArtist = async (artistId, limit = 10, offset = 0) => {
   }
 };
 
-
-export const getReleasesByReleaseGroup = async (releaseGroupId, limit = 10, offset = 0) => {
+// Releases por release-group
+export const getReleasesByReleaseGroup = async (releaseGroupId, token, limit = 5, offset = 0) => {
   try {
-    const result = await mbApi.browse("release", {
-      "release-group": releaseGroupId, // ID del release-group
-      limit,
-      offset,
-    });
-    return result.releases; // Devuelve la lista de releases
+    const data = await getMusicBrainzDataFromProxy(
+      `ws/2/release?release-group=${releaseGroupId}&limit=${limit}&offset=${offset}&fmt=json`,
+      token
+    );
+    return data.releases;
   } catch (error) {
     console.error("Error al obtener releases del release-group:", error);
     throw error;
   }
 };
 
-export const getSongsByRelease = async (releaseId, limit = 10, offset = 0) => {
+// Canciones por release
+export const getSongsByRelease = async (releaseId, token, limit = 5, offset = 0) => {
   try {
-    const result = await mbApi.browse("recording", {
-      release: releaseId,
-      limit,
-      offset,
-    });
+    const data = await getMusicBrainzDataFromProxy(
+      `ws/2/recording?release=${releaseId}&limit=${limit}&offset=${offset}&fmt=json`,
+      token
+    );
 
-    const sortedSongs = result.recordings.sort((a, b) => a.position - b.position);
+    const sortedSongs = data.recordings.sort((a, b) => a.position - b.position);
 
     return sortedSongs.map((rec) => ({
       id: rec.id,
       title: rec.title,
       artist: rec["artist-credit"]?.[0]?.name || "Artista desconocido",
-      duration: rec.length || null, // Duración en milisegundos
+      duration: rec.length || null,
     }));
   } catch (error) {
     console.error("Error al obtener canciones del release:", error);
     throw error;
-  }
-};
-
-// Obtener nombre (title o name) por MBID y tipo
-// Alternativa sin lookup
-/* export const fetchNameByMBID = async (mbid, type) => {
-  try {
-    fetch('https://musicbrainz.org/ws/2/artist/65f4f0c5-ef9e-490c-aee3-909e7ae6b2ab?fmt=json')
-  .then(res => res.json())
-  .then(data => {console.log('AAAAA', data)});
-
-    return mbid;
-  } catch (error) {
-    console.error(`Error buscando por MBID:`, error);
-    return mbid;
-  }
-};
- */
-
-const getCoverUrl = async (mbid, type = "release-group") => {
-  try {
-    const response = await axios.get(`https://coverartarchive.org/${type}/${mbid}`);
-    const data = response.data;
-    return data.images?.[0]?.thumbnails?.small || data.images?.[0]?.image || null;
-  } catch {
-    return null; // Si no hay portada, devuelve null
   }
 };

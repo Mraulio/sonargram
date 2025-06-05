@@ -1,6 +1,28 @@
 const List = require('../models/List');
+const MBIDCache = require('../models/MBIDCache');
 const { deleteFollowersByList } = require('./listFollowerController');
 const logActivity = require('../utils/logActivity');
+
+// Función de utilidad para enriquecer las canciones de una lista
+const enrichListSongs = async (list) => {
+  const enrichedSongs = await Promise.all(
+    list.songs.map(async (song) => {
+      const cache = await MBIDCache.findOne({ mbid: song.musicbrainzId });
+      return {
+        ...song.toObject(),
+        title: cache?.title || null,
+        artistName: cache?.artistName || null,
+        coverUrl: cache?.coverUrl || null,
+        releaseDate: cache?.releaseDate || null,
+        duration: cache?.duration || null,
+      };
+    })
+  );
+  return {
+    ...list.toObject(),
+    songs: enrichedSongs
+  };
+};
 
 // Crear lista
 const createList = async (req, res) => {
@@ -8,16 +30,15 @@ const createList = async (req, res) => {
     const userId = req.user.userId;
     const nueva = new List({
       ...req.body,
-      creator: userId 
+      creator: userId
     });
     const guardada = await nueva.save();
 
-    // Log de la actividad, con los datos recibidos
     await logActivity({
       user: userId,
       action: 'createList',
       targetType: 'List',
-      targetId: guardada.id,      
+      targetId: guardada.id,
     });
 
     res.status(201).json(guardada);
@@ -28,8 +49,12 @@ const createList = async (req, res) => {
 
 // Obtener todas las listas (Admin)
 const getLists = async (req, res) => {
-  const listas = await List.find().populate('creator');
-  res.json(listas);
+  try {
+    const listas = await List.find().populate('creator');
+    res.json(listas);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 // Obtener listas de un usuario específico
@@ -37,7 +62,8 @@ const getListsByUser = async (req, res) => {
   const { userId } = req.params;
   try {
     const listas = await List.find({ creator: userId });
-    res.json(listas);
+    const enriched = await Promise.all(listas.map(enrichListSongs));
+    res.json(enriched);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -46,22 +72,21 @@ const getListsByUser = async (req, res) => {
 // Obtener una lista específica por su ID
 const getListById = async (req, res) => {
   const { listId } = req.params;
-
   try {
     const list = await List.findById(listId).populate('creator');
     if (!list) return res.status(404).json({ message: 'List not found' });
 
-    res.status(200).json(list);
+    const enriched = await enrichListSongs(list);
+    res.status(200).json(enriched);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-
-// Añadir canción a la lista (solo creador o admin)
+// Añadir canción a la lista
 const addSongToList = async (req, res) => {
   const { listId } = req.params;
-  const { musicbrainzId, title, artistName, coverUrl, releaseDate, duration } = req.body;  // datos que te manda el front
+  const { musicbrainzId, title, artistName, coverUrl, releaseDate, duration } = req.body;
   const { userId, role } = req.user;
 
   try {
@@ -79,7 +104,6 @@ const addSongToList = async (req, res) => {
 
     list.songs.push({ musicbrainzId });
 
-    // Log de la actividad, con los datos recibidos
     await logActivity({
       user: userId,
       action: 'addListSong',
@@ -96,13 +120,14 @@ const addSongToList = async (req, res) => {
     });
 
     await list.save();
-    res.status(200).json(list);
+    const enriched = await enrichListSongs(list);
+    res.status(200).json(enriched);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Eliminar canción de la lista (solo creador o admin)
+// Eliminar canción de la lista
 const removeSongFromList = async (req, res) => {
   const { listId, musicbrainzId } = req.params;
   const { userId, role } = req.user;
@@ -118,7 +143,8 @@ const removeSongFromList = async (req, res) => {
     list.songs = list.songs.filter(song => song.musicbrainzId !== musicbrainzId);
     await list.save();
 
-    res.status(200).json(list);
+    const enriched = await enrichListSongs(list);
+    res.status(200).json(enriched);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -145,9 +171,9 @@ const updateListName = async (req, res) => {
     list.name = name;
     await list.save();
 
-    res.status(200).json(list);
+    const enriched = await enrichListSongs(list);
+    res.status(200).json(enriched);
   } catch (err) {
-    
     res.status(500).json({ error: err.message });
   }
 };
@@ -166,14 +192,14 @@ const deleteList = async (req, res) => {
     }
 
     await List.findByIdAndDelete(listId);
-    await deleteFollowersByList(listId); // Limpieza de seguidores
+    await deleteFollowersByList(listId);
     res.status(200).json({ message: 'List deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Obtener listas más seguidas (ordenadas por followers)
+// Obtener listas más seguidas
 const getMostFollowedLists = async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
 
@@ -199,6 +225,7 @@ const getMostFollowedLists = async (req, res) => {
         $limit: limit
       }
     ]);
+
     res.status(200).json(lists);
   } catch (err) {
     res.status(500).json({ error: err.message });

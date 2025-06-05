@@ -27,6 +27,7 @@ export default function useList(token) {
     setError(null);
     try {
       const data = await listaApi.getListsByUser(userId, token);
+      console.log('Fetched user lists!!!!!!!!!:', data);
       setUserLists(data);
     } catch (err) {
       setError(err.message || 'Error fetching user lists');
@@ -72,7 +73,7 @@ export default function useList(token) {
   };
 
   // Añadir canción a una lista
-  const addSong = async (listId, title, artistName, coverUrl, releaseDate, duration, musicbrainzId) => {
+  const addSong = async (listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration) => {
     try {
       return await listaApi.addSongToList(listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration, token);
     } catch (err) {
