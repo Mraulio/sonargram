@@ -1,16 +1,17 @@
 const { MusicBrainzApi } = require('musicbrainz-api');
-const MBIDCache = require('../models/MBIDCache'); // asegúrate de que exista
+const MBIDCache = require('../models/MBIDCache');
+
 const musicBrainzApi = new MusicBrainzApi({
   appName: 'TuApp',
   appVersion: '1.0.0',
   appContactInfo: 'tuemail@ejemplo.com',
 });
 
-const VALID_TYPES = ['artist', 'release-group', 'recording'];
+const VALID_TYPES = ['artist', 'album', 'song'];
 
 function mapFavoriteType(type) {
-  if (type === 'album') return 'release-group';
-  if (type === 'song') return 'recording';
+  if (type === 'album') return 'album';
+  if (type === 'song') return 'song';
   return type;
 }
 
@@ -18,9 +19,8 @@ function extractNameFromResult(type, result) {
   switch (type) {
     case 'artist':
       return result.name;
-    case 'recording':
-      return result.title;
-    case 'release-group':
+    case 'song':
+    case 'album':
       return result.title;
     default:
       return result.name || result.title || 'Desconocido';
@@ -38,25 +38,43 @@ async function lookupByMBID(type, mbid) {
   const cached = await MBIDCache.findOne({ mbid, type: mappedType });
   if (cached) {
     return {
-      name: cached.name,
+      mbid: cached.mbid,
       type: cached.type,
-      ...cached.data,
+      title: cached.title,
+      artistName: cached.artistName,
+      coverUrl: cached.coverUrl,
+      releaseDate: cached.releaseDate,
+      duration: cached.duration,
     };
   }
 
-  // 2. Si no está en caché, hacer llamada a MusicBrainz
+  // 2. Si no está en caché, buscar en MusicBrainz
   try {
     const result = await musicBrainzApi.lookup(mappedType, mbid);
     const name = extractNameFromResult(mappedType, result);
 
-    await MBIDCache.create({
+    const cacheEntry = {
       mbid,
       type: mappedType,
-      title,
-      data: result,
-    });
+      title: name,
+    };
 
-    return { name, type: mappedType, ...result };
+    // Rellenar campos opcionales si están disponibles
+    if (mappedType === 'song') {
+      cacheEntry.duration = result.length;
+      if (result['artist-credit']?.length > 0) {
+        cacheEntry.artistName = result['artist-credit'][0].name;
+      }
+    }
+
+    if (mappedType === 'album' && result['artist-credit']?.length > 0) {
+      cacheEntry.artistName = result['artist-credit'][0].name;
+    }
+
+    // Guardar en caché
+    await MBIDCache.create(cacheEntry);
+
+    return cacheEntry;
   } catch (error) {
     console.error(`Error al buscar ${mappedType} ${mbid}: ${error.message}`);
     throw error;
