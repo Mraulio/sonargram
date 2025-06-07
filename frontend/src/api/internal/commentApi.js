@@ -1,9 +1,9 @@
 import createApiClient from '../config/apiClient'; // ajustá el path si es necesario
 
 // Agregar comentario
-export const addComment = async (data, token) => {
+export const addComment = async (itemId, itemType, title, artistName, coverUrl, releaseDate, duration, token) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.post('/comments/add', data);
+  const response = await apiClient.post('/comments/add', itemId, itemType, title, artistName, coverUrl, releaseDate, duration);
   return response.data;
 };
 

@@ -36,18 +36,19 @@ async function getTopRatingsByType(limitPerType = 5) {
     typeGroup.ratings = await Promise.all(
       typeGroup.ratings.map(async (item) => {
         try {
-          item.data = await lookupByMBID(typeGroup._id, item.mbid);
+          const info = await lookupByMBID(typeGroup._id, item.mbid);
+          return { ...item, ...info };  // 🔁 Combinar todo en un solo objeto
         } catch (err) {
           console.error(`Error en lookup MBID ${item.mbid}: ${err.message}`);
-          item.data = null;
+          return { ...item, error: true };
         }
-        return item;
       })
     );
   }
 
   return result;
 }
+
 
 module.exports = {
   getTopRatingsByType,

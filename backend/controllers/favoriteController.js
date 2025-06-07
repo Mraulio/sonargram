@@ -71,7 +71,7 @@ const getFavoriteCount = async (req, res) => {
   const getTopFavorites = async (req, res) => {
   try {
     // Puedes recibir un parámetro opcional para el límite
-    const limit = parseInt(req.query.limit) || 5;
+    const limit = 5;
     const topFavorites = await favoriteService.getTopFavoritesByType(limit);
     res.status(200).json(topFavorites);
   } catch (err) {

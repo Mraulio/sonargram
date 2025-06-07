@@ -37,15 +37,14 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
   }, [token, limit]);
 
   function getItemName(item, type) {
-    if (!item.data) return "Sin nombre";
-
+    type === 'song' ? (console.log("Item:", item, "Type:", type)) : console.log(''); // Para depuración
     switch (type) {
       case "artist":
-        return item.data.name || "Sin nombre";
+        return item.title || item.data?.name || "Sin nombre";
       case "album":
-        return item.data.title || item.data.name || "Sin nombre";
+        return item.title || item.data?.title || item.data?.name || "Sin nombre";
       case "song":
-        return item.data.title || "Sin nombre";
+        return item.title || item.data?.title || "Sin nombre";
       default:
         return item.name || "Sin nombre";
     }
