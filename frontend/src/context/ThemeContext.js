@@ -1,6 +1,7 @@
 // src/context/ThemeContext.jsx
 import { createContext, useState, useEffect } from 'react';
 import { lightTheme, darkTheme } from '../theme/theme';
+import { createTheme } from '@mui/material/styles';
 
 export const ThemeContext = createContext();
 
@@ -19,7 +20,7 @@ export const ThemeProviderCustom = ({ children }) => {
   };
 
   const theme = mode === 'light' ? lightTheme : darkTheme;
-
+  
   return (
     <ThemeContext.Provider value={{ mode, toggleTheme, theme }}>
       {children}

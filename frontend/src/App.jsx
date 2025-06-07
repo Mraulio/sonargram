@@ -29,7 +29,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import i18n from './i18n';
 import Test from './pages/Test';
+import { styled } from '@mui/material/styles';
 
+const CustomButton = styled(Link)`
+    color : white;
+    text-decoration: none;
+    cursor: pointer;
+  `;
+
+const CustomMenu2 = styled(Box)`
+  display: flex;
+  gap: 30px;
+  left: 20px;
+  justify-content: center;
+  align-content: center;
+  width: 120px;
+  background: transparent;
+`;
 
 function App() {
   const { token } = useContext(UserContext);
@@ -77,11 +93,11 @@ function ThemeWrapper() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex', position: 'fixed', flexDirection: 'column', justifyContent: 'center', alignItems:'center', top: 0, left: 0, color: 'white', gap: 1, padding: 2, width: '5vw', zIndex: 100, backgroundColor: 'blue' }}>
-        <Button variant="cointained"  sx={{width:'11px'}} onClick={toggleTheme}><FontAwesomeIcon icon={mode === 'light' ? faMoon : faSun} size="lg" /></Button>
-        <Button variant="cointained" sx={{width:'30px'}} onClick={() => i18n.changeLanguage('en')}>EN</Button>
-        <Button variant="cointained" sx={{width:'30px'}} onClick={() => i18n.changeLanguage('es')}>ES</Button>
-      </Box>
+      <CustomMenu2>
+        <CustomButton onClick={toggleTheme}><FontAwesomeIcon icon={mode === 'light' ? faMoon : faSun} size="lg" /></CustomButton> 
+        <CustomButton onClick={() => i18n.changeLanguage('en')}>EN</CustomButton>
+        <CustomButton onClick={() => i18n.changeLanguage('es')}>ES</CustomButton>
+      </CustomMenu2>
       <App />
     </ThemeProvider>
   );

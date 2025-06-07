@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Avatar, Box, Container, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, styled } from '@mui/material';
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
 import useList from '../hooks/useList';
@@ -14,6 +14,35 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+
+//Componentes personalizados
+const CustomTextField = styled(TextField)({
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      border: 'none',
+      borderBottom: '2px solid #3e4a4c', // solo borde abajo, cambia el color si quieres
+      borderRadius: 0,
+    },
+    '&:hover fieldset': {
+      border: 'none',
+      borderBottom: '2px solid #3e4a4c',
+    },
+    '&.Mui-focused fieldset': {
+      border: 'none',
+      borderBottom: '2px solid #3e4a4c',
+    },
+  },
+  '& label': {
+    color: '#3e4a4c',
+  },
+  '& label.Mui-focused': {
+    color: '#3e4a4c',
+  },
+  width: '100vw',
+});
+
+const CustomResults= styled(Box)`
+`;
 
 function Search() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -348,6 +377,17 @@ function Search() {
           <Typography variant="body2" sx={{ ml: 1, minWidth: 25 }}>
             {favoriteCounts[`${type}s`][item.id] || 0}
           </Typography>
+          {/* Botón + solo para canciones */}
+          {type === "song" && (
+            <Button
+              variant="contained"
+              size="small"
+              sx={{ ml: 1, backgroundColor:'#ff6600'}}
+              onClick={() => handleOpenListModal(item)}
+            >
+              +
+            </Button>
+          )}
         </li>
       ))}
     </ul>
@@ -454,10 +494,9 @@ function Search() {
 
 
   return (
-        <Box >
-          <Box sx={{ display: 'flex', justifyContent:'center', alignItems: "center", gap: 2 }}>
-          <TextField
-            sx={{ width: '80vw' }}
+        <Box sx={{ display: 'flex', flexDirection: 'column'}} >
+          <Box sx={{ display: 'flex', width: '60vw' }}>
+          <CustomTextField
             label="Buscar artistas, álbumes, canciones, listas, usuarios "
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -469,172 +508,80 @@ function Search() {
               }
             }}
             margin="normal"/>
-          <Button variant="contained"   onClick={() => { handleGeneralSearch(); handleSearchListByName(); handleSearchUser(); }}> <FontAwesomeIcon icon= {faMagnifyingGlass} /> </Button>
+          <Button  onClick={() => { handleGeneralSearch(); handleSearchListByName(); handleSearchUser(); }}><FontAwesomeIcon style={{fontSize: 24, color: '#3e4a4c'}} icon={faMagnifyingGlass} /></Button>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 2, overflow: "auto", flexWrap: "wrap" }} >
+        <Box sx={{ display: "flex", flexDirection:'column', gap: 2, width: '60vw' }} >
           {/* COLUMNA ARTISTAS */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%' }} >
-            {artistResults.map((artist) => (
-              <Card 
-                key={artist.id}
-                sx={{ width: "30%", cursor: "pointer", minHeight: '25vh' }}
-                onClick={() => handleSelectArtist(artist.id)}>
-                <CardContent>
-                  <Typography variant="h6" color="primary">{t('artist')}</Typography>
-                  <Divider />
-                  <Typography variant="h5" color="primary">
-                    {artist.name}
-                  </Typography>
-             
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                    <RatingDisplay
-                      mbid={artist.id}
-                      type="artist"
-                      getItemStats={getItemStats}
-                      getRatingFor={getRatingFor}
-                      rateItem={rateItem}
-                      deleteRating={deleteRating}
-                    />
-                    <IconButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleFavoriteToggle(artist.id, "artist");
-                      }}
-                      color={isFavorite(artist.id) ? "error" : "default"}
-                      size="small"
-                    >
-                      <FontAwesomeIcon
-                        icon={isFavorite(artist.id) ? solidHeart : regularHeart}
-                      />
-                    </IconButton>
-                  </Box>
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    {favoriteCounts.artists[artist.id] || 0} favoritos
-                  </Typography>
-                  </CardContent>
-                </Card>
-                ))}
+          <Box >
+            {artistResults.length > 0 && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6">Artistas encontrados</Typography>
+              {renderItemList(
+                artistResults,
+                "artist",
+                handleSelectArtist,
+                "blue"
+              )}
+            </>
+          )}
             {selectedArtistAlbums.length > 0 && (
-              <>
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="h6">Álbumes del artista</Typography>
-                {renderItemList(
-                  selectedArtistAlbums,
-                  "album",
-                  handleSelectAlbumFromArtist,
-                  "darkgreen"
-                )}
-              </>
-            )}
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6">Álbumes del artista</Typography>
+              {renderItemList(
+                selectedArtistAlbums,
+                "album",
+                handleSelectAlbumFromArtist,
+                "darkgreen"
+              )}
+            </>
+          )}
 
             {selectedAlbumSongsFromArtist.length > 0 && (
-              <>
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="h6">Canciones del álbum</Typography>
-                {renderItemList(selectedAlbumSongsFromArtist, "song", null, null)}
-              </>
-            )}
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6">Canciones del álbum</Typography>
+              {renderItemList(selectedAlbumSongsFromArtist, "song", null, null)}
+            </>
+          )}
             
           </Box>
 
           {/* COLUMNA ALBUMES */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%' }} >
+          <Box sx={{ display: "flex", flexDirection: 'column', gap: 2, width:'100%' }} >
             {albumResults.length > 0 && (
-              <>
-                {albumResults.map((album) => (
-                  <Card
-                    key={album.id}
-                    sx={{ width: "30%", cursor: "pointer", minHeight: '25vh' }}
-                    onClick={() => handleSelectAlbumFromAlbumSearch(album.id)}
-                  >
-                    <CardContent>
-                      <Typography variant="h6" color="primary">{t('album')}</Typography>
-                      <Divider />
-                      <Typography variant="h5" color="primary">{album.title}</Typography>
-                      <Typography variant="h6" color="text.secondary">{t('artist')}: {album.artist}</Typography>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                        <RatingDisplay
-                          mbid={album.id}
-                          type="album"
-                          getItemStats={getItemStats}
-                          getRatingFor={getRatingFor}
-                          rateItem={rateItem}
-                          deleteRating={deleteRating}
-                        />
-                        <IconButton
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleFavoriteToggle(album.id, "album");
-                          }}
-                          color={isFavorite(album.id) ? "error" : "default"}
-                          size="small"
-                        >
-                          <FontAwesomeIcon
-                            icon={isFavorite(album.id) ? solidHeart : regularHeart}
-                          />
-                        </IconButton>
-                      </Box>
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        {favoriteCounts.albums[album.id] || 0} favoritos
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                ))}
-              </>
-            )}
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6">Álbumes encontrados</Typography>
+              {renderItemList(
+                albumResults,
+                "album",
+                handleSelectAlbumFromAlbumSearch,
+                "blue"
+              )}
+            </>
+          )}
 
-            {selectedAlbumSongs.length > 0 && (
-              <>
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="h6">Canciones del álbum</Typography>
-                {renderItemList(selectedAlbumSongs, "song", null, null)}
-              </>
-            )}
+          {selectedAlbumSongs.length > 0 && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6">Canciones del álbum</Typography>
+              {renderItemList(selectedAlbumSongs, "song", null, null)}
+            </>
+          )}
           </Box>
 
           {/* COLUMNA CANCIONES */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
+          <Box sx={{ display: "flex", flexDirection: 'column', gap: 2, width:'100%'}} >
             {songResults.length > 0 && (
-              <>
-                {songResults.map((song) => (
-                  <Card key={song.id} sx={{ width: "30%" }}>
-                    <CardContent>
-                      <Typography variant="h6" color="primary">{t('song')}</Typography>
-                      <Divider />
-                      <Typography variant="h5" color="primary">
-                       {song.title}
-                      </Typography>
-                      <Typography variant="h6" color="text.secondary">{t('artist')}: {song.artist}</Typography>
-                      <Typography variant="h6" color="text.secondary">{t('album')}: {song.album}</Typography>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                        <RatingDisplay
-                          mbid={song.id}
-                          type="song"
-                          getItemStats={getItemStats}
-                          getRatingFor={getRatingFor}
-                          rateItem={rateItem}
-                          deleteRating={deleteRating}
-                        />
-                        <IconButton
-                          onClick={() => handleFavoriteToggle(song.id, "song")}
-                          color={isFavorite(song.id) ? "error" : "default"}
-                          size="small"
-                        >
-                          <FontAwesomeIcon
-                            icon={isFavorite(song.id) ? solidHeart : regularHeart}
-                          />
-                        </IconButton>
-                      </Box>
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        {favoriteCounts.songs[song.id] || 0} favoritos
-                      </Typography>
-                      <Button variant='contained' size="small" onClick={() => handleOpenListModal(song)}>+</Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </>
-            )}
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6">Canciones encontradas</Typography>
+              {renderItemList(songResults, "song", null, null)}
+            </>
+          )}
             <Dialog open={open} onClose={handleCloseListModal}>
               <DialogTitle>{t('addsong')}</DialogTitle>
               <DialogContent>
@@ -732,7 +679,7 @@ function Search() {
                   </Card>
                 ))}
           </Box>
-    </Box>
+        </Box>
     </Box>
 
   );

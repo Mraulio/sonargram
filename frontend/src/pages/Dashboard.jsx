@@ -1,13 +1,22 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import Menu from '../components/Menu';
-import { getAllUsers } from '../api/internal/userApi'
+import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, styled } from '@mui/material';
+import Menu2 from '../components/Menu2';
+import Search from '../components/Search'
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
-import TopRatingsList from "../components/TopRatingsList";
-import TopFavoritosList from "../components/TopFavoritosList";
+
+const MenuBox= styled(Box)`
+  width:250px;
+  @media (min-width: 601px) and (max-width: 960px) {
+    width: 180px;
+  }
+  @media (max-width: 600px) {
+    width: 30px;
+  }
+
+`;
 
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -59,10 +68,12 @@ function Dashboard() {
 
 
   return (
-    <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', width: '100vw' }}>
-      <Menu></Menu>
-      <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
-        
+    <Box sx={{width:'100vw', display: 'flex'}}>
+      <MenuBox> 
+        <Menu2/>
+      </MenuBox>
+      <Box sx={{ flex: 1, width:'75vw', fontFamily: 'Sans-serif' }}>
+        <Search/>
         {/* Estado de sesión */}
         <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
           <CardContent>
@@ -134,15 +145,6 @@ function Dashboard() {
             )}
           </CardContent>
         </Card>
-
-        {/* COLUMNA MEDIA */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-        <TopRatingsList limit={5} title="Top 5 por Rating" />        
-      </Box>
-      {/* COLUMNA DERECHA */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-        <TopFavoritosList limit={5}/>        
-      </Box>
 
       </Box>
     </Box>
