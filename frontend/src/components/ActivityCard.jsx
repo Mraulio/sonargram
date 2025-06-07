@@ -143,7 +143,6 @@ const getRelatedContent = (action, activity) => {
 
 const ActivityCard = ({ activity }) => {
   const { user, action, createdAt, activityRef, targetId } = activity;
-  console.log("activity", activity);
   const icon = iconMap[action];
   const iconColor = iconColors[action] || "#666";
 
@@ -151,7 +150,6 @@ const ActivityCard = ({ activity }) => {
     user && user.profilePic
       ? `http://localhost:5000/uploads/${user.profilePic}`
       : "/assets/images/profilepic_default.png";
-
   const description = getActionDescription(action, user?.username, activity);
   const relatedContent = getRelatedContent(action, activity);
 
