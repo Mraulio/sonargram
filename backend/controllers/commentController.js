@@ -4,11 +4,13 @@ const logActivity = require('../utils/logActivity');
 
 // Insertar un nuevo comentario
 const addComment = async (req, res) => {
-    const { user, targetId, targetType, comment, title, artistName, coverUrl, releaseDate, duration } = req.body;
+    const userId = req.user.userId;
+
+    const { targetId, targetType, comment, title, artistName, coverUrl, releaseDate, duration } = req.body;
   
     try {
       // Verificar si ya existe un comentario del mismo usuario para el mismo target
-      const existingComment = await Comment.findOne({ user: user, targetId });
+      const existingComment = await Comment.findOne({ user: userId, targetId });
   
       if (existingComment) {
         return res.status(400).json({ message: 'El usuario ya comentó sobre este contenido.' });
@@ -26,7 +28,7 @@ const addComment = async (req, res) => {
 
       // Log de la actividad, con los datos recibidos
           await logActivity({
-            user: user,
+            user: userId,
             action: 'comment',
             targetType: targetType,
             targetId: targetId,

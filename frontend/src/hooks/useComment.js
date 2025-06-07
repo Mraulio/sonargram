@@ -8,12 +8,14 @@ import {
   deleteRecommendation,
   getRecommendations
 } from '../api/internal/commentApi';
+import useAuth from './useAuth';
 
-const useComments = (token) => {
+const useComments = () => {
+  const { token, user } = useAuth(); // ahora se obtiene internamente
+  const userId = user?.id;
   const [comments, setComments] = useState([]);
   const [recommendations, setRecommendations] = useState({}); // por commentId
 
-  // Obtener comentarios por target
   const fetchCommentsByTarget = useCallback(async (targetId) => {
     try {
       const data = await getCommentsByTarget(targetId, token);
@@ -23,18 +25,16 @@ const useComments = (token) => {
     }
   }, [token]);
 
-  // Obtener comentarios por usuario
-  const fetchCommentsByUser = useCallback(async (userId, targetType = null) => {
+  const fetchCommentsByUser = useCallback(async (targetType = null) => {
     try {
       const data = await getCommentsByUser(userId, token, targetType);
       setComments(data);
     } catch (err) {
       console.error('Error fetching comments by user:', err);
     }
-  }, [token]);
+  }, [userId, token]);
 
-  // Agregar comentario
-  const submitComment = useCallback(async (targetId, targetType, comment, title, artistName, coverUrl, releaseDate, duration,) => {
+  const submitComment = useCallback(async (targetId, targetType, comment, title, artistName, coverUrl, releaseDate, duration) => {
     try {
       const newComment = await addComment(targetId, targetType, comment, title, artistName, coverUrl, releaseDate, duration, token);
       setComments((prev) => [...prev, newComment]);
@@ -45,7 +45,6 @@ const useComments = (token) => {
     }
   }, [token]);
 
-  // Eliminar comentario
   const removeComment = useCallback(async (commentId) => {
     try {
       await deleteComment(commentId, token);
@@ -56,27 +55,24 @@ const useComments = (token) => {
     }
   }, [token]);
 
-  // Agregar recomendación
-  const recommendComment = useCallback(async (commentId, userId) => {
+  const recommendComment = useCallback(async (commentId) => {
     try {
       const result = await addRecommendation(commentId, userId, token);
       return result;
     } catch (err) {
       console.error('Error recommending comment:', err);
     }
-  }, [token]);
+  }, [userId, token]);
 
-  // Eliminar recomendación
-  const unrecommendComment = useCallback(async (commentId, userId) => {
+  const unrecommendComment = useCallback(async (commentId) => {
     try {
       const result = await deleteRecommendation(commentId, userId, token);
       return result;
     } catch (err) {
       console.error('Error deleting recommendation:', err);
     }
-  }, [token]);
+  }, [userId, token]);
 
-  // Obtener recomendaciones
   const fetchRecommendations = useCallback(async (commentId) => {
     try {
       const data = await getRecommendations(commentId, token);
