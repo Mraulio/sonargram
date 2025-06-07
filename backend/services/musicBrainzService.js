@@ -7,12 +7,14 @@ const musicBrainzApi = new MusicBrainzApi({
   appContactInfo: 'tuemail@ejemplo.com',
 });
 
+// Los tipos que manejas tú internamente
 const VALID_TYPES = ['artist', 'album', 'song'];
 
-function mapFavoriteType(type) {
-  if (type === 'album') return 'album';
-  if (type === 'song') return 'song';
-  return type;
+// Mapea tus tipos a los tipos reales de MusicBrainz
+function mapToMBZType(type) {
+  if (type === 'album') return 'release';
+  if (type === 'song') return 'recording';
+  return type; // artist se mantiene igual
 }
 
 function extractNameFromResult(type, result) {
@@ -28,14 +30,12 @@ function extractNameFromResult(type, result) {
 }
 
 async function lookupByMBID(type, mbid) {
-  const mappedType = mapFavoriteType(type);
-
-  if (!VALID_TYPES.includes(mappedType)) {
+  if (!VALID_TYPES.includes(type)) {
     throw new Error('Tipo no válido. Usa artist, album o song.');
   }
 
-  // 1. Buscar en caché
-  const cached = await MBIDCache.findOne({ mbid, type: mappedType });
+  // 1. Buscar en caché (usamos el tipo lógico, no el de MBZ)
+  const cached = await MBIDCache.findOne({ mbid, type });
   if (cached) {
     return {
       mbid: cached.mbid,
@@ -48,27 +48,36 @@ async function lookupByMBID(type, mbid) {
     };
   }
 
-  // 2. Si no está en caché, buscar en MusicBrainz
+  // 2. Buscar en MusicBrainz con el tipo real
+  const mbzType = mapToMBZType(type);
+
   try {
-    const result = await musicBrainzApi.lookup(mappedType, mbid);
-    const name = extractNameFromResult(mappedType, result);
+    console.log(`Buscando ${mbzType} con MBID: ${mbid}`);
+    const result = await musicBrainzApi.lookup(mbzType, mbid);
+    console.log('RESULT!!!!', result);
+
+    const name = extractNameFromResult(type, result);
 
     const cacheEntry = {
       mbid,
-      type: mappedType,
+      type, // guardamos el tipo lógico (song, album, artist)
       title: name,
     };
 
-    // Rellenar campos opcionales si están disponibles
-    if (mappedType === 'song') {
+    if (type === 'song') {
       cacheEntry.duration = result.length;
       if (result['artist-credit']?.length > 0) {
         cacheEntry.artistName = result['artist-credit'][0].name;
       }
     }
 
-    if (mappedType === 'album' && result['artist-credit']?.length > 0) {
-      cacheEntry.artistName = result['artist-credit'][0].name;
+    if (type === 'album') {
+      if (result['artist-credit']?.length > 0) {
+        cacheEntry.artistName = result['artist-credit'][0].name;
+      }
+      if (result.date) {
+        cacheEntry.releaseDate = result.date;
+      }
     }
 
     // Guardar en caché
@@ -76,7 +85,7 @@ async function lookupByMBID(type, mbid) {
 
     return cacheEntry;
   } catch (error) {
-    console.error(`Error al buscar ${mappedType} ${mbid}: ${error.message}`);
+    console.error(`Error al buscar ${mbzType} ${mbid}: ${error.message}`);
     throw error;
   }
 }

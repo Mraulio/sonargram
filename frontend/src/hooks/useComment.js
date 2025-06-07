@@ -34,9 +34,9 @@ const useComments = (token) => {
   }, [token]);
 
   // Agregar comentario
-  const submitComment = useCallback(async (data) => {
+  const submitComment = useCallback(async (targetId, targetType, comment, title, artistName, coverUrl, releaseDate, duration,) => {
     try {
-      const newComment = await addComment(data, token);
+      const newComment = await addComment(targetId, targetType, comment, title, artistName, coverUrl, releaseDate, duration, token);
       setComments((prev) => [...prev, newComment]);
       return newComment;
     } catch (err) {
