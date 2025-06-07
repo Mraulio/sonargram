@@ -37,7 +37,7 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
   }, [token, limit]);
 
   function getItemName(item, type) {
-    type === 'song' ? (console.log("Item:", item, "Type:", type)) : console.log(''); // Para depuración
+    console.log('ITEM RATINGS:', item, type); // Para depuración
     switch (type) {
       case "artist":
         return item.title || item.data?.name || "Sin nombre";
