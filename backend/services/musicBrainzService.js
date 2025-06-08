@@ -38,9 +38,6 @@ async function lookupByMBID(type, mbid) {
   // 1. Buscar en caché (usamos el tipo lógico, no el de MBZ)
   const cached = await MBIDCache.findOne({ mbid, type });
   if (cached) {
-    if(type === 'album'){
-    console.log(`!!!!!Encontrado en caché: ${type} ${mbid}`);
-    console.log('CACHED DATA:', cached);}
     return {
       mbid: cached.mbid,
       type: cached.type,
@@ -51,14 +48,11 @@ async function lookupByMBID(type, mbid) {
       duration: cached.duration,
     };
   }
-  console.log(`!!!!!NOOOOOO encontrado en caché: ${type} ${mbid}`);
   // 2. Buscar en MusicBrainz con el tipo real
   const mbzType = mapToMBZType(type);
 
   try {
-    console.log(`!!!!!!Buscando ${mbzType} con MBID: ${mbid}`);
     const result = await musicBrainzApi.lookup(mbzType, mbid);
-    console.log('RESULT!!!!', result);
 
     const name = extractNameFromResult(type, result);
 

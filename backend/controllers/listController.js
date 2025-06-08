@@ -109,13 +109,13 @@ const addSongToList = async (req, res) => {
       action: 'addListSong',
       targetType: 'song',
       targetId: musicbrainzId,
+      listId: listId,
       metadata: {
         title,
         artistName,
         coverUrl,
         releaseDate,
         duration,
-        listId
       }
     });
 

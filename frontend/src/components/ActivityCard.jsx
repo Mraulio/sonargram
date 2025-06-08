@@ -1,5 +1,5 @@
 // src/components/ActivityCard.js
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,7 +7,10 @@ import {
   Avatar,
   Stack,
   Box,
-  Link,
+  Modal,
+  Paper,
+  IconButton,
+  Divider,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,6 +20,7 @@ import {
   faUser,
   faComment,
   faThumbsUp,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 
 const iconMap = {
@@ -41,39 +45,40 @@ const iconColors = {
   recommendComment: "#43a047",
 };
 
-const getActionDescription = (action, user, activity) => {
-  const username = user || "Alguien";
+const styleModal = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 380,
+  bgcolor: "background.paper",
+  borderRadius: 2,
+  boxShadow: 24,
+  p: 3,
+  maxHeight: "80vh",
+  overflowY: "auto",
+};
 
-  const StyledUsername = (
-    <Typography
-      component="span"
-      color="primary.dark" // Azul oscuro, usa theme
-      fontWeight="bold" // Negrita
-      fontSize="0.875rem" // Tamaño pequeño (~14px)
-    >
-      {username}
-    </Typography>
-  );
-
+const getActionDescription = (action, username, activity) => {
   switch (action) {
     case "favorite":
-      return <>{StyledUsername} marcó como favorito</>;
+      return "marcó como favorito";
     case "rate":
-      return <>{StyledUsername} calificó con nota {activity.rating}</>;
+      return `calificó con nota ${activity.rating}`;
     case "createList":
-      return <>{StyledUsername} creó la lista</>;
+      return "creó la lista";
     case "addListSong":
-      return <>{StyledUsername} agregó una canción a una lista</>;
+      return "agregó la canción";
     case "followList":
-      return <>{StyledUsername} siguió la lista</>;
+      return "siguió la lista";
     case "followUser":
-      return <>{StyledUsername} siguió al usuario</>;
+      return "siguió al usuario";
     case "comment":
-      return <>{StyledUsername} comentó</>;
+      return "comentó";
     case "recommendComment":
-      return <>{StyledUsername} recomendó un comentario</>;
+      return "recomendó un comentario";
     default:
-      return <>{StyledUsername} hizo una actividad</>;
+      return "hizo una actividad";
   }
 };
 
@@ -82,58 +87,38 @@ const getRelatedContent = (action, activity) => {
 
   const { activityRef, mbidData, targetType } = activity;
 
-  // Para actividades sobre música (MBID cacheada)
-  if (['song', 'album', 'artist'].includes(targetType) && mbidData) {
-    switch (targetType) {
-      case 'song':
-        return (
-          <Typography variant="body2">
-            Canción: <strong>{mbidData.title || "Desconocida"}</strong> {mbidData.artistName && <>- {mbidData.artistName}</>}
-          </Typography>
-        );
-      case 'album':
-        return (
-          <Typography variant="body2">
-            Álbum: <strong>{mbidData.title || "Desconocido"}</strong> {mbidData.artistName && <>- {mbidData.artistName}</>}
-          </Typography>
-        );
-      case 'artist':
-        return (
-          <Typography variant="body2">
-            Artista: <strong>{mbidData.title || "Desconocido"}</strong>
-          </Typography>
-        );
-      default:
-        return null;
-    }
+  if (action === "addListSong") {
+    return {
+      song: mbidData?.title && mbidData?.artistName
+        ? `${mbidData.title} - ${mbidData.artistName}`
+        : null,
+      list: activity.list?.name || null,
+    };
   }
 
-  // Para contenido Mongo referenciado (usuarios, listas, comentarios)
+  if (["song", "album", "artist"].includes(targetType) && mbidData) {
+    return {
+      single: `Canción: ${mbidData.title || "Desconocida"}${
+        mbidData.artistName ? ` - ${mbidData.artistName}` : ""
+      }`,
+      type: targetType,
+    };
+  }
+
   switch (action) {
     case "createList":
-    case "addListSong":
     case "followList":
-      return activityRef?.name || null;
+      return { single: activityRef?.name || null, type: "list" };
 
     case "followUser":
-      return activityRef?.username ? (
-        <Typography
-          component="span"
-          color="primary.dark"
-          fontWeight="bold"
-          fontSize="0.875rem"
-        >
-          @{activityRef.username}
-        </Typography>
-      ) : null;
+      return { single: activityRef?.username ? `@${activityRef.username}` : null, type: "user" };
 
     case "comment":
     case "recommendComment":
-      return (
-        <Typography variant="body2">
-          Comentario: <em>"{activityRef?.text?.slice(0, 100) || ""}"</em>
-        </Typography>
-      );
+      return {
+        single: activityRef?.text ? `"${activityRef.text.slice(0, 100)}"` : null,
+        type: "comment",
+      };
 
     default:
       return null;
@@ -142,7 +127,7 @@ const getRelatedContent = (action, activity) => {
 
 
 const ActivityCard = ({ activity }) => {
-  const { user, action, createdAt, activityRef, targetId } = activity;
+  const { user, action, createdAt, activityRef, mbidData, targetType } = activity;
   const icon = iconMap[action];
   const iconColor = iconColors[action] || "#666";
 
@@ -150,51 +135,225 @@ const ActivityCard = ({ activity }) => {
     user && user.profilePic
       ? `http://localhost:5000/uploads/${user.profilePic}`
       : "/assets/images/profilepic_default.png";
-  const description = getActionDescription(action, user?.username, activity);
+
+  // Modal state: open + content type + data
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({ type: null, data: null });
+
+  // Abrir modal con tipo y datos
+  const openModal = (type, data) => {
+    setModalData({ type, data });
+    setModalOpen(true);
+  };
+  const closeModal = () => setModalOpen(false);
+
+  // Render modal content según tipo
+  const renderModalContent = () => {
+    if (!modalData.type) return null;
+
+    switch (modalData.type) {
+      case "user":
+        const userData = modalData.data;
+        return (
+          <>
+            <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+              <Avatar
+                alt={userData.username}
+                src={
+                  userData.profilePic
+                    ? `http://localhost:5000/uploads/${userData.profilePic}`
+                    : "/assets/images/profilepic_default.png"
+                }
+                sx={{ width: 64, height: 64 }}
+              />
+              <Typography variant="h6">{userData.username}</Typography>
+            </Stack>
+            <Divider sx={{ mb: 2 }} />
+            <Typography><strong>Email:</strong> {userData.email || "No disponible"}</Typography>
+            <Typography><strong>Registrado:</strong> {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : "No disponible"}</Typography>
+            {/* Agrega más info de usuario que tengas */}
+          </>
+        );
+
+      case "song":
+        const songData = modalData.data;
+        return (
+          <>
+            <Typography variant="h6" mb={2}>
+              Canción: {songData.title || "Desconocida"}
+            </Typography>
+            <Typography><strong>Artista:</strong> {songData.artistName || "Desconocido"}</Typography>
+            <Typography><strong>Álbum:</strong> {songData.albumName || "Desconocido"}</Typography>
+            <Typography><strong>Rating:</strong> {songData.ratingDisplay || "No disponible"}</Typography>
+            {/* Más detalles canción si quieres */}
+          </>
+        );
+
+      case "list":
+        const listData = modalData.data;
+        return (
+          <>
+            <Typography variant="h6" mb={2}>
+              Lista: {listData.name || "Sin nombre"}
+            </Typography>
+            <Typography><strong>Descripción:</strong> {listData.description || "No disponible"}</Typography>
+            <Typography><strong>Cantidad de canciones:</strong> {listData.songsCount || 0}</Typography>
+            {/* Más info lista */}
+          </>
+        );
+
+      case "comment":
+        const commentData = modalData.data;
+        return (
+          <>
+            <Typography variant="h6" mb={2}>
+              Comentario
+            </Typography>
+            <Typography sx={{ fontStyle: "italic" }}>
+              "{commentData.text || "Sin texto"}"
+            </Typography>
+            <Typography><strong>Autor:</strong> {commentData.authorName || "Desconocido"}</Typography>
+            {/* Más info comentario */}
+          </>
+        );
+
+      default:
+        return <Typography>No hay información disponible.</Typography>;
+    }
+  };
+
   const relatedContent = getRelatedContent(action, activity);
+  const actionDesc = getActionDescription(action, user?.username, activity);
 
   return (
-    <Card variant="outlined" sx={{ mb: 2 }}>
-      <CardContent>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Box sx={{ position: "relative", display: "inline-block" }}>
-            <Avatar
-              alt={user?.username}
-              src={profilePicUrl}
-              sx={{ width: 56, height: 56 }}
-            />
+    <>
+      <Card variant="outlined" sx={{ mb: 2 }}>
+        <CardContent>
+          <Stack direction="row" spacing={2} alignItems="center">
+            {/* Avatar usuario clickeable */}
             <Box
-              sx={{
-                position: "absolute",
-                bottom: -2,
-                right: -2,
-                backgroundColor: "#fff",
-                borderRadius: "50%",
-                padding: "4px",
-              }}
+              sx={{ position: "relative", display: "inline-block", cursor: "pointer" }}
+              onClick={() => openModal("user", user)}
+              title={`Ver info de ${user?.username || "usuario"}`}
             >
-              <FontAwesomeIcon icon={icon} color={iconColor} size="lg" />
-            </Box>
-          </Box>
-          <Box>
-            <Typography variant="body1">
-              {description}{" "}
-              <Typography
-                component="span"
-                color="primary.dark" // Azul oscuro, usa theme
-                fontWeight="bold" // Negrita
-                fontSize="0.875rem" // Tamaño pequeño (~14px)
+              <Avatar
+                alt={user?.username}
+                src={profilePicUrl}
+                sx={{ width: 56, height: 56 }}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: -2,
+                  right: -2,
+                  backgroundColor: "#fff",
+                  borderRadius: "50%",
+                  padding: "4px",
+                }}
               >
-                {relatedContent}
+                <FontAwesomeIcon icon={icon} color={iconColor} size="lg" />
+              </Box>
+            </Box>
+
+            <Box>
+              <Typography variant="body1" component="div">
+                {/* Nombre usuario clickeable */}
+                <Box
+                  component="span"
+                  onClick={() => openModal("user", user)}
+                  sx={{
+                    color: "primary.dark",
+                    fontWeight: "bold",
+                    fontSize: "0.875rem",
+                    cursor: "pointer",
+                  }}
+                  title={`Ver info de ${user?.username || "usuario"}`}
+                >
+                  {user?.username || "Alguien"}
+                </Box>{" "}
+                {actionDesc}{" "}
+                {relatedContent && (
+  <>
+    {action === "addListSong" && relatedContent.song && (
+      <>
+        <Box
+          component="span"
+          onClick={() => openModal("song", mbidData)}
+          sx={{
+            color: "primary.dark",
+            fontWeight: "bold",
+            fontSize: "0.875rem",
+            cursor: "pointer",
+          }}
+          title="Ver información de la canción"
+        >
+          {relatedContent.song}
+        </Box>{" "}
+        a la lista{" "}
+        <Box
+          component="span"
+          onClick={() => openModal("list", activity.list)}
+          sx={{
+            color: "primary.dark",
+            fontWeight: "bold",
+            fontSize: "0.875rem",
+            cursor: "pointer",
+          }}
+          title="Ver información de la lista"
+        >
+          {relatedContent.list}
+        </Box>
+      </>
+    )}
+
+    {relatedContent.single && (
+      <Box
+        component="span"
+        onClick={() => openModal(relatedContent.type, activityRef || mbidData)}
+        sx={{
+          color: "primary.dark",
+          fontWeight: "bold",
+          fontSize: "0.875rem",
+          cursor: "pointer",
+        }}
+        title="Ver información relacionada"
+      >
+        {relatedContent.single}
+      </Box>
+    )}
+  </>
+)}
+
               </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {new Date(createdAt).toLocaleString()}
+              </Typography>
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
+
+      {/* Modal */}
+      <Modal
+        open={modalOpen}
+        onClose={closeModal}
+        aria-labelledby="dynamic-modal-title"
+        aria-describedby="dynamic-modal-description"
+      >
+        <Paper sx={styleModal}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography id="dynamic-modal-title" variant="h6" component="h2">
+              Información
             </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {new Date(createdAt).toLocaleString()}
-            </Typography>
-          </Box>
-        </Stack>
-      </CardContent>
-    </Card>
+            <IconButton onClick={closeModal} size="small" aria-label="Cerrar">
+              <FontAwesomeIcon icon={faTimes} />
+            </IconButton>
+          </Stack>
+          <Divider sx={{ mb: 2 }} />
+          {renderModalContent()}
+        </Paper>
+      </Modal>
+    </>
   );
 };
 

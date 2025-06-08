@@ -24,6 +24,7 @@ const getTimeline = async (req, res) => {
       .populate("list", "name")
       .populate("activityRef"); // para User, List, Comment
 
+    // Si no hay actividades, retorna un array vacío
     const enrichedActivities = await Promise.all(
       activities.map(async (activity) => {
         const enriched = activity.toObject();
