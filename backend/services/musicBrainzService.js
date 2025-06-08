@@ -34,7 +34,6 @@ async function lookupByMBID(type, mbid) {
   if (!VALID_TYPES.includes(type)) {
     throw new Error('Tipo no válido. Usa artist, album o song.');
   }
-  console.log(`!!!=!=!=!==!Buscando ${type} con MBID: ${mbid}`);
   // 1. Buscar en caché (usamos el tipo lógico, no el de MBZ)
   const cached = await MBIDCache.findOne({ mbid, type });
   if (cached) {

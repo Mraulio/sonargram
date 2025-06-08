@@ -78,13 +78,18 @@ const getRelatedContent = (action, activity) => {
     };
   }
 
-  if (["song", "album", "artist"].includes(targetType) && mbidData) {
-    return {
-      single: `Canción: ${mbidData.title || "Desconocida"}${mbidData.artistName ? ` - ${mbidData.artistName}` : ""
-        }`,
-      type: targetType,
-    };
-  }
+if (["song", "album", "artist"].includes(targetType) && mbidData) {
+  const typeLabel = targetType === "song"
+    ? "Canción"
+    : targetType === "album"
+    ? "Álbum"
+    : "Artista";
+
+  return {
+    single: `${typeLabel}: ${mbidData.title || "Desconocida"}${mbidData.artistName ? ` - ${mbidData.artistName}` : ""}`,
+    type: targetType,
+  };
+}
 
   switch (action) {
     case "createList":
