@@ -42,6 +42,7 @@ const InfoModal = ({ open, onClose, type, data }) => {
     if (!type) return null;
 
     const renderContent = () => {
+        console.log("Rendering content for type:", type, "with data:", data);
         switch (type) {
             case "user":
                 return (
