@@ -64,7 +64,28 @@ const InfoModal = ({ open, onClose, type, data }) => {
                     </>
                 );
             case "album":
+                return (<>
+                    <RatingDisplay
+                        mbid={data.id}
+                        type='album'
+                        getItemStats={getItemStats}
+                        getRatingFor={getRatingFor}
+                        rateItem={rateItem}
+                        deleteRating={deleteRating} />
+                    <Typography variant="h6" mb={2}>Album: {data.title || "Desconocida"}</Typography>
+                    <Typography variant="h6" mb={2}>Artista: {data.artistName || "Desconocida"}</Typography>
+                </>);
             case "artist":
+                return (<>
+                    <RatingDisplay
+                        mbid={data.id}
+                        type='artist'
+                        getItemStats={getItemStats}
+                        getRatingFor={getRatingFor}
+                        rateItem={rateItem}
+                        deleteRating={deleteRating} />
+                    <Typography variant="h6" mb={2}>Artista: {data.title || "Desconocida"}</Typography>
+                </>);
             case "song":
                 return (
                     <>
