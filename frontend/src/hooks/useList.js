@@ -121,6 +121,7 @@ export default function useList(token) {
     userLists,
     loading,
     error,
+    setUserLists,
     fetchAllLists,
     fetchListsByUser,
     createNewList,

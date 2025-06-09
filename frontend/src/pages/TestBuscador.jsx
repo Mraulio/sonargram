@@ -27,7 +27,6 @@ import ItemList from "../components/ItemList";
 
 function TestBuscador() {
   const { token, user } = useContext(UserContext);
-  console.log('USERRRR', user)
   const {
     rateItem,
     deleteRating,

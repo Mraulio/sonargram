@@ -14,7 +14,7 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 function ListPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
-    const { token, role, logout } = useContext(UserContext);
+    const { token, user: userContext, role, logout } = useContext(UserContext);
     const [editingList, setEditingList] = useState(null); // Estado para la lista en edición
     const [listName, setListName] = useState(''); // Estado para el nombre de la lista
     const [searchListName, setSearchListName] = useState(''); // Estado para el nombre de la lista a buscar
@@ -26,11 +26,23 @@ function ListPage() {
     const [error, setError] = useState(null);
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
     const [ followLists, setFollowLists ] = useState('');
-    const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong } = useList(token);
+    const { lists, userLists, setUserLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong } = useList(token);
     const { followers, followersCount, followedLists, followL, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
     const [searchTermSong, setSearchTermSong] = useState("");
     const [songResults, setSongResults] = useState([]);
-    const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } = useFavorites(token);
+    const { favorites, addFavorite, removeFavorite, isFavorite, getFavoriteCount } = useFavorites(userContext.userId, token);
+    console.log('favorites', favorites);
+    console.log('userLists', userLists);
+    const listaFavoritos = {name: `Favoritos de ${userContext.name}`, songs: favorites}
+useEffect(() => {
+  if (favorites && favorites.length > 0) {
+    const listaFavoritos = {
+      name: `Favoritos de ${userContext.name}`,
+      songs: favorites
+    };
+    setUserLists(prev => [listaFavoritos, ...prev]);
+  }
+}, [favorites]);
     const [favoriteCounts, setFavoriteCounts] = useState({
         artists: {},
         albums: {},
@@ -253,7 +265,7 @@ function ListPage() {
                             </ul>
                             <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                               <Typography variant="body2" color="text.secondary">
-                                {t('Creador de la lista')}: {l.creator.name || t('unknown')}
+                                {t('Creador de la lista')}: {l.creator?.name || t('unknown')}
                               </Typography>
                               <Button
                                 variant="outlined"
