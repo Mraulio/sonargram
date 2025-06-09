@@ -14,7 +14,7 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 function ListPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
-    const { token, role, logout } = useContext(UserContext);
+    const { token, role, logout, user } = useContext(UserContext);
     const [editingList, setEditingList] = useState(null); // Estado para la lista en edición
     const [listName, setListName] = useState(''); // Estado para el nombre de la lista
     const [searchListName, setSearchListName] = useState(''); // Estado para el nombre de la lista a buscar
@@ -22,7 +22,6 @@ function ListPage() {
     const [songs, setSongs] = useState(''); // Estado para las canciones de la lista
     const [open, setOpen] = useState(false); // Estado para controlar el modal
     const [loading, setLoading] = useState(false);
-    const {user, getCurrentUser} = useUser(token);
     const [error, setError] = useState(null);
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
     const [ followLists, setFollowLists ] = useState('');
@@ -38,23 +37,18 @@ function ListPage() {
       });
          const handleSearchListByUser = async () => {
           try {
-            // Obtén el usuario actual utilizando getCurrentUser
-            const currentUser= await getCurrentUser();
-            console.log('Current user:', currentUser); // Depuración
-            if (!currentUser|| !currentUser._id) {
-              alert(t('errorFetchingUserId')); // Mensaje de error si no se puede obtener el usuario
+            // Usa el user del contexto directamente
+            if (!user || !user.userId) {
+              alert(t('errorFetchingUserId'));
               return;
             }
-        
-            const userId = currentUser._id; // Obtén el ID del usuario actual
-            console.log('Current user ID:', userId);
-        
-            // Llama a la función para buscar listas por el ID del usuario
+            const userId = user.userId;
+            // Ya no necesitas getCurrentUser()
             await fetchListsByUser(userId);
             await fetchFollowedLists(userId);
           } catch (err) {
             console.error('Error fetching lists by user:', err);
-            alert(t('errorFetchingListsByUser')); // Mensaje de error genérico
+            alert(t('errorFetchingListsByUser'));
           }
         };
           
@@ -69,15 +63,14 @@ function ListPage() {
           setLoading(true);
           setError(null);
           try {
-            const currentUser = await getCurrentUser(); // Asegúrate de obtener el usuario actual
-            if (!currentUser || !currentUser._id) {
+            // Usa el user del contexto directamente
+            if (!user || !user.userId) {
               alert(t('errorFetchingUserId'));
               return;
             }
-
             const filteredLists = lists.filter(list =>
               list.name.toLowerCase().includes(searchListName.toLowerCase()) &&
-              list.creator._id !== currentUser._id // Filtra las listas que no son del usuario actual
+              list.creator._id !== user.userId // Filtra las listas que no son del usuario actual
             );
 
             setSearchResults(filteredLists);
@@ -87,130 +80,123 @@ function ListPage() {
           } finally {
             setLoading(false);
           }
-        }, [lists, searchListName, getCurrentUser, t]);
+        }, [lists, searchListName, user, t]);
 
 
-        const handleCreateList = async () => {
-          try {
-            const songArray = songs
-              .split(',')
-              .map(s => s.trim())
-              .filter(s => s !== '')
-              .map(id => ({ musicbrainzId: id }));
-          
-              await createNewList({ name: listName, songs: songArray });
-              const currentUser= await getCurrentUser();
-              fetchListsByUser(currentUser._id); // Actualiza la lista de listas
-          
-              alert(t('createListGoFill'));
-              setListName('');
-              setSongs('');
-              } catch (err) {
-                alert('Error creating list');
-                console.error(err);
-              }
-            };
+       const handleCreateList = async () => {
+        try {
+          const songArray = songs
+            .split(',')
+            .map(s => s.trim())
+            .filter(s => s !== '')
+            .map(id => ({ musicbrainzId: id }));
+
+          await createNewList({ name: listName, songs: songArray });
+          if (!user || !user.userId) return;
+          fetchListsByUser(user.userId); // Actualiza la lista de listas
+
+          alert(t('createListGoFill'));
+          setListName('');
+          setSongs('');
+        } catch (err) {
+          alert('Error creating list');
+          console.error(err);
+        }
+      };
 
             
-              const handleDeleteList = async (listId) => {
-                if (!window.confirm(t('confirmDeleteList'))) return;
-            
-                try {
-                  console.log('Deleting list with ID:', listId); // Debugging line
-                  await removeList(listId);
-                  const currentUser= await getCurrentUser();
-                  fetchListsByUser(currentUser._id); // Actualiza la lista de listas
-                } catch (err) {
-                  alert(t('errorDeletingList'));
-                  console.error(err);
-                }
-              };
+      const handleDeleteList = async (listId) => {
+        if (!window.confirm(t('confirmDeleteList'))) return;
 
-            const handleOpenListModal = (list) => {
-              console.log('Opening modal for list:', list); // Debugging line
-              console.log('List name:', list.name); // Debugging line
-              setEditingList(list); // Establece la lista en edición
-              setEditListName(list.name); // Establece el nombre de la lista en el estado
-              setSongs(list.songs.map(song => song.musicbrainzId).join(', ')); // Convierte los IDs de canciones a una cadena separada por comas
-              setOpen(true); // Abre el modal
-            };
-            
-            const handleCloseListModal = () => {
-              setOpen(false); // Cierra el modal
-              setEditingList(null); // Limpia la lista en edición
-            };
-            
-            const handleSaveListChanges = async () => {
-              try {
-                // Convierte la cadena de canciones a un array de objetos (si es necesario)
-                const updatedSongs = songs
-                  .split(',')
-                  .map(s => s.trim())
-                  .filter(s => s !== '')
-                  .map(id => ({ musicbrainzId: id }));
-            
-                // Llama a renameList con el ID de la lista y el nuevo nombre
-                console.log('List updated:', editingList._id, editListName);
-                await renameList(editingList._id, editListName);
-                
-                alert(t('listUpdated')); // Mensaje de éxito
-                setOpen(false); // Cierra el modal
-                const currentUser= await getCurrentUser();
-                fetchListsByUser(currentUser._id); // Actualiza la lista de listas
-              } catch (err) {
-                console.error('Error updating list:', err);
-            
-                // Manejo de errores basado en la respuesta del backend
-                if (err.response && err.response.status === 400) {
-                  alert(t('errorUpdatingListFields')); // Mensaje para campos no permitidos
-                } else if (err.response && err.response.status === 403) {
-                  alert(t('errorAccessDenied')); // Mensaje para acceso denegado
-                } else if (err.response && err.response.status === 404) {
-                  alert(t('errorListNotFound')); // Mensaje para lista no encontrada
-                } else {
-                  alert(t('errorUpdatingList')); // Mensaje genérico
-                }
-              }
-            };
+        try {
+          console.log('Deleting list with ID:', listId);
+          await removeList(listId);
+          if (!user || !user.userId) return;
+          fetchListsByUser(user.userId); // Actualiza la lista de listas
+        } catch (err) {
+          alert(t('errorDeletingList'));
+          console.error(err);
+        }
+      };
 
-            const handlefollowList = async (listId) => {
-              try {
-                await followL(listId);
-                const currentUser= await getCurrentUser();
-                await fetchFollowedLists(currentUser._id);
-                alert(t('listFollowed')); // Muestra un mensaje de éxito
-              } catch (err) {
-                console.error('Error following list:', err);
-                alert(t('errorFollowingList')); // Muestra un mensaje de error
-              }
-            }
+      const handleOpenListModal = (list) => {
+        console.log('Opening modal for list:', list); // Debugging line
+        console.log('List name:', list.name); // Debugging line
+        setEditingList(list); // Establece la lista en edición
+        setEditListName(list.name); // Establece el nombre de la lista en el estado
+        setSongs(list.songs.map(song => song.musicbrainzId).join(', ')); // Convierte los IDs de canciones a una cadena separada por comas
+        setOpen(true); // Abre el modal
+      };
+            
+      const handleCloseListModal = () => {
+      setOpen(false); // Cierra el modal
+      setEditingList(null); // Limpia la lista en edición
+      };
+            
+      const handleSaveListChanges = async () => {
+        try {
+          const updatedSongs = songs
+            .split(',')
+            .map(s => s.trim())
+            .filter(s => s !== '')
+            .map(id => ({ musicbrainzId: id }));
 
-            const handleUnfollowList = async (listId) => {
-              try {
-                await unfollow(listId);
-                 
-                const currentUser= await getCurrentUser();
-                await fetchFollowedLists(currentUser._id);
-                setFollowedLists(prev => prev.filter(list => list._id !== listId)); // ✅ Elimina del estado
-                alert(t('listUnfollowed')); // Muestra un mensaje de éxito
-              } catch (err) {
-                console.error('Error unfollowing list:', err);
-                alert(t('errorUnfollowingList')); // Muestra un mensaje de error
-              }
-            }
+          await renameList(editingList._id, editListName);
 
-            const handleDeleteSongList = async (listId, musicbrainzId) => {
-              try {
-                await removeSong(listId, musicbrainzId);
-                alert('Canción eliminada correctamente de la lista');
-                const user = await getCurrentUser();
-                await fetchListsByUser(user._id)
-                // Si necesitas refrescar la lista, llama aquí a fetchListById o fetchListsByUser
-              } catch (err) {
-                alert('Error al eliminar la canción de la lista');
-                console.error(err);
-              }
-            };
+          alert(t('listUpdated'));
+          setOpen(false);
+          if (!user || !user.userId) return;
+          fetchListsByUser(user.userId); // Actualiza la lista de listas
+        } catch (err) {
+          console.error('Error updating list:', err);
+          if (err.response && err.response.status === 400) {
+            alert(t('errorUpdatingListFields'));
+          } else if (err.response && err.response.status === 403) {
+            alert(t('errorAccessDenied'));
+          } else if (err.response && err.response.status === 404) {
+            alert(t('errorListNotFound'));
+          } else {
+            alert(t('errorUpdatingList'));
+          }
+        }
+      };
+
+      const handlefollowList = async (listId) => {
+        try {
+          await followL(listId);
+          if (!user || !user.userId) return;
+          await fetchFollowedLists(user.userId);
+          alert(t('listFollowed'));
+        } catch (err) {
+          console.error('Error following list:', err);
+          alert(t('errorFollowingList'));
+        }
+      };
+
+      const handleUnfollowList = async (listId) => {
+        try {
+          await unfollow(listId);
+          if (!user || !user.userId) return;
+          await fetchFollowedLists(user.userId);
+          setFollowedLists(prev => prev.filter(list => list._id !== listId));
+          alert(t('listUnfollowed'));
+        } catch (err) {
+          console.error('Error unfollowing list:', err);
+          alert(t('errorUnfollowingList'));
+        }
+      };
+
+      const handleDeleteSongList = async (listId, musicbrainzId) => {
+        try {
+          await removeSong(listId, musicbrainzId);
+          alert('Canción eliminada correctamente de la lista');
+          if (!user || !user.userId) return;
+          await fetchListsByUser(user.userId);
+        } catch (err) {
+          alert('Error al eliminar la canción de la lista');
+          console.error(err);
+        }
+      };
             return (
               <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'end', width: "100vw" }}>
                 <Menu2 />

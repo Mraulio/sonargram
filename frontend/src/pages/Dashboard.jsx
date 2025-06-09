@@ -10,6 +10,7 @@ import TopRatingsList from '../components/TopRatingsList';
 import TopFavoritosList from '../components/TopFavoritosList'
 import Timeline from '../components/Timeline'
 import MyLists from '../components/MyLists'
+import { useNavigate } from 'react-router-dom';
 
 const MenuBox= styled(Box)`
  margin-left: 15px;
@@ -79,10 +80,15 @@ function Dashboard() {
   return (
     <Box sx={{width:'100vw', display: 'flex', flexDirection:'column'}}>
       <Menu2/>
-      <Box sx={{ display: 'flex', justifyContent:'space-between', ml: 5, mr: 5, mt: 5, alignItems:'start' }}>
-        <MyLists/>
-        <Timeline/>
-        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', alignItems:'start' }}>    
+      <Box sx={{ display: 'flex', justifyContent:'space-between', mr: 5, alignItems:'start' }}>
+        <Box sx={{width:'20%' }}>
+          <MyLists/>
+        </Box>
+        <Box sx={{width:'40%' }}>
+          <Timeline/>
+        </Box>
+        
+        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', alignItems:'start', width:'40%' }}>    
           <TopRatingsList limit={5} title="Top 5 por Rating" />        
           <TopFavoritosList limit={5}/>        
       </Box>  
