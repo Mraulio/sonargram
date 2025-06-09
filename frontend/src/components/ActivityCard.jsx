@@ -1,5 +1,5 @@
 // src/components/ActivityCard.js
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,7 +7,6 @@ import {
   Avatar,
   Stack,
   Box,
-  Link,
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -18,6 +17,7 @@ import {
   faComment,
   faThumbsUp,
 } from "@fortawesome/free-solid-svg-icons";
+import InfoModal from "./InfoModal";
 
 const iconMap = {
   favorite: faHeart,
@@ -41,39 +41,26 @@ const iconColors = {
   recommendComment: "#43a047",
 };
 
-const getActionDescription = (action, user, activity) => {
-  const username = user || "Alguien";
-
-  const StyledUsername = (
-    <Typography
-      component="span"
-      color="primary.dark" // Azul oscuro, usa theme
-      fontWeight="bold" // Negrita
-      fontSize="0.875rem" // Tamaño pequeño (~14px)
-    >
-      {username}
-    </Typography>
-  );
-
+const getActionDescription = (action, username, activity) => {
   switch (action) {
     case "favorite":
-      return <>{StyledUsername} marcó como favorito</>;
+      return "marcó como favorito";
     case "rate":
-      return <>{StyledUsername} calificó con nota {activity.rating}</>;
+      return `calificó con nota ${activity.rating}`;
     case "createList":
-      return <>{StyledUsername} creó la lista</>;
+      return "creó la lista";
     case "addListSong":
-      return <>{StyledUsername} agregó una canción a una lista</>;
+      return "agregó la canción";
     case "followList":
-      return <>{StyledUsername} siguió la lista</>;
+      return "siguió la lista";
     case "followUser":
-      return <>{StyledUsername} siguió al usuario</>;
+      return "siguió al usuario";
     case "comment":
-      return <>{StyledUsername} comentó</>;
+      return "comentó";
     case "recommendComment":
-      return <>{StyledUsername} recomendó un comentario</>;
+      return "recomendó un comentario";
     default:
-      return <>{StyledUsername} hizo una actividad</>;
+      return "hizo una actividad";
   }
 };
 
@@ -82,68 +69,50 @@ const getRelatedContent = (action, activity) => {
 
   const { activityRef, mbidData, targetType } = activity;
 
-  // Para actividades sobre música (MBID cacheada)
-  if (['song', 'album', 'artist'].includes(targetType) && mbidData) {
-    switch (targetType) {
-      case 'song':
-        return (
-          <Typography variant="body2">
-            Canción: <strong>{mbidData.title || "Desconocida"}</strong> {mbidData.artistName && <>- {mbidData.artistName}</>}
-          </Typography>
-        );
-      case 'album':
-        return (
-          <Typography variant="body2">
-            Álbum: <strong>{mbidData.title || "Desconocido"}</strong> {mbidData.artistName && <>- {mbidData.artistName}</>}
-          </Typography>
-        );
-      case 'artist':
-        return (
-          <Typography variant="body2">
-            Artista: <strong>{mbidData.title || "Desconocido"}</strong>
-          </Typography>
-        );
-      default:
-        return null;
-    }
+  if (action === "addListSong") {
+    return {
+      song: mbidData?.title && mbidData?.artistName
+        ? `${mbidData.title} - ${mbidData.artistName}`
+        : null,
+      list: activity.list?.name || null,
+    };
   }
 
-  // Para contenido Mongo referenciado (usuarios, listas, comentarios)
+if (["song", "album", "artist"].includes(targetType) && mbidData) {
+  const typeLabel = targetType === "song"
+    ? "Canción"
+    : targetType === "album"
+    ? "Álbum"
+    : "Artista";
+
+  return {
+    single: `${typeLabel}: ${mbidData.title || "Desconocida"}${mbidData.artistName ? ` - ${mbidData.artistName}` : ""}`,
+    type: targetType,
+  };
+}
+
   switch (action) {
     case "createList":
-    case "addListSong":
     case "followList":
-      return activityRef?.name || null;
+      return { single: activityRef?.name || null, type: "list" };
 
     case "followUser":
-      return activityRef?.username ? (
-        <Typography
-          component="span"
-          color="primary.dark"
-          fontWeight="bold"
-          fontSize="0.875rem"
-        >
-          @{activityRef.username}
-        </Typography>
-      ) : null;
+      return { single: activityRef?.username ? `@${activityRef.username}` : null, type: "user" };
 
     case "comment":
     case "recommendComment":
-      return (
-        <Typography variant="body2">
-          Comentario: <em>"{activityRef?.text?.slice(0, 100) || ""}"</em>
-        </Typography>
-      );
+      return {
+        single: activityRef?.text ? `"${activityRef.text.slice(0, 100)}"` : null,
+        type: "comment",
+      };
 
     default:
       return null;
   }
 };
 
-
 const ActivityCard = ({ activity }) => {
-  const { user, action, createdAt, activityRef, targetId } = activity;
-  console.log("activity", activity);
+  const { user, action, createdAt, activityRef, mbidData } = activity;
   const icon = iconMap[action];
   const iconColor = iconColors[action] || "#666";
 
@@ -152,51 +121,131 @@ const ActivityCard = ({ activity }) => {
       ? `http://localhost:5000/uploads/${user.profilePic}`
       : "/assets/images/profilepic_default.png";
 
-  const description = getActionDescription(action, user?.username, activity);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({ type: null, data: null });
+
+  const openModal = (type, data) => {
+    setModalData({ type, data });
+    setModalOpen(true);
+  };
+
+  const closeModal = () => setModalOpen(false);
+
   const relatedContent = getRelatedContent(action, activity);
+  const actionDesc = getActionDescription(action, user?.username, activity);
 
   return (
-    <Card variant="outlined" sx={{ mb: 2 }}>
-      <CardContent>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Box sx={{ position: "relative", display: "inline-block" }}>
-            <Avatar
-              alt={user?.username}
-              src={profilePicUrl}
-              sx={{ width: 56, height: 56 }}
-            />
+    <>
+      <Card variant="outlined" sx={{ mb: 2 }}>
+        <CardContent>
+          <Stack direction="row" spacing={2} alignItems="center">
             <Box
-              sx={{
-                position: "absolute",
-                bottom: -2,
-                right: -2,
-                backgroundColor: "#fff",
-                borderRadius: "50%",
-                padding: "4px",
-              }}
+              sx={{ position: "relative", display: "inline-block", cursor: "pointer" }}
+              onClick={() => openModal("user", user)}
+              title={`Ver info de ${user?.username || "usuario"}`}
             >
-              <FontAwesomeIcon icon={icon} color={iconColor} size="lg" />
-            </Box>
-          </Box>
-          <Box>
-            <Typography variant="body1">
-              {description}{" "}
-              <Typography
-                component="span"
-                color="primary.dark" // Azul oscuro, usa theme
-                fontWeight="bold" // Negrita
-                fontSize="0.875rem" // Tamaño pequeño (~14px)
+              <Avatar
+                alt={user?.username}
+                src={profilePicUrl}
+                sx={{ width: 56, height: 56 }}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: -2,
+                  right: -2,
+                  backgroundColor: "#fff",
+                  borderRadius: "50%",
+                  padding: "4px",
+                }}
               >
-                {relatedContent}
+                <FontAwesomeIcon icon={icon} color={iconColor} size="lg" />
+              </Box>
+            </Box>
+
+            <Box>
+              <Typography variant="body1" component="div">
+                <Box
+                  component="span"
+                  onClick={() => openModal("user", user)}
+                  sx={{
+                    color: "primary.dark",
+                    fontWeight: "bold",
+                    fontSize: "0.875rem",
+                    cursor: "pointer",
+                  }}
+                  title={`Ver info de ${user?.username || "usuario"}`}
+                >
+                  {user?.username || "Alguien"}
+                </Box>{" "}
+                {actionDesc}{" "}
+                {relatedContent && (
+                  <>
+                    {action === "addListSong" && relatedContent.song && (
+                      <>
+                        <Box
+                          component="span"
+                          onClick={() => openModal("song", mbidData)}
+                          sx={{
+                            color: "primary.dark",
+                            fontWeight: "bold",
+                            fontSize: "0.875rem",
+                            cursor: "pointer",
+                          }}
+                          title="Ver información de la canción"
+                        >
+                          {relatedContent.song}
+                        </Box>{" "}
+                        a la lista{" "}
+                        <Box
+                          component="span"
+                          onClick={() => openModal("list", activity.list)}
+                          sx={{
+                            color: "primary.dark",
+                            fontWeight: "bold",
+                            fontSize: "0.875rem",
+                            cursor: "pointer",
+                          }}
+                          title="Ver información de la lista"
+                        >
+                          {relatedContent.list}
+                        </Box>
+                      </>
+                    )}
+
+                    {relatedContent.single && (
+                      <Box
+                        component="span"
+                        onClick={() => openModal(relatedContent.type, activityRef || mbidData)}
+                        sx={{
+                          color: "primary.dark",
+                          fontWeight: "bold",
+                          fontSize: "0.875rem",
+                          cursor: "pointer",
+                        }}
+                        title="Ver información relacionada"
+                      >
+                        {relatedContent.single}
+                      </Box>
+                    )}
+                  </>
+                )}
               </Typography>
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {new Date(createdAt).toLocaleString()}
-            </Typography>
-          </Box>
-        </Stack>
-      </CardContent>
-    </Card>
+              <Typography variant="caption" color="text.secondary">
+                {new Date(createdAt).toLocaleString()}
+              </Typography>
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
+
+      <InfoModal
+        open={modalOpen}
+        onClose={closeModal}
+        type={modalData.type}
+        data={modalData.data}
+      />
+    </>
   );
 };
 

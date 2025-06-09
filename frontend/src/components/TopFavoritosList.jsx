@@ -46,10 +46,10 @@ function TopFavoritosList(limit = 5, title = "Items Más Gustados") {
 
   // Helper para obtener el nombre o título según el tipo
   function getItemName(item, type) {
-
+    console.log("getItemName", item, type);
     switch (type) {
       case "artist":
-        return item?.title ||item.data?.name || "Sin nombre";
+        return item?.title ||item.data?.name || item.data?.title || "Sin nombre";
       case "album":
         // Para álbumes puede ser title o name, depende del backend, aquí intento title
         return item.title || item.data?.title || item.data?.name || "Sin nombre";

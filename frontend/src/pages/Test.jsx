@@ -385,7 +385,6 @@ function Test() {
         p: 4,
         gap: 4,
         fontFamily: "sans-serif",
-        maxWidth: "1500px",
         mx: "auto",
       }}
     >
@@ -587,14 +586,14 @@ function Test() {
       </Box>
 
       {/* COLUMNA 2 */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-        <TopRatingsList limit={5} title="Top 5 por Rating" />        
-      </Box>
-      {/* COLUMNA 3 */}
       {/* <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+        <TopRatingsList limit={5} title="Top 5 por Rating" />        
+      </Box> */}
+      {/* COLUMNA 3 */}
+      {/*  <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
         <TopFavoritosList limit={5}/>        
-      </Box>
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+      </Box> */}
+      {/* <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
         <TopFollowedLists limit={5}/>        
       </Box> */}
        {/* COLUMNA 5 */}

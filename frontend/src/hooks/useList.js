@@ -27,7 +27,6 @@ export default function useList(token) {
     setError(null);
     try {
       const data = await listaApi.getListsByUser(userId, token);
-      console.log('Fetched user lists!!!!!!!!!:', data);
       setUserLists(data);
     } catch (err) {
       setError(err.message || 'Error fetching user lists');

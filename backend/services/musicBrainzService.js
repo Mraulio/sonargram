@@ -12,18 +12,19 @@ const VALID_TYPES = ['artist', 'album', 'song'];
 
 // Mapea tus tipos a los tipos reales de MusicBrainz
 function mapToMBZType(type) {
-  if (type === 'album') return 'release';
+  if (type === 'album') return 'release-group';
   if (type === 'song') return 'recording';
   return type; // artist se mantiene igual
 }
 
 function extractNameFromResult(type, result) {
+  if (!result) return 'Desconocido';
   switch (type) {
     case 'artist':
-      return result.name;
+      return result.name || 'Desconocido';
     case 'song':
     case 'album':
-      return result.title;
+      return result.title || 'Desconocido';
     default:
       return result.name || result.title || 'Desconocido';
   }
@@ -33,7 +34,6 @@ async function lookupByMBID(type, mbid) {
   if (!VALID_TYPES.includes(type)) {
     throw new Error('Tipo no válido. Usa artist, album o song.');
   }
-
   // 1. Buscar en caché (usamos el tipo lógico, no el de MBZ)
   const cached = await MBIDCache.findOne({ mbid, type });
   if (cached) {
@@ -47,14 +47,11 @@ async function lookupByMBID(type, mbid) {
       duration: cached.duration,
     };
   }
-
   // 2. Buscar en MusicBrainz con el tipo real
   const mbzType = mapToMBZType(type);
 
   try {
-    console.log(`Buscando ${mbzType} con MBID: ${mbid}`);
     const result = await musicBrainzApi.lookup(mbzType, mbid);
-    console.log('RESULT!!!!', result);
 
     const name = extractNameFromResult(type, result);
 

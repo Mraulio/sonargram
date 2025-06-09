@@ -37,6 +37,7 @@ async function getTopRatingsByType(limitPerType = 5) {
       typeGroup.ratings.map(async (item) => {
         try {
           const info = await lookupByMBID(typeGroup._id, item.mbid);
+          //console.log(`!!!!!!!Lookup MBID ${item.mbid} for type ${typeGroup._id}:`, info);
           return { ...item, ...info };  // 🔁 Combinar todo en un solo objeto
         } catch (err) {
           console.error(`Error en lookup MBID ${item.mbid}: ${err.message}`);
