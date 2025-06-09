@@ -2,6 +2,7 @@ const List = require('../models/List');
 const MBIDCache = require('../models/MBIDCache');
 const { deleteFollowersByList } = require('./listFollowerController');
 const logActivity = require('../utils/logActivity');
+const favoriteService = require('../services/favoriteService');
 
 // Función de utilidad para enriquecer las canciones de una lista
 const enrichListSongs = async (list) => {
@@ -57,13 +58,49 @@ const getLists = async (req, res) => {
   }
 };
 
+
 // Obtener listas de un usuario específico
 const getListsByUser = async (req, res) => {
   const { userId } = req.params;
+
   try {
+    // 1. Listas reales del usuario
     const listas = await List.find({ creator: userId });
-    const enriched = await Promise.all(listas.map(enrichListSongs));
-    res.json(enriched);
+    const enrichedLists = await Promise.all(listas.map(enrichListSongs));
+
+    // 2. Favoritos del usuario
+    const allFavorites = await favoriteService.getFavorites(userId);
+
+    // 🔍 Filtramos solo los favoritos de tipo 'song'
+    const songFavorites = allFavorites.filter(fav => fav.favoriteType === 'song');
+
+    // 3. Enriquecer solo las canciones
+    const enrichedFavorites = await Promise.all(
+      songFavorites.map(async (fav) => {
+        const cache = await MBIDCache.findOne({ mbid: fav.favoriteId });
+        return {
+          musicbrainzId: fav.favoriteId,
+          title: cache?.title || null,
+          artistName: cache?.artistName || null,
+          coverUrl: cache?.coverUrl || null,
+          releaseDate: cache?.releaseDate || null,
+          duration: cache?.duration || null,
+        };
+      })
+    );
+
+    // 4. Lista virtual de favoritos (solo canciones)
+    const listaFavoritos = {
+      _id: `favorites-${userId}`,
+      name: 'Favoritos',
+      creator: userId,
+      isFavoriteList: true,
+      songs: enrichedFavorites
+    };
+
+    // 5. Combinar y responder
+    const resultado = [listaFavoritos, ...enrichedLists];
+    res.status(200).json(resultado);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
