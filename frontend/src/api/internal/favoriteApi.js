@@ -23,9 +23,9 @@ export const removeFavorite = async (favoriteId, token) => {
 };
 
 // Obtener todos los favoritos de un usuario
-export const getFavoritesByUser = async (token) => {
+export const getFavoritesByUser = async (userId, token) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.get('/favorites');
+  const response = await apiClient.get(`/favorites/${userId}`);
   return response.data;
 };
 

@@ -26,7 +26,8 @@ import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import ItemList from "../components/ItemList";
 
 function TestBuscador() {
-  const { token } = useContext(UserContext);
+  const { token, user } = useContext(UserContext);
+  console.log('USERRRR', user)
   const {
     rateItem,
     deleteRating,
@@ -35,7 +36,7 @@ function TestBuscador() {
     fetchMultipleItemRatings,
   } = useRatings(token);
   const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } =
-    useFavorites(token);
+    useFavorites(user.userId, token);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchTermArtist, setSearchTermArtist] = useState("");

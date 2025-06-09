@@ -47,7 +47,7 @@ const createList = async (req, res) => {
   }
 };
 
-// Obtener todas las listas (Admin)
+// Obtener todas las listas
 const getLists = async (req, res) => {
   try {
     const listas = await List.find().populate('creator');

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api/internal/favoriteApi';
 
-export default function useFavorites(token) {
+export default function useFavorites(userId, token) {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +11,7 @@ export default function useFavorites(token) {
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const data = await api.getFavoritesByUser(token);
+        const data = await api.getFavoritesByUser(userId, token);
         setFavorites(data);
       } catch (err) {
         setError(err.message);
@@ -21,7 +21,7 @@ export default function useFavorites(token) {
     };
 
     if (token) fetchFavorites();
-  }, [token]);
+  }, [token, userId]);
 
   const addFavorite = async (id, type, title, artistName, coverUrl, releaseDate, duration) => {
     try {

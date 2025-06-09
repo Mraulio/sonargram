@@ -46,14 +46,25 @@ const removeFavorite = async (req, res) => {
 
 const getFavoritesByUser = async (req, res) => {
   try {
-    const userId = req.user.userId;  // lo obtienes del JWT gracias al middleware
-    const result = await favoriteService.getFavorites(userId);
+    // 1. Obtener userId
+    const userId = req.params.userId;
+
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required.' });
+    }
+
+    // 2. Obtener favoritos del usuario
+    let result = await favoriteService.getFavorites(userId);
+
+    // 3. Ordenarlos: suponemos que cada favorito tiene una propiedad "createdAt"
+    result = result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
-  
+
 
 // Método para obtener el número de "me gusta" de un favorito (ejemplo: canción)
 const getFavoriteCount = async (req, res) => {
