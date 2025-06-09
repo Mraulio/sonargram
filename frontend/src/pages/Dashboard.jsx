@@ -81,7 +81,7 @@ function Dashboard() {
     <Box sx={{width:'100vw', display: 'flex', flexDirection:'column'}}>
       <Menu2/>
       <Box sx={{ display: 'flex', justifyContent:'space-between', mr: 5, alignItems:'start' }}>
-        <Box sx={{width:'20%' }}>
+        <Box sx={{width:'20%', height: '100%',  borderRight: '2px solid' }}>
           <MyLists/>
         </Box>
         <Box sx={{width:'40%' }}>

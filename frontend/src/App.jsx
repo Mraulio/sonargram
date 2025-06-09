@@ -25,6 +25,7 @@ import Test5 from './pages/Test5';
 import CommunityPage from './pages/CommunityPage';
 import UserItems from './pages/UserItems';
 import ResultsPage from './pages/ResultsPage';
+import UserResult from './pages/UserResult'
 // FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
@@ -72,6 +73,7 @@ function App() {
         <Route path="/community" element={<PrivateRoute><CommunityPage/></PrivateRoute>} />
         <Route path="/userItems" element={<PrivateRoute><UserItems/></PrivateRoute>} />
         <Route path="results" element={<PrivateRoute><ResultsPage/></PrivateRoute>} />
+        <Route path="/userresult/:id" element={<PrivateRoute><UserResult/></PrivateRoute>} />
         <Route path="*" element={<Navigate to={token ? "/dashboard" : "/"} />} />
       </Routes>
     </Router>

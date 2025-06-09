@@ -19,8 +19,11 @@ function ListPage() {
     const [listName, setListName] = useState(''); // Estado para el nombre de la lista
     const [searchListName, setSearchListName] = useState(''); // Estado para el nombre de la lista a buscar
     const [editListName, setEditListName] = useState(''); // Estado para el nombre de la lista a editar
+    const [selectedListId, setSelectedListId] = useState(null);
     const [songs, setSongs] = useState(''); // Estado para las canciones de la lista
     const [open, setOpen] = useState(false); // Estado para controlar el modal
+    const [openSongsModal, setOpenSongsModal] = useState(false);
+    const [selectedListSongs, setSelectedListSongs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
@@ -56,6 +59,7 @@ function ListPage() {
           if (token) {
             handleSearchListByUser(); // Llama a la función para buscar listas del usuario actual
             fetchAllLists(); // Llama a la función para obtener todas las listas
+            fetchFollowedLists(user?.userId); // Opcional: cargar listas seguidas al cargar la página
           }
         }, [token]);
 
@@ -129,8 +133,8 @@ function ListPage() {
       };
             
       const handleCloseListModal = () => {
-      setOpen(false); // Cierra el modal
-      setEditingList(null); // Limpia la lista en edición
+        setOpen(false); // Cierra el modal
+        setEditingList(null); // Limpia la lista en edición
       };
             
       const handleSaveListChanges = async () => {
@@ -197,103 +201,98 @@ function ListPage() {
           console.error(err);
         }
       };
-            return (
-              <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'end', width: "100vw" }}>
-                <Menu2 />
-                <Box sx={{ width: '95vw', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                  <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4 }}>
-                    <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
-                      <Card sx={{ width: '45%', height: '300px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-                        <CardContent sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-                          <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
-                          <TextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
-                          <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>
-                            { t('createListButton')}
-                          </Button>
-                        </CardContent>
-                      </Card>
-                      
-                      {userLists.map(l => (
-                        <Card key={l._id} sx={{ width: '45%', minHeight: '300px' }}>
-                          <CardContent>
-                            <Typography variant="h5" sx={{ mb: 1 }}>{l.name}</Typography>
-                            <Divider sx={{ my: 1 }} />
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{t('songs')}:</Typography>
-                            
-                            <ul>
-                              {l.songs.map((song, index) => (
-                                <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'space-between'}}>
-                                  {song.title} - {song.artistName}
-                                  <Button
-                                    size="small"
-                                    color="error"
-                                    variant="contained"
-                                    sx={{ ml: 1 }}
-                                    onClick={() => handleDeleteSongList(l._id, song.musicbrainzId)}
-                                  >
-                                    X
-                                  </Button>
-                                </li>
-                              ))}
-                            </ul>
-                            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <Typography variant="body2" color="text.secondary">
-                                {t('Creador de la lista')}: {l.creator.name || t('unknown')}
-                              </Typography>
-                              <Button
-                                variant="outlined"
-                                color="warning"
-                                size="small"
-                                onClick={() => handleOpenListModal(l)}
-                                sx={{ ml: 2 }}
-                              >
-                                {t('edit')}
-                              </Button>
-                              <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
-                              </Button>
-                          
-                            </Box>
-                          </CardContent>
-                        </Card>
-                      ))}
+
+ return (
+  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100vw" }}>
+    <Menu2 /> 
+        <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
+              <Card sx={{ width: '48%', height: '200px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+                <CardContent sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+                  <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
+                  <TextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
+                  <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>{ t('createListButton')}</Button>
+                </CardContent>
+              </Card>   
+              {userLists.map(l => (
+                <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
+                  <CardContent>
+                    <Typography
+                        variant="h5"
+                        sx={{ mb: 1, cursor: 'pointer' }}
+                        onClick={() => {
+                          setSelectedListSongs(l.songs);
+                          setOpenSongsModal(true);
+                        }}
+                      >
+                      {l.name}
+                    </Typography>
+                    <Divider sx={{ my: 1 }} />
+      
+              
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('Creador de la lista')}: {l.creator.name || t('unknown')}
+                      </Typography>
+                      <Button
+                        variant="outlined"
+                        color="warning"
+                        size="small"
+                       onClick={() => {
+                          setSelectedListSongs(l.songs);
+                          setSelectedListId(l._id);
+                          setOpenSongsModal(true);
+                        }}
+                        sx={{ ml: 2 }}
+                      >
+                        {t('edit')}
+                      </Button>
+                      <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}</Button>
                     </Box>
-                  </Box>
+                </CardContent>
+              </Card>
+              ))}
+            </Box>
+        </Box>            
                 
-                <Box sx={{ display: 'flex', width: '95vw',justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                  <Typography variant="h6">{t('followLists')}</Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw',justifyContent: 'center', alignItems: 'center' }}>
-                    {followedLists.map(l => (
-                      <Card key={l._id} sx={{ width: '45%', height: '300px' }}>
-                        <CardContent>
-                          <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
-                          <Divider sx={{ my: 1 }} />
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{t('songs')}:</Typography>
-                            
-                            <ul>
-                              {l.songs.map((song, index) => (
-                                <li key={index}>{song.title} - {song.artist} </li>
-                              ))}
-                            </ul>
-                          
-                          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="body2" color="text.secondary">
-                              {t('Creador de la lista')}: {l.creator.name || t('unknown')}
-                            </Typography>
-                            <Button onClick={() => (handleUnfollowList(l._id))} color="error">{t('unfollow')}</Button>
-                          </Box>
-                        </CardContent>
-                      </Card>
-                    ))}
+        <Box sx={{  display: 'flex',  flexDirection: 'column', p: 4 }}>
+          <Typography variant="h6">{t('followLists')}</Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
+            {followedLists.map(l => (
+              <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
+                <CardContent>
+                  <Typography
+                    variant="h5"
+                    sx={{ mb: 1, cursor: 'pointer' }}
+                    onClick={() => {
+                      setSelectedListSongs(l.songs);
+                      setSelectedListId(l._id);
+                      setOpenSongsModal(true);
+                    }}
+                  >
+                    {l.name}
+                  </Typography>
+                  <Divider sx={{ my: 1 }} />              
+                  <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('Creador de la lista')}: {l.creator.name || t('unknown')}
+                    </Typography>
+                    <Button onClick={() => (handleUnfollowList(l._id))} color="error">{t('unfollow')}</Button>
                   </Box>
-                </Box>
+                </CardContent>
+              </Card>
+              
+            ))}
+          </Box>
+        </Box>
                 
                 
             {searchResults.length > 0 && (
               <Box sx={{ p: 4, display: 'flex', width: '95vw',justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
                 <Typography variant="h6" sx={{ mt: 2 }}>{t('searchResults')}</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw',justifyContent: 'center', alignItems: 'center' }}>
-                  <Card sx={{ width: '45%', height: '300px'}}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center' }}>
+                  <Card sx={{ width: '48%', height: '300px'}}>
                   <CardContent>
                       <Typography variant="h5" gutterBottom>{t('showList')}</Typography>
                       <TextField
@@ -329,10 +328,30 @@ function ListPage() {
                       </CardContent>
                     </Card>
                   ))}
+
                 </Box>
               </Box>
               )}
-               
+              <Box sx={{ p: 4, display: 'flex', width: '95vw', flexDirection: 'column'}}>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('allLists')}</Typography>              
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
+                  {lists && lists.length > 0 ? (
+                    lists.map(l => (
+                      <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
+                        <CardContent>
+                          <Typography variant="h5" sx={{ mb: 1 }}>{l.name}</Typography>
+                          <Divider sx={{ my: 1 }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {t('Creador de la lista')}: {l.creator?.name || t('unknown')}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">{t('noLists')}</Typography>
+                  )}
+                </Box>
+              </Box>
             {/* Modal para renombrar la lista */}
               <Dialog open={open} onClose={handleCloseListModal}>
                 <DialogTitle>{t('editList')}</DialogTitle>
@@ -354,8 +373,39 @@ function ListPage() {
                   </Button>
                 </DialogActions>
               </Dialog>
-              </Box>
+
+              <Dialog open={openSongsModal} onClose={() => setOpenSongsModal(false)}>
+                <DialogTitle>{t('songs')}</DialogTitle>
+                  <DialogContent>
+                    <ul>
+                      {selectedListSongs.length === 0 && (
+                        <Typography variant="body2" color="text.secondary">{t('noSongs')}</Typography>
+                      )}
+                      {selectedListSongs.map((song, index) => (
+                        <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          {song.title} - {song.artistName}
+                          {/* Solo muestra el botón X si la lista es del usuario */}
+                          {userLists.some(list => list._id === selectedListId) && (
+                            <Button
+                              size="small"
+                              color="error"
+                              variant="contained"
+                              sx={{ ml: 1 }}
+                              onClick={() => handleDeleteSongList(selectedListId, song.musicbrainzId)}
+                            >
+                              X
+                            </Button>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </DialogContent>
+                <DialogActions>
+                <Button onClick={() => setOpenSongsModal(false)} color="primary">{t('close') || 'Cerrar'}</Button>
+                </DialogActions>
+              </Dialog>
             </Box>
+
             );
-          }
-export default ListPage;
+          }             
+export default ListPage;           

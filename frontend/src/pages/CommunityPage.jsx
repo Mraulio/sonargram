@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import Menu2 from '../components/Menu2';
-import Followed from '../components/Followed';
+
 import Followers from '../components/Followers';
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';

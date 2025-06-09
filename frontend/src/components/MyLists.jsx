@@ -27,16 +27,27 @@ function MyLists() {
     const [error, setError] = useState(null);
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
     const [ followLists, setFollowLists ] = useState('');
-    const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong } = useList(token);
+    const { lists, userLists, fetchListById, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong } = useList(token);
     const { followers, followersCount, followedLists, followL, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
     const [searchTermSong, setSearchTermSong] = useState("");
     const [songResults, setSongResults] = useState([]);
+    const [selectedListId, setSelectedListId] = useState(null);
     const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } = useFavorites(token);
     const [favoriteCounts, setFavoriteCounts] = useState({
         artists: {},
         albums: {},
         songs: {},
       });
+    
+    const fetchListWithSongs = async (listId) => {
+  try {
+    const list = await fetchListById(listId);
+    return list && list.songs ? list.songs : [];
+  } catch (err) {
+    console.error('Error fetching list songs:', err);
+    return [];
+  }
+};
 
     const handleSearchListByUser = async () => {
       try {
@@ -200,7 +211,7 @@ function MyLists() {
       };
 
 return (
-  <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', gap: 3, borderRight: '2px solid', height: '100%' }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', gap: 3 }}>
     <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
     {userLists.map(l => (
@@ -209,27 +220,33 @@ return (
           variant="h5"
           sx={{ mb: 1, cursor: 'pointer' }}
           onClick={() => {
-            setSelectedListSongs(l.songs);
-            setOpenSongsModal(true);
-          }}
+  setSelectedListSongs(l.songs);
+  setSelectedListId(l._id); // <-- nuevo estado
+  setOpenSongsModal(true);
+}}
         >
           {l.name}
         </Typography>
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          
+          {l.name !== "Favoritos" && (
+          <>
           <Typography variant="body2" color="text.secondary">
             {t('Creador de la lista')}: {l.creator.name || t('unknown')}
           </Typography>
-          <Button
-            variant="outlined"
-            color="warning"
-            size="small"
-            onClick={() => handleOpenListModal(l)}
-            sx={{ ml: 2 }}
-          >
-            {t('edit')}
-          </Button>
-          <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
-          </Button>
+            <Button
+              variant="outlined"
+              color="warning"
+              size="small"
+              onClick={() => handleOpenListModal(l)}
+              sx={{ ml: 2 }}
+            >
+              {t('edit')}
+            </Button>
+            <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
+            </Button>
+          </>
+        )}
         </Box>
       </li>
     ))}
@@ -241,10 +258,16 @@ return (
       <Typography
         variant="h5"
         sx={{ mb: 1, cursor: 'pointer' }}
-        onClick={() => {
-          setSelectedListSongs(l.songs);
-          setOpenSongsModal(true);
-        }}
+        onClick={async () => {
+  let songs = l.songs;
+  // Si las canciones no tienen título, haz fetch de la lista completa
+  if (!songs.length || !songs[0].title) {
+    songs = await fetchListWithSongs(l._id);
+  }
+  setSelectedListSongs(songs);
+  setSelectedListId(l._id);
+  setOpenSongsModal(true);
+}}
       >
         {l.name}
       </Typography>
@@ -262,37 +285,37 @@ return (
 </ul>
     {/* Modal para mostrar canciones de la lista */}
     <Dialog open={openSongsModal} onClose={() => setOpenSongsModal(false)}>
-      <DialogTitle>{t('songs')}</DialogTitle>
-      <DialogContent>
-        <ul>
-          {selectedListSongs.length === 0 && (
-            <Typography variant="body2" color="text.secondary">{t('noSongs')}</Typography>
+  <DialogTitle>{t('songs')}</DialogTitle>
+  <DialogContent>
+    <ul>
+      {selectedListSongs.length === 0 && (
+        <Typography variant="body2" color="text.secondary">{t('noSongs')}</Typography>
+      )}
+      {selectedListSongs.map((song, index) => (
+        <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          {song.title} - {song.artistName}
+          {/* Solo muestra el botón si la lista es tuya */}
+          {userLists.some(list => list._id === selectedListId) && (
+            <Button
+              size="small"
+              color="error"
+              variant="contained"
+              sx={{ ml: 1 }}
+              onClick={() => handleDeleteSongList(selectedListId, song.musicbrainzId)}
+            >
+              X
+            </Button>
           )}
-          {selectedListSongs.map((song, index) => (
-            <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              {song.title} - {song.artistName}
-              <Button
-                size="small"
-                color="error"
-                variant="contained"
-                sx={{ ml: 1 }}
-                onClick={() => handleDeleteSongList(
-                  userLists.find(l => l.songs === selectedListSongs)._id,
-                  song.musicbrainzId
-                )}
-              >
-                X
-              </Button>
-            </li>
-          ))}
-        </ul>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setOpenSongsModal(false)} color="primary">
-          {t('close') || 'Cerrar'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </li>
+      ))}
+    </ul>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenSongsModal(false)} color="primary">
+      {t('close') || 'Cerrar'}
+    </Button>
+  </DialogActions>
+</Dialog>
 
     {/* Modal para renombrar la lista */}
     <Dialog open={open} onClose={handleCloseListModal}>

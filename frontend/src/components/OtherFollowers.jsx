@@ -1,33 +1,29 @@
 import { useEffect, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
+import { useTranslation } from 'react-i18next';
 import { Avatar, Box, Typography, Card, CardContent, Button } from '@mui/material';
 import useFollow from '../hooks/useFollow';
-import useUser from '../hooks/useUser';
 import { useNavigate } from 'react-router-dom';
 
-function Followers({ userId: propUserId }) {
+function OtherFollowers({ userId: propUserId }) {
     const { t } = useTranslation();
-    const { token, user } = useContext(UserContext);
+    const { token } = useContext(UserContext);
     const { followers, fetchFollowers, following, fetchFollowing, follow, unfollow } = useFollow(token);
     const navigate = useNavigate();
 
-    // Usa el id recibido por props o el del usuario actual
-    const userId = propUserId || user?._id || user?.userId;
-
     useEffect(() => {
-        if (userId) {
-            fetchFollowers(userId);
-            fetchFollowing(userId);
+        if (propUserId) {
+            fetchFollowers(propUserId);
+            fetchFollowing(propUserId);
         }
-    }, [userId, fetchFollowers, fetchFollowing]);
+    }, [propUserId, fetchFollowers, fetchFollowing]);
 
     const handleUnfollow = async (followedId) => {
         try {
             await unfollow(followedId);
-            if (userId) {
-                await fetchFollowers(userId);
-                await fetchFollowing(userId);
+            if (propUserId) {
+                await fetchFollowers(propUserId);
+                await fetchFollowing(propUserId);
             }
         } catch (err) {
             console.error('Error fetching followers:', err);
@@ -37,9 +33,9 @@ function Followers({ userId: propUserId }) {
     const handleFollow = async (followedId) => {
         try {
             await follow(followedId);
-            if (userId) {
-                await fetchFollowers(userId);
-                await fetchFollowing(userId);
+            if (propUserId) {
+                await fetchFollowers(propUserId);
+                await fetchFollowing(propUserId);
             }
             alert(t('userFollowed'));
         } catch (err) {
@@ -74,6 +70,7 @@ function Followers({ userId: propUserId }) {
                                     <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.createdAt).toLocaleDateString()}</Typography>
                                     <Typography variant="body2" color="text.secondary">{t('bio')}: {f.followed.bio}</Typography>
                                 </CardContent>
+                                {/* Botón solo si es tu propio perfil */}
                                 {!propUserId && (
                                     <Button
                                         variant="outlined"
@@ -142,4 +139,4 @@ function Followers({ userId: propUserId }) {
     );
 }
 
-export default Followers;
+export default OtherFollowers;

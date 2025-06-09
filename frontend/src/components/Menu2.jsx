@@ -153,7 +153,7 @@ function Menu2() {
                   : '/assets/images/profilepic_default.png'
               }
               alt="imagen perfil"
-              onClick={handleOpenUserEdit}
+              onClick={() => navigate('/profile')}
             />
             <CustomButton variant="outlined" onClick={logout} sx={{ color: 'white', borderColor: 'white' }}><FontAwesomeIcon sx={{ width: '50%' }}style={{ fontSize: '25px', color: 'gray' }} icon={faXmark} /></CustomButton>
         </Box>

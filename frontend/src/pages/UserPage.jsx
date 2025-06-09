@@ -3,9 +3,9 @@ import { TextField, Button, Typography, Card, CardContent, Box, Divider, ButtonB
 import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
-
+import Followers from '../components/Followers';
 import useUser from '../hooks/useUser';
-import Menu from '../components/Menu';
+import Menu2 from '../components/Menu2';
 
 function UserPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -199,11 +199,10 @@ function UserPage() {
 
  return (
   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginTop: '5rem' }}>
-    <Menu />
-    <Card sx={{ width: '500px', p: 2, margin: 'auto', backgroundColor: '#f5f5f5' }}>
-      <CardContent>
+    <Menu2 />
+    <Box >
         <Typography variant="h5" gutterBottom>
-          {t('updateUser')}
+          {t('dataUser')}
         </Typography>
     
         <ButtonBase
@@ -270,8 +269,7 @@ function UserPage() {
         >
           {t('deleteUserButton')}
         </Button>
-      </CardContent>
-    </Card>
+      <Followers/>
     {selectedUser && (
           <Modal
             open={openModal}
@@ -311,6 +309,7 @@ function UserPage() {
                 {t("close")}
               </Button>
             </Box>
+            
           </Modal>
         )}
 
@@ -346,6 +345,8 @@ function UserPage() {
                   </Button>
                 </Box>
               </Modal>
+              
+    </Box>
   </div>
 );
 }
