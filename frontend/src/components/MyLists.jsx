@@ -200,7 +200,7 @@ function MyLists() {
       };
 
 return (
-  <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', gap: 3, borderRight: '2px solid', height: '100vh' }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', gap: 3, borderRight: '2px solid', height: '100%' }}>
     <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
     {userLists.map(l => (
