@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { Box, Typography, Divider, Card, CardContent } from "@mui/material";
 import { UserContext } from "../context/UserContext";
 import useRatings from "../hooks/useRatings";
@@ -15,7 +15,7 @@ function TopRatingsUser({ limit = 5, title = "Tus ratings más altos" }) {
     getItemStats,
     getRatingFor,
   } = useRatings(token);
-
+console.log("RATINGS:", ratings); // <-- Añade esta línea aquí
   // Agrupa los ratings por tipo y ordena por rating descendente
   const grouped = {
     artist: [],
@@ -30,19 +30,37 @@ function TopRatingsUser({ limit = 5, title = "Tus ratings más altos" }) {
     grouped[type] = grouped[type].slice(0, limit);
   });
 
-  function getItemName(item, type) {
-    if (!item.data) return "Sin nombre";
-    switch (type) {
-      case "artist":
-        return item.data.name || "Sin nombre";
-      case "album":
-        return item.data.title || item.data.name || "Sin nombre";
-      case "song":
-        return item.data.title || "Sin nombre";
-      default:
-        return item.name || "Sin nombre";
-    }
+ function getItemName(item, type) {
+  switch (type) {
+    case "artist":
+      return (
+        item.artistName ||
+        item.name ||
+        item.title ||
+        item.data?.name ||
+        item.data?.artistName ||
+        "Sin nombre"
+      );
+    case "album":
+      return (
+        item.title ||
+        item.albumName ||
+        item.data?.title ||
+        item.data?.name ||
+        "Sin nombre"
+      );
+    case "song":
+      return (
+        item.title ||
+        item.songName ||
+        item.data?.title ||
+        item.data?.songName ||
+        "Sin nombre"
+      );
+    default:
+      return item.name || item.title || "Sin nombre";
   }
+}
 
   if (loading) {
     return <Typography>Cargando tus ratings...</Typography>;

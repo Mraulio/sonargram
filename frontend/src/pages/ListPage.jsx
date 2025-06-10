@@ -28,7 +28,7 @@ function ListPage() {
     const [error, setError] = useState(null);
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
     const [ followLists, setFollowLists ] = useState('');
-    const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong } = useList(token);
+    const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong, fetchListById } = useList(token);
     const { followers, followersCount, followedLists, followL, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
     const [searchTermSong, setSearchTermSong] = useState("");
     const [songResults, setSongResults] = useState([]);
@@ -202,8 +202,18 @@ function ListPage() {
         }
       };
 
+      const fetchListWithSongs = async (listId) => {
+        try {
+          const list = await fetchListById(listId);
+          return list && list.songs ? list.songs : [];
+        } catch (err) {
+          console.error('Error fetching list songs:', err);
+          return [];
+        }
+      };
+
  return (
-  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100vw" }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100vw", height:'100vh' }}>
     <Menu2 /> 
         <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
@@ -219,13 +229,14 @@ function ListPage() {
                 <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
                   <CardContent>
                     <Typography
-                        variant="h5"
-                        sx={{ mb: 1, cursor: 'pointer' }}
-                        onClick={() => {
-                          setSelectedListSongs(l.songs);
-                          setOpenSongsModal(true);
-                        }}
-                      >
+                      variant="h5"
+                      sx={{ mb: 1, cursor: 'pointer' }}
+                      onClick={() => {
+                        setSelectedListSongs(l.songs);
+                        setSelectedListId(l._id); // <-- Añade esto
+                        setOpenSongsModal(true);
+                      }}
+                    >
                       {l.name}
                     </Typography>
                     <Divider sx={{ my: 1 }} />
@@ -264,9 +275,14 @@ function ListPage() {
                 <CardContent>
                   <Typography
                     variant="h5"
-                    sx={{ mb: 1, cursor: 'pointer' }}
-                    onClick={() => {
-                      setSelectedListSongs(l.songs);
+                    sx={{ mb: 1, cursor: 'pointer', textDecoration: 'underline' }}
+                    onClick={async () => {
+                      let songs = l.songs;
+                      // Si las canciones no tienen título, haz fetch de la lista completa
+                      if (!songs.length || !songs[0].title) {
+                        songs = await fetchListWithSongs(l._id);
+                      }
+                      setSelectedListSongs(songs);
                       setSelectedListId(l._id);
                       setOpenSongsModal(true);
                     }}
@@ -315,7 +331,7 @@ function ListPage() {
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                           {t('Canciones')}: {l.songs.join(', ')}
                         </Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{  display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Typography variant="body2" color="text.secondary">
                             {t('Creador de la lista')}: {l.creator.name || t('unknown')}
                           </Typography>
@@ -336,17 +352,41 @@ function ListPage() {
                 <Typography variant="h6" sx={{ mb: 2 }}>{t('allLists')}</Typography>              
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
                   {lists && lists.length > 0 ? (
-                    lists.map(l => (
-                      <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
-                        <CardContent>
-                          <Typography variant="h5" sx={{ mb: 1 }}>{l.name}</Typography>
-                          <Divider sx={{ my: 1 }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {t('Creador de la lista')}: {l.creator?.name || t('unknown')}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    ))
+                    lists
+                      .filter(l => l.creator && user && l.creator._id !== user.userId) // <-- Filtra las listas que no son tuyas
+                      .map(l => (
+                        <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
+                          <CardContent>
+                            <Typography
+                              variant="h5"
+                              sx={{ mb: 1, cursor: 'pointer', textDecoration: 'underline' }}
+                              onClick={async () => {
+                                let songs = l.songs;
+                                // Si las canciones no tienen título, haz fetch de la lista completa
+                                if (!songs.length || !songs[0].title) {
+                                  songs = await fetchListWithSongs(l._id);
+                                }
+                                setSelectedListSongs(songs);
+                                setSelectedListId(l._id);
+                                setOpenSongsModal(true);
+                              }}
+                            >
+                              {l.name}
+                            </Typography>
+                            <Divider sx={{ my: 1 }} />
+                            <Typography variant="body2" color="text.secondary">
+                              {t('Creador de la lista')}: {l.creator?.name || t('unknown')}
+                            </Typography>
+                            <Box sx={{ mt: 2 }}>
+                              {followedLists.some(followed => followed._id === l._id) ? (
+                                <Typography color="success.main">{t('following')}</Typography>
+                              ) : (
+                                <Button onClick={() => handlefollowList(l._id)} color="error">{t('follow')}</Button>
+                              )}
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      ))
                   ) : (
                     <Typography variant="body2" color="text.secondary">{t('noLists')}</Typography>
                   )}
@@ -375,33 +415,42 @@ function ListPage() {
               </Dialog>
 
               <Dialog open={openSongsModal} onClose={() => setOpenSongsModal(false)}>
-                <DialogTitle>{t('songs')}</DialogTitle>
-                  <DialogContent>
-                    <ul>
-                      {selectedListSongs.length === 0 && (
-                        <Typography variant="body2" color="text.secondary">{t('noSongs')}</Typography>
-                      )}
-                      {selectedListSongs.map((song, index) => (
-                        <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          {song.title} - {song.artistName}
-                          {/* Solo muestra el botón X si la lista es del usuario */}
-                          {userLists.some(list => list._id === selectedListId) && (
-                            <Button
-                              size="small"
-                              color="error"
-                              variant="contained"
-                              sx={{ ml: 1 }}
-                              onClick={() => handleDeleteSongList(selectedListId, song.musicbrainzId)}
-                            >
-                              X
-                            </Button>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </DialogContent>
+                <DialogTitle>
+                  {t('songs')} - {
+                    // Busca la lista seleccionada en todas las listas disponibles
+                    (() => {
+                      const all = [...userLists, ...followedLists, ...lists];
+                      const found = all.find(l => l._id === selectedListId);
+                      return found ? found.name : '';
+                    })()
+                  }
+                </DialogTitle>
+                <DialogContent>
+                  <ul>
+                    {selectedListSongs.length === 0 && (
+                      <Typography variant="body2" color="text.secondary">{t('noSongs')}</Typography>
+                    )}
+                    {selectedListSongs.map((song, index) => (
+                      <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        {song.title} - {song.artistName}
+                        {/* Solo muestra el botón X si la lista es del usuario */}
+                        {userLists.some(list => list._id === selectedListId) && (
+                          <Button
+                            size="small"
+                            color="error"
+                            variant="contained"
+                            sx={{ ml: 1 }}
+                            onClick={() => handleDeleteSongList(selectedListId, song.musicbrainzId)}
+                          >
+                            X
+                          </Button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </DialogContent>
                 <DialogActions>
-                <Button onClick={() => setOpenSongsModal(false)} color="primary">{t('close') || 'Cerrar'}</Button>
+                  <Button onClick={() => setOpenSongsModal(false)} color="primary">{t('close') || 'Cerrar'}</Button>
                 </DialogActions>
               </Dialog>
             </Box>

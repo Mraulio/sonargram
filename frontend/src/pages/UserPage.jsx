@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Followers from '../components/Followers';
 import useUser from '../hooks/useUser';
 import Menu2 from '../components/Menu2';
+import TopRatingsUser from '../components/TopRatingsUser'
 
 function UserPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -198,9 +199,10 @@ function UserPage() {
 
 
  return (
-  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginTop: '5rem' }}>
+  <Box style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center' }}>
     <Menu2 />
-    <Box >
+    <Box sx={{ display: 'flex', flexDirection:'column', height: '100vh', alignItems:'center'}}>
+      <Box sx={{ display: 'flex', flexDirection:'column', width: '50vw', marginBottom: '50px'}}>
         <Typography variant="h5" gutterBottom>
           {t('dataUser')}
         </Typography>
@@ -210,8 +212,8 @@ function UserPage() {
           sx={{
             borderRadius: '50%',
             overflow: 'hidden',
-            width: 150,
-            height: 150,
+            width: 200,
+            height: 200,
             display: 'inline-block',
           }}
         >
@@ -233,43 +235,44 @@ function UserPage() {
           onChange={handleImageChange}
         />
         <br />
-                <Button variant="outlined" color="error" onClick={handleDeleteProfilePic} sx={{ mt: 2 }}>
-                {t('deleteProfilePic')}
-                </Button>
+        <Button variant="outlined" color="error" onClick={handleDeleteProfilePic} sx={{ mt: 2, width:'200px' }}>
+        {t('deleteProfilePic')}
+        </Button>
         <TextField
-          fullWidth
           label={t('name')}
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
           margin="normal"
         />
         <TextField
-          fullWidth
           label={t('bio')} // Etiqueta traducida para la biografía
           value={userBio} // Estado para la biografía
           onChange={(e) => setUserBio(e.target.value)} // Actualiza el estado de la biografía
           margin="normal"/>
-          
-        <Button
-          variant="contained"
-          onClick={() =>
-            handleEditUser(userId, {
-              name: userName,
-            })
-          }
-          sx={{ mt: 2 }}
-        >
-          {t('editUserButton')}
-        </Button>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => handleDeleteUser(userId)}
-          sx={{ mt: 2 }}
-        >
-          {t('deleteUserButton')}
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent:'space-around'}}>
+          <Button
+            variant="contained"
+            onClick={() =>
+              handleEditUser(userId, {
+                name: userName,
+              })
+            }
+            sx={{ mt: 2, width: '200px' }}
+          >
+            {t('editUserButton')}
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => handleDeleteUser(userId)}
+            sx={{ mt: 2, width: '200px' }}
+          >
+            {t('deleteUserButton')}
+          </Button>
+        </Box>  
+        </Box>
       <Followers/>
+      <TopRatingsUser />
     {selectedUser && (
           <Modal
             open={openModal}
@@ -347,7 +350,7 @@ function UserPage() {
               </Modal>
               
     </Box>
-  </div>
+  </Box>
 );
 }
 

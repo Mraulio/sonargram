@@ -129,7 +129,7 @@ function Menu2() {
 
   return (
     <CustomMenu>
-        <Link href="/DashBoard" ><img src={logo} alt="Logo" style={{ width: "150px" }} /></Link>
+        <Link href="/DashBoard" ><img src='assets/images/logoSonargram.png' alt="Logo" style={{ width: "300px" }} /></Link>
         <Box sx={{ display: 'flex', gap: 1, width:'60vw', justifyContent:'start', alignItems: 'center', gap:3 }}>
           <Box sx= {{ display: 'flex', justifyContent:'center', alignItems:'center', width: '500px' }}>
             <CustomTextField
@@ -142,7 +142,7 @@ function Menu2() {
             <Button onClick={handleSearchClick}><FontAwesomeIcon style={{fontSize: 24, color: '#3e4a4c'}} icon={faMagnifyingGlass} /></Button>
           </Box>
             <CustomLink href="/lists" underline="hover" ><FontAwesomeIcon sx={{ width: '50%' }}style={{ fontSize: '35px' }} icon={faListUl} /><span>{t('lists')}</span></CustomLink>
-            <CustomLink href="" underline="hover"><FontAwesomeIcon sx={{ width: '50%' }}style={{ fontSize: '35px' }} icon={faHeart} /><span>{t('favorites')}</span></CustomLink>
+            
             {role === 'admin' && <Link sx={{color: 'red'}} href="/admin" underline="hover">Admin</Link>}
             {/* Avatar con onClick para abrir el modal */}
             <Avatar
@@ -179,5 +179,5 @@ function Menu2() {
     </CustomMenu>
   );
 }
-
+//<CustomLink href="" underline="hover"><FontAwesomeIcon sx={{ width: '50%' }}style={{ fontSize: '35px' }} icon={faHeart} /><span>{t('favorites')}</span></CustomLink>
 export default Menu2;

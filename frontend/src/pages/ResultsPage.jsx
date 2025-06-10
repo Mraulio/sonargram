@@ -18,6 +18,8 @@ import useListFollowers from '../hooks/useListFollowers';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Menu2 from '../components/Menu2'
+import { Link } from 'react-router-dom'; // Asegúrate de importar Link
+
 const CustomTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     
@@ -563,7 +565,7 @@ const handleSearchUser = async (term = searchTerm) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
         <Menu2/>
       <Box sx={{display: 'flex', width: '50vw'}}>  
         <CustomTextField
@@ -746,42 +748,33 @@ const handleSearchUser = async (term = searchTerm) => {
             </Box>
             {/* COLUMNA Usuarios */}
             <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
-                {searches.map(user => (
-                  <Card key={user._id} sx={{ width: "45%" }}>
-                  <CardContent>
-                  <Typography variant="h6" color="primary">{t('user')}</Typography>
-                    <Divider />
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar
-                      src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/default-avatar.png'}
-                       alt={user.name}
-                       sx={{ width: 56, height: 56, mr: 2 }}
-                    />
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant="h5" color="primary">{user.name} </Typography>
-                    <Typography variant="h6" color="primary">({user.username}) </Typography>
-                    <Typography>{t('bio')}:{user.bio} </Typography>
-                    </Box>
-                    
-                    {isFollowing(user._id) ? (
-                      <Typography sx={{ ml: 2, color: 'green', display: 'inline-block' }}>
-                        {t('following')}
-                      </Typography>
-                    ) : (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleFollow(user._id)}
-                        sx={{ ml: 2 }}
-                      >
-                        {t('follow')}
-                      </Button>
-                    )}
-                    </Box>
-                    </CardContent>
-                  </Card>
-                ))}
-          </Box>
+              {searches.map(user => (
+                <Card key={user._id} sx={{ width: 400, display: 'flex', alignItems: 'center', p: 2, mb: 2 }}>
+                  <Avatar
+                    src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png'}
+                    alt={user.name}
+                    sx={{ width: 100, height: 100, mr: 2 }}
+                  />
+                  <CardContent sx={{ flex: 1 }}>
+                    <Typography
+                      variant="h6"
+                      component={Link}
+                      to={`/userresult/${user._id}`}
+                      sx={{
+                        color: 'primary.main',
+                        textDecoration: 'underline',
+                        cursor: 'pointer',
+                        '&:hover': { color: 'secondary.main' }
+                      }}
+                    >
+                      {user.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">{user.email}</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
       </Box>
     </Box>
   );

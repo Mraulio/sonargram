@@ -215,9 +215,9 @@ return (
     <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
     {userLists.map(l => (
-      <li key={l._id} style={{ paddingLeft: 10}}>
+      <li key={l._id}>
         <Typography
-          variant="h5"
+          variant="h6"
           sx={{ mb: 1, cursor: 'pointer' }}
           onClick={() => {
             setSelectedListSongs(l.songs);
@@ -256,9 +256,9 @@ return (
     <Typography variant="h6" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
 <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
   {followedLists.map(l => (
-    <li key={l._id} style={{ paddingLeft: 10 }}>
+    <li key={l._id}>
       <Typography
-        variant="h5"
+        variant="h6"
         sx={{ mb: 1, cursor: 'pointer' }}
         onClick={async () => {
           let songs = l.songs;
