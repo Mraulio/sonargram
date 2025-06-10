@@ -27,7 +27,7 @@ const ItemRow = ({
   compact = false,
 }) => {
   const showCover = type === "album" && item.coverUrl;
-
+  console.log('ITEM', item)
   return (
     <div
       style={{

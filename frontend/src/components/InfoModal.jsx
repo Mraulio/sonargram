@@ -14,14 +14,14 @@ import ItemRow from './ItemRow';
 
 const style = {
   position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-  width: 360, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24,
-  p: 3, maxHeight: '80vh', overflowY: 'auto'
+  width: 500, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24,
+  p: 3, maxHeight: '100vh', overflowY: 'auto'
 };
 
 const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) => {
   if (!open || !data) return null;
   if (!['song', 'album', 'artist'].includes(type)) return null;
-
+  console.log('favorite propps modal', favoriteProps)
   return (
     <Modal open={open} onClose={onClose}>
       <Paper sx={style}>

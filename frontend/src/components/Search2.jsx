@@ -455,7 +455,6 @@ function Search2() {
 
   const handleAddSong = async () => {
   try {
-    console.log('SELECTED SONG')
     await addSong(selectedListId, selectedSong.id, selectedSong.title, selectedSong.artist, selectedSong.coverUrl, selectedSong.releaseDate, selectedSong.duration);
     alert('Canción añadida correctamente');
     setOpen(false); // Cierra el modal si quieres

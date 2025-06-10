@@ -13,6 +13,7 @@ const Timeline = () => {
 
   const ratingProps = useRatings(token);
   const favoriteProps = useFavorites(token);
+  //console.log('favorite props TIMELINE', favoriteProps);
 
   const [favoriteCounts, setFavoriteCounts] = useState({});
 
@@ -62,10 +63,8 @@ const Timeline = () => {
               activity={activity}
               ratingProps={ratingProps}
               favoriteProps={{
-                isFavorite: favoriteProps.isFavorite,
-                getFavoriteCount: favoriteProps.getFavoriteCount,
+                ...favoriteProps,
                 handleFavoriteToggle,
-                favoriteCounts,
               }}
             />
           ))}

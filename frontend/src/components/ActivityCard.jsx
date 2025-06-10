@@ -22,6 +22,7 @@ import {
   getActionDescription,
   getRelatedContent,
 } from "../utils/activityHelpers";
+import { useNavigate } from "react-router-dom";
 
 const iconMap = {
   favorite: faHeart,
@@ -49,13 +50,13 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
   const { user, action, createdAt } = activity;
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState({ type: null, data: null });
-
+  //console.log('favorite props card', favoriteProps);
   const openDetail = (type, data) => {
     setModalData({ type, data });
     setModalOpen(true);
   };
   const closeDetail = () => setModalOpen(false);
-
+  const navigate = useNavigate();
   const icon = iconMap[action];
   const iconColor = iconColors[action] || "#666";
   const related = getRelatedContent(action, activity);
@@ -67,7 +68,7 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
           <Stack direction="row" spacing={2} alignItems="flex-start">
             <Box
               position="relative"
-              onClick={() => openDetail("user", user)}
+              onClick={() => navigate(`/userresult/${user._id}`)}
               sx={{ cursor: "pointer", color: "primary.main" }}
             >
               <Avatar
@@ -96,7 +97,7 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
               <Typography variant="body1">
                 <Box
                   component="span"
-                  onClick={() => openDetail("user", user)}
+                  onClick={() => navigate(`/userresult/${user._id}`)}
                   sx={{
                     fontWeight: "bold",
                     cursor: "pointer",
@@ -109,7 +110,8 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                 {related && related.single && (
                   <Box
                     component="span"
-                    onClick={() =>
+                    onClick={() =>activity.action === 'followUser' ? 
+                      navigate(`/userresult/${user._id}`) :
                       openDetail(
                         related.type,
                         related.data || activity.mbidData || activity.activityRef
