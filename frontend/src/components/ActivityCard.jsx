@@ -1,5 +1,7 @@
-// src/components/ActivityCard.js
-import React, { useState } from "react";
+
+
+/* src/components/ActivityCard.js */
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -7,8 +9,10 @@ import {
   Avatar,
   Stack,
   Box,
-} from "@mui/material";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+  IconButton,
+  Divider,
+} from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faHeart,
   faStar,
@@ -16,8 +20,9 @@ import {
   faUser,
   faComment,
   faThumbsUp,
-} from "@fortawesome/free-solid-svg-icons";
-import InfoModal from "./InfoModal";
+} from '@fortawesome/free-solid-svg-icons';
+import InfoModal from './InfoModal';
+import { getActionDescription, getRelatedContent } from '../utils/activityHelpers';
 
 const iconMap = {
   favorite: faHeart,
@@ -31,201 +36,61 @@ const iconMap = {
 };
 
 const iconColors = {
-  favorite: "red",
-  rate: "#FFD700",
-  createList: "#1976d2",
-  addListSong: "#1976d2",
-  followList: "#1976d2",
-  followUser: "#6a1b9a",
-  comment: "#555",
-  recommendComment: "#43a047",
+  favorite: 'red',
+  rate: '#FFD700',
+  createList: '#1976d2',
+  addListSong: '#1976d2',
+  followList: '#1976d2',
+  followUser: '#6a1b9a',
+  comment: '#555',
+  recommendComment: '#43a047',
 };
 
-const getActionDescription = (action, username, activity) => {
-  switch (action) {
-    case "favorite":
-      return "marcó como favorito";
-    case "rate":
-      return `calificó con nota ${activity.rating}`;
-    case "createList":
-      return "creó la lista";
-    case "addListSong":
-      return "agregó la canción";
-    case "followList":
-      return "siguió la lista";
-    case "followUser":
-      return "siguió al usuario";
-    case "comment":
-      return "comentó";
-    case "recommendComment":
-      return "recomendó un comentario";
-    default:
-      return "hizo una actividad";
-  }
-};
-
-const getRelatedContent = (action, activity) => {
-  if (!activity) return null;
-
-  const { activityRef, mbidData, targetType } = activity;
-
-  if (action === "addListSong") {
-    return {
-      song: mbidData?.title && mbidData?.artistName
-        ? `${mbidData.title} - ${mbidData.artistName}`
-        : null,
-      list: activity.list?.name || null,
-    };
-  }
-
-if (["song", "album", "artist"].includes(targetType) && mbidData) {
-  const typeLabel = targetType === "song"
-    ? "Canción"
-    : targetType === "album"
-    ? "Álbum"
-    : "Artista";
-
-  return {
-    single: `${typeLabel}: ${mbidData.title || "Desconocida"}${mbidData.artistName ? ` - ${mbidData.artistName}` : ""}`,
-    type: targetType,
-  };
-}
-
-  switch (action) {
-    case "createList":
-    case "followList":
-      return { single: activityRef?.name || null, type: "list" };
-
-    case "followUser":
-      return { single: activityRef?.username ? `@${activityRef.username}` : null, type: "user" };
-
-    case "comment":
-    case "recommendComment":
-      return {
-        single: activityRef?.text ? `"${activityRef.text.slice(0, 100)}"` : null,
-        type: "comment",
-      };
-
-    default:
-      return null;
-  }
-};
-
-const ActivityCard = ({ activity }) => {
-  const { user, action, createdAt, activityRef, mbidData } = activity;
-  const icon = iconMap[action];
-  const iconColor = iconColors[action] || "#666";
-
-  const profilePicUrl =
-    user && user.profilePic
-      ? `http://localhost:5000/uploads/${user.profilePic}`
-      : "/assets/images/profilepic_default.png";
-
+const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
+  const { user, action, createdAt } = activity;
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState({ type: null, data: null });
 
-  const openModal = (type, data) => {
+  const openDetail = (type, data) => {
     setModalData({ type, data });
     setModalOpen(true);
   };
+  const closeDetail = () => setModalOpen(false);
 
-  const closeModal = () => setModalOpen(false);
-
-  const relatedContent = getRelatedContent(action, activity);
-  const actionDesc = getActionDescription(action, user?.username, activity);
+  const icon = iconMap[action];
+  const iconColor = iconColors[action] || '#666';
+  const related = getRelatedContent(action, activity);
 
   return (
     <>
       <Card variant="outlined" sx={{ mb: 2 }}>
         <CardContent>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Box
-              sx={{ position: "relative", display: "inline-block", cursor: "pointer" }}
-              onClick={() => openModal("user", user)}
-              title={`Ver info de ${user?.username || "usuario"}`}
-            >
+          <Stack direction="row" spacing={2} alignItems="flex-start">
+            <Box position="relative" onClick={() => openDetail('user', user)} sx={{ cursor: 'pointer', color: 'primary.main' }}>
               <Avatar
                 alt={user?.username}
-                src={profilePicUrl}
-                sx={{ width: 56, height: 56 }}
+                src={ user?.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png' }
+                sx={{ width: 48, height: 48 }}
               />
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: -2,
-                  right: -2,
-                  backgroundColor: "#fff",
-                  borderRadius: "50%",
-                  padding: "4px",
-                }}
-              >
-                <FontAwesomeIcon icon={icon} color={iconColor} size="lg" />
+              <Box sx={{ position: 'absolute', bottom: -4, right: -4, bgcolor: '#fff', borderRadius: '50%', p: '2px' }}>
+                <FontAwesomeIcon icon={icon} color={iconColor} />
               </Box>
             </Box>
-
-            <Box>
-              <Typography variant="body1" component="div">
-                <Box
-                  component="span"
-                  onClick={() => openModal("user", user)}
-                  sx={{
-                    color: "primary.dark",
-                    fontWeight: "bold",
-                    fontSize: "0.875rem",
-                    cursor: "pointer",
-                  }}
-                  title={`Ver info de ${user?.username || "usuario"}`}
-                >
-                  {user?.username || "Alguien"}
-                </Box>{" "}
-                {actionDesc}{" "}
-                {relatedContent && (
+            <Box flexGrow={1}>
+              <Typography variant="body1">
+                <Box component="span" onClick={() => openDetail('user', user)} sx={{ fontWeight: 'bold', cursor: 'pointer', color: 'primary.main' }}>
+                  {user?.username || 'Alguien'}
+                </Box>{' '}
+                {getActionDescription(action, activity)}{' '}
+                {related && (
                   <>
-                    {action === "addListSong" && relatedContent.song && (
-                      <>
-                        <Box
-                          component="span"
-                          onClick={() => openModal("song", mbidData)}
-                          sx={{
-                            color: "primary.dark",
-                            fontWeight: "bold",
-                            fontSize: "0.875rem",
-                            cursor: "pointer",
-                          }}
-                          title="Ver información de la canción"
-                        >
-                          {relatedContent.song}
-                        </Box>{" "}
-                        a la lista{" "}
-                        <Box
-                          component="span"
-                          onClick={() => openModal("list", activity.list)}
-                          sx={{
-                            color: "primary.dark",
-                            fontWeight: "bold",
-                            fontSize: "0.875rem",
-                            cursor: "pointer",
-                          }}
-                          title="Ver información de la lista"
-                        >
-                          {relatedContent.list}
-                        </Box>
-                      </>
-                    )}
-
-                    {relatedContent.single && (
+                    {related.single && (
                       <Box
                         component="span"
-                        onClick={() => openModal(relatedContent.type, activityRef || mbidData)}
-                        sx={{
-                          color: "primary.dark",
-                          fontWeight: "bold",
-                          fontSize: "0.875rem",
-                          cursor: "pointer",
-                        }}
-                        title="Ver información relacionada"
+                        onClick={() => openDetail(related.type, related.data || activity.mbidData || activity.activityRef)}
+                        sx={{ fontWeight: 'bold', cursor: 'pointer', color: 'primary.main' }}
                       >
-                        {relatedContent.single}
+                        {related.single}
                       </Box>
                     )}
                   </>
@@ -241,9 +106,11 @@ const ActivityCard = ({ activity }) => {
 
       <InfoModal
         open={modalOpen}
-        onClose={closeModal}
+        onClose={closeDetail}
         type={modalData.type}
         data={modalData.data}
+        ratingProps={ratingProps}
+        favoriteProps={favoriteProps}
       />
     </>
   );
