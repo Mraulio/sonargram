@@ -1,4 +1,3 @@
-
 /* src/components/InfoModal.js */
 import React from 'react';
 import {
@@ -28,7 +27,9 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
       <Paper sx={style}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">Detalle {type}</Typography>
-          <IconButton size="small" onClick={onClose}><FontAwesomeIcon icon={faTimes} /></IconButton>
+          <IconButton size="small" onClick={onClose}>
+            <FontAwesomeIcon icon={faTimes} />
+          </IconButton>
         </Stack>
         <Divider sx={{ mb: 2 }} />
         <ItemRow
