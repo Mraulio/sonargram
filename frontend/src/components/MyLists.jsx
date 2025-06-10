@@ -40,14 +40,14 @@ function MyLists() {
       });
     
     const fetchListWithSongs = async (listId) => {
-  try {
-    const list = await fetchListById(listId);
-    return list && list.songs ? list.songs : [];
-  } catch (err) {
-    console.error('Error fetching list songs:', err);
-    return [];
-  }
-};
+    try {
+      const list = await fetchListById(listId);
+      return list && list.songs ? list.songs : [];
+    } catch (err) {
+      console.error('Error fetching list songs:', err);
+      return [];
+    }
+  };
 
     const handleSearchListByUser = async () => {
       try {
@@ -215,18 +215,19 @@ return (
     <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
     {userLists.map(l => (
-      <li key={l._id} style={{ borderBottom: '1px solid', paddingLeft: 10}}>
+      <li key={l._id} style={{ paddingLeft: 10}}>
         <Typography
           variant="h5"
           sx={{ mb: 1, cursor: 'pointer' }}
           onClick={() => {
-  setSelectedListSongs(l.songs);
-  setSelectedListId(l._id); // <-- nuevo estado
-  setOpenSongsModal(true);
-}}
+            setSelectedListSongs(l.songs);
+            setSelectedListId(l._id); // <-- nuevo estado
+            setOpenSongsModal(true);
+          }}
         >
           {l.name}
         </Typography>
+        
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           
           {l.name !== "Favoritos" && (
@@ -248,30 +249,29 @@ return (
           </>
         )}
         </Box>
+        <Divider/>
       </li>
     ))}
     </ul>
     <Typography variant="h6" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
 <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
   {followedLists.map(l => (
-    <li key={l._id} style={{ borderBottom: '1px solid', paddingLeft: 10 }}>
+    <li key={l._id} style={{ paddingLeft: 10 }}>
       <Typography
         variant="h5"
         sx={{ mb: 1, cursor: 'pointer' }}
         onClick={async () => {
-  let songs = l.songs;
-  // Si las canciones no tienen título, haz fetch de la lista completa
-  if (!songs.length || !songs[0].title) {
-    songs = await fetchListWithSongs(l._id);
-  }
-  setSelectedListSongs(songs);
-  setSelectedListId(l._id);
-  setOpenSongsModal(true);
-}}
+          let songs = l.songs;
+          if (!songs.length || !songs[0].title) {
+            songs = await fetchListWithSongs(l._id);
+          }
+          setSelectedListSongs(songs);
+          setSelectedListId(l._id);
+          setOpenSongsModal(true);
+        }}
       >
         {l.name}
       </Typography>
-      <Divider sx={{ my: 1 }} />
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="body2" color="text.secondary">
           {t('Creador de la lista')}: {l.creator.name || t('unknown')}
@@ -279,6 +279,7 @@ return (
         <Button onClick={() => handleUnfollowList(l._id)} color="error">
           {t('unfollow')}
         </Button>
+        <Divider/>
       </Box>
     </li>
   ))}

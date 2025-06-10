@@ -81,14 +81,14 @@ function Dashboard() {
     <Box sx={{width:'100vw', display: 'flex', flexDirection:'column'}}>
       <Menu2/>
       <Box sx={{ display: 'flex', justifyContent:'space-between', mr: 5, alignItems:'start' }}>
-        <Box sx={{width:'20%', height: '100%',  borderRight: '2px solid' }}>
+        <Box sx={{width:'20%', height: '100vh',  borderRight: '2px solid' }}>
           <MyLists/>
         </Box>
         <Box sx={{width:'40%' }}>
           <Timeline/>
         </Box>
         
-        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', alignItems:'start', width:'40%' }}>    
+        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', width:'40%' }}>    
           <TopRatingsList limit={5} title="Top 5 por Rating" />        
           <TopFavoritosList limit={5}/>        
       </Box>  
