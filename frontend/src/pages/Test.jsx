@@ -76,7 +76,6 @@ function Test() {
   useEffect(() => {
     if (token && role === "admin") fetchAllUsers();
   }, [token, role, fetchAllUsers]);
-  console.log(users);
   useEffect(() => {
     if (token) fetchAllLists();
   }, [token, fetchAllLists]);

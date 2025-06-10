@@ -40,7 +40,6 @@ async function logActivity({ user, action, targetType, targetId, metadata = {}, 
         }
       }
     }
-    console.log('LIST ID:!!!!!', listId);
     // Crear la actividad
     await Activity.create({
       user,

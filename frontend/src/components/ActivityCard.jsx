@@ -1,7 +1,5 @@
-
-
 /* src/components/ActivityCard.js */
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,10 +7,8 @@ import {
   Avatar,
   Stack,
   Box,
-  IconButton,
-  Divider,
-} from '@mui/material';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+} from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHeart,
   faStar,
@@ -20,9 +16,13 @@ import {
   faUser,
   faComment,
   faThumbsUp,
-} from '@fortawesome/free-solid-svg-icons';
-import InfoModal from './InfoModal';
-import { getActionDescription, getRelatedContent } from '../utils/activityHelpers';
+} from "@fortawesome/free-solid-svg-icons";
+import InfoModal from "./InfoModal";
+import {
+  getActionDescription,
+  getRelatedContent,
+} from "../utils/activityHelpers";
+import { useNavigate } from "react-router-dom";
 
 const iconMap = {
   favorite: faHeart,
@@ -36,29 +36,29 @@ const iconMap = {
 };
 
 const iconColors = {
-  favorite: 'red',
-  rate: '#FFD700',
-  createList: '#1976d2',
-  addListSong: '#1976d2',
-  followList: '#1976d2',
-  followUser: '#6a1b9a',
-  comment: '#555',
-  recommendComment: '#43a047',
+  favorite: "red",
+  rate: "#FFD700",
+  createList: "#1976d2",
+  addListSong: "#1976d2",
+  followList: "#1976d2",
+  followUser: "#6a1b9a",
+  comment: "#555",
+  recommendComment: "#43a047",
 };
 
 const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
   const { user, action, createdAt } = activity;
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState({ type: null, data: null });
-
+  //console.log('favorite props card', favoriteProps);
   const openDetail = (type, data) => {
     setModalData({ type, data });
     setModalOpen(true);
   };
   const closeDetail = () => setModalOpen(false);
-
+  const navigate = useNavigate();
   const icon = iconMap[action];
-  const iconColor = iconColors[action] || '#666';
+  const iconColor = iconColors[action] || "#666";
   const related = getRelatedContent(action, activity);
 
   return (
@@ -66,34 +66,65 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
       <Card variant="outlined" sx={{ mb: 2 }}>
         <CardContent>
           <Stack direction="row" spacing={2} alignItems="flex-start">
-            <Box position="relative" onClick={() => openDetail('user', user)} sx={{ cursor: 'pointer', color: 'primary.main' }}>
+            <Box
+              position="relative"
+              onClick={() => navigate(`/userresult/${user._id}`)}
+              sx={{ cursor: "pointer", color: "primary.main" }}
+            >
               <Avatar
                 alt={user?.username}
-                src={ user?.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png' }
+                src={
+                  user?.profilePic
+                    ? `http://localhost:5000/uploads/${user.profilePic}`
+                    : "/assets/images/profilepic_default.png"
+                }
                 sx={{ width: 48, height: 48 }}
               />
-              <Box sx={{ position: 'absolute', bottom: -4, right: -4, bgcolor: '#fff', borderRadius: '50%', p: '2px' }}>
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: -4,
+                  right: -4,
+                  bgcolor: "#fff",
+                  borderRadius: "50%",
+                  p: "2px",
+                }}
+              >
                 <FontAwesomeIcon icon={icon} color={iconColor} />
               </Box>
             </Box>
             <Box flexGrow={1}>
               <Typography variant="body1">
-                <Box component="span" onClick={() => openDetail('user', user)} sx={{ fontWeight: 'bold', cursor: 'pointer', color: 'primary.main' }}>
-                  {user?.username || 'Alguien'}
-                </Box>{' '}
-                {getActionDescription(action, activity)}{' '}
-                {related && (
-                  <>
-                    {related.single && (
-                      <Box
-                        component="span"
-                        onClick={() => openDetail(related.type, related.data || activity.mbidData || activity.activityRef)}
-                        sx={{ fontWeight: 'bold', cursor: 'pointer', color: 'primary.main' }}
-                      >
-                        {related.single}
-                      </Box>
-                    )}
-                  </>
+                <Box
+                  component="span"
+                  onClick={() => navigate(`/userresult/${user._id}`)}
+                  sx={{
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    color: "primary.main",
+                  }}
+                >
+                  {user?.username || "Alguien"}
+                </Box>{" "}
+                {getActionDescription(action, activity)}{" "}
+                {related && related.single && (
+                  <Box
+                    component="span"
+                    onClick={() =>activity.action === 'followUser' ? 
+                      navigate(`/userresult/${user._id}`) :
+                      openDetail(
+                        related.type,
+                        related.data || activity.mbidData || activity.activityRef
+                      )
+                    }
+                    sx={{
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      color: "primary.main",
+                    }}
+                  >
+                    {related.single}
+                  </Box>
                 )}
               </Typography>
               <Typography variant="caption" color="text.secondary">
