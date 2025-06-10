@@ -21,7 +21,8 @@ const style = {
 const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) => {
   if (!open || !data) return null;
   if (!['song', 'album', 'artist'].includes(type)) return null;
-  console.log('favorite propps modal', favoriteProps)
+
+
   return (
     <Modal open={open} onClose={onClose}>
       <Paper sx={style}>

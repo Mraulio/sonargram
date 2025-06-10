@@ -15,11 +15,7 @@ const Timeline = () => {
   const favoriteProps = useFavorites(token);
   //console.log('favorite props TIMELINE', favoriteProps);
 
-  const [favoriteCounts, setFavoriteCounts] = useState({
-    artists: {},
-    albums: {},
-    songs: {},
-  });
+  const [favoriteCounts, setFavoriteCounts] = useState({});
 
   useEffect(() => {
     if (token) fetchTimeline();
@@ -43,12 +39,10 @@ const Timeline = () => {
       }
 
       const newCount = await favoriteProps.getFavoriteCount(id);
+      console.log('countss', favoriteCounts);
       setFavoriteCounts((prev) => ({
         ...prev,
-        [`${type}s`]: {
-          ...(prev[`${type}s`] || {}),
-          [id]: newCount,
-        },
+        [id]: newCount,
       }));
     } catch (e) {
       console.error("Error alternando favorito", e);
