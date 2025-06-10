@@ -3,11 +3,11 @@ import { TextField, Button, Typography, Card, CardContent, Box, Divider, ButtonB
 import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
-import Followers from '../components/Followers';
-import useUser from '../hooks/useUser';
-import Menu2 from '../components/Menu2';
 
-function UserPage() {
+import useUser from '../hooks/useUser';
+import Menu from '../components/Menu';
+
+function UserEdit() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
         const [users, setUsers] = useState([]);
         const [userId, setUserId] = useState(''); // Estado para el ID del usuario a editar
@@ -197,158 +197,111 @@ function UserPage() {
  // ****************** FIN IMAGEN DE PERFIL ********************************* //
 
 
- return (
-  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginTop: '5rem' }}>
-    <Menu2 />
-    <Box >
-        <Typography variant="h5" gutterBottom>
-          {t('dataUser')}
-        </Typography>
-    
-        <ButtonBase
-          onClick={handleProfilePicClick}
-          sx={{
-            borderRadius: '50%',
-            overflow: 'hidden',
-            width: 150,
-            height: 150,
-            display: 'inline-block',
-          }}
-        >
-          <img
-            src={
-              currentUser && currentUser.profilePic
-                ? `http://localhost:5000/uploads/${currentUser.profilePic}`
-                : '/assets/images/profilepic_default.png'
-            }
-            alt="Profile Pic"
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        </ButtonBase>
-        <input
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          ref={fileInputRef}
-          onChange={handleImageChange}
-        />
-        <br />
-                <Button variant="outlined" color="error" onClick={handleDeleteProfilePic} sx={{ mt: 2 }}>
-                {t('deleteProfilePic')}
-                </Button>
-        <TextField
-          fullWidth
-          label={t('name')}
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          label={t('bio')} // Etiqueta traducida para la biografía
-          value={userBio} // Estado para la biografía
-          onChange={(e) => setUserBio(e.target.value)} // Actualiza el estado de la biografía
-          margin="normal"/>
-          
-        <Button
-          variant="contained"
-          onClick={() =>
-            handleEditUser(userId, {
-              name: userName,
-            })
-          }
-          sx={{ mt: 2 }}
-        >
-          {t('editUserButton')}
-        </Button>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => handleDeleteUser(userId)}
-          sx={{ mt: 2 }}
-        >
-          {t('deleteUserButton')}
-        </Button>
-      <Followers/>
-    {selectedUser && (
-          <Modal
-            open={openModal}
-            onClose={handleCloseModal}
-            aria-labelledby="user-details-modal"
-            aria-describedby="user-details-description"
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                backgroundColor: "white",
-                padding: 4,
-                borderRadius: 2,
-                boxShadow: 24,
-                width: 400,
-                maxHeight: "80vh",
-                overflowY: "auto",
-              }}
-            >
-              <img
-                src={
-                  selectedUser.profilePic
-                    ? `http://localhost:5000/uploads/${selectedUser.profilePic}`
-                    : '/assets/images/profilepic_default.png'  // Accede directamente a la carpeta public
-                }
-                alt="Profile Pic"
-                style={{ width: '150px', height: '150px', borderRadius: '50%' }}
-              />
-              <Button
-                variant="contained"
-                onClick={handleCloseModal}
-                sx={{ mt: 2 }}
-              >
-                {t("close")}
-              </Button>
-            </Box>
-            
-          </Modal>
-        )}
+return (
+  <Box sx={{ width: '100%', maxWidth: 500, p: 2, margin: 'auto', backgroundColor: '#f5f5f5' }}>
+    <Typography variant="h5" gutterBottom>
+      {t('updateUser')}
+    </Typography>
 
-        <Modal open={openProfilePicModal} onClose={() => setOpenProfilePicModal(false)}>
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    backgroundColor: "white",
-                    padding: 4,
-                    borderRadius: 2,
-                    boxShadow: 24,
-                    width: 300,
-                    textAlign: "center"
-                  }}
-                >
-                  <Typography variant="h6">Actualizar imagen de perfil</Typography>
-                  {previewImage && (
-                    <img
-                      src={resizedImage || previewImage}
-                      alt="Preview"
-                      style={{ width: 200, height: 200, borderRadius: "50%", marginTop: 16 }}
-                    />
-                  )}
-                  <Button
-                    variant="contained"
-                    sx={{ mt: 2 }}
-                    onClick={handleSaveImage}
-                  >
-                    Guardar Imagen
-                  </Button>
-                </Box>
-              </Modal>
-              
-    </Box>
-  </div>
+    <ButtonBase
+      onClick={handleProfilePicClick}
+      sx={{
+        borderRadius: '50%',
+        overflow: 'hidden',
+        width: 150,
+        height: 150,
+        display: 'inline-block',
+      }}
+    >
+      <img
+        src={
+          currentUser && currentUser.profilePic
+            ? `http://localhost:5000/uploads/${currentUser.profilePic}`
+            : '/assets/images/profilepic_default.png'
+        }
+        alt="Profile Pic"
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+    </ButtonBase>
+    <input
+      type="file"
+      accept="image/*"
+      style={{ display: 'none' }}
+      ref={fileInputRef}
+      onChange={handleImageChange}
+    />
+    <br />
+    <Button variant="outlined" color="error" onClick={handleDeleteProfilePic} sx={{ mt: 2 }}>
+      {t('deleteProfilePic')}
+    </Button>
+    <TextField
+      fullWidth
+      label={t('name')}
+      value={userName}
+      onChange={(e) => setUserName(e.target.value)}
+      margin="normal"
+    />
+    <TextField
+      fullWidth
+      label={t('bio')}
+      value={userBio}
+      onChange={(e) => setUserBio(e.target.value)}
+      margin="normal"
+    />
+    <Button
+      variant="contained"
+      onClick={() =>
+        handleEditUser(userId, {
+          name: userName,
+        })
+      }
+      sx={{ mt: 2 }}
+    >
+      {t('editUserButton')}
+    </Button>
+    <Button
+      variant="contained"
+      color="error"
+      onClick={() => handleDeleteUser(userId)}
+      sx={{ mt: 2 }}
+    >
+      {t('deleteUserButton')}
+    </Button>
+
+    <Modal open={openProfilePicModal} onClose={() => setOpenProfilePicModal(false)}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          backgroundColor: "white",
+          padding: 4,
+          borderRadius: 2,
+          boxShadow: 24,
+          width: 300,
+          textAlign: "center"
+        }}
+      >
+        <Typography variant="h6">Actualizar imagen de perfil</Typography>
+        {previewImage && (
+          <img
+            src={resizedImage || previewImage}
+            alt="Preview"
+            style={{ width: 200, height: 200, borderRadius: "50%", marginTop: 16 }}
+          />
+        )}
+        <Button
+          variant="contained"
+          sx={{ mt: 2 }}
+          onClick={handleSaveImage}
+        >
+          Guardar Imagen
+        </Button>
+      </Box>
+    </Modal>
+  </Box>
 );
 }
 
-export default UserPage;
+export default UserEdit;

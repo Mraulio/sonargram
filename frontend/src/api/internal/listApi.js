@@ -32,7 +32,7 @@ export const getListById = async (listId, token) => {
 // Añadir canción a lista
 export const addSongToList = async (listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration, token) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.post(`/lists/${listId}/songs`, { musicbrainzId, title, artistName, coverUrl, releaseDate, duration, });
+  const response = await apiClient.post(`/lists/${listId}/songs`, { musicbrainzId, title, artistName, coverUrl, releaseDate, duration });
   return response.data;
 };
 

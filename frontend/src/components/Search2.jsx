@@ -1,54 +1,66 @@
-import { useEffect, useState, useContext, useCallback } from 'react';
+import { useEffect, useState, useContext, useCallback } from "react";
+import { UserContext } from "../context/UserContext";
 import { useTranslation } from 'react-i18next';
-import { UserContext } from '../context/UserContext';
-import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Container, Divider, FormControl, InputLabel, Select, MenuItem, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, styled } from '@mui/material';
-import useUser from '../hooks/useUser';
-import useFollow from '../hooks/useFollow';
-import useList from '../hooks/useList';
-import useListFollowers from '../hooks/useListFollowers';
-import RatingDisplay from "./RatingDisplay";
+import RatingDisplay from "../components/RatingDisplay";
 import useRatings from "../hooks/useRatings";
+import { Box, Typography, Button, TextField, IconButton, Divider, Dialog, DialogTitle, DialogContent, DialogActions, styled, Card, CardContent } from "@mui/material";
+import Menu from "../components/Menu";
 import { searchArtists, searchAlbums, searchSongs, getAlbumsByArtist, getSongsByRelease, getReleasesByReleaseGroup } from "../api/external/apiMB";
 import useFavorites from "../hooks/useFavorites";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import useUser from '../hooks/useUser';
+import useList from '../hooks/useList';
+import useFollow from '../hooks/useFollow';
+import useListFollowers from '../hooks/useListFollowers';
 
-const CustomTextField = styled(TextField)`
-border:none;
-width: 3vw;
-`;
+const CustomTextField = styled(TextField)({
+  '& .MuiOutlinedInput-root': {
+    
+    '& fieldset': {
+      border: 'none',
+      borderBottom: '2px solid #3e4a4c', // solo borde abajo, cambia el color si quieres
+      borderRadius: 0,
+    },
+    '&:hover fieldset': {
+      border: 'none',
+      borderBottom: '2px solid #3e4a4c',
+    },
+    '&.Mui-focused fieldset': {
+      border: 'none',
+      borderBottom: '2px solid #3e4a4c',
+    },
+  },
+  '& label': {
+    color: '#3e4a4c',
+  },
+  '& label.Mui-focused': {
+    color: '#3e4a4c',
+  },
+  width: '20vw',
+});
 
-function Search() {
+function Search2() {
+  const { token } = useContext(UserContext);
   const { t } = useTranslation();  // Hook para obtener las traducciones
-  //Estados de usuario
-  const [userUsername, setUserUsername] = useState('');
-  const { token, role, logout, user} = useContext(UserContext);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { follower, follow, following, fetchFollowing } = useFollow(token);
-  const { users, fetchAllUsers, getCurrentUser } = useUser(token);
-  const [searches, setSearches] = useState([]);
-  const [open, setOpen] = useState(false); // Estado para controlar el modal
-  const [selectedSong, setSelectedSong] = useState(null); //canciones dentro del modal
-  const [selectedListId, setSelectedListId] = useState("");
-  //estados de me gusta y ratings
   const {
-      rateItem,
-      deleteRating,
-      getItemStats,
-      getRatingFor,
-      fetchMultipleItemRatings,
-    } = useRatings(token);
-  const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } = useFavorites(token);
+    rateItem,
+    deleteRating,
+    getItemStats,
+    getRatingFor,
+    fetchMultipleItemRatings,
+  } = useRatings(token);
+  const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } =
+    useFavorites(token);
 
-      // Estados para búsquedas
+  // Estados para búsquedas
   const [searchTermArtist, setSearchTermArtist] = useState("");
   const [searchTermAlbum, setSearchTermAlbum] = useState("");
   const [searchTermSong, setSearchTermSong] = useState("");
 
- // Resultados búsqueda
+  // Resultados búsqueda
   const [artistResults, setArtistResults] = useState([]);
   const [albumResults, setAlbumResults] = useState([]);
   const [songResults, setSongResults] = useState([]);
@@ -59,14 +71,15 @@ function Search() {
     useState([]);
 
   const [selectedAlbumSongs, setSelectedAlbumSongs] = useState([]);
-
-  //Estados para listas
+  const [open, setOpen] = useState(false); // Estado para controlar el modal
+  const [selectedSong, setSelectedSong] = useState(null); //canciones dentro del modal
+  const { users, fetchAllUsers, getCurrentUser } = useUser(token);
   const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, addSong } = useList(token);
+  const [selectedListId, setSelectedListId] = useState("");
   const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
-  const [searchListName, setSearchListName] = useState('');
-  const [ followLists, setFollowLists ] = useState('');
   const { followers, followersCount, followedLists, followL, unfollowList, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
-
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   // Resultados generales
   const [searchTerm, setSearchTerm] = useState("");
   const handleGeneralSearch = async () => {
@@ -254,8 +267,33 @@ function Search() {
       if (isFavorite(id)) {
         await removeFavorite(id);
       } else {
-        await addFavorite(id, type);
+        // Aquí buscamos el item en la lista correcta para sacar título, artista, cover
+        let item;
+
+        if (type === "artist") {
+          item = artistResults.find((a) => a.id === id);
+        } else if (type === "album") {
+          item =
+            albumResults.find((a) => a.id === id) ||
+            selectedArtistAlbums.find((a) => a.id === id);
+        } else if (type === "song") {
+          item =
+            songResults.find((s) => s.id === id) ||
+            selectedAlbumSongsFromArtist.find((s) => s.id === id) ||
+            selectedAlbumSongs.find((s) => s.id === id);
+        }
+
+        await addFavorite(
+          id,
+          type,
+          item?.title || item?.name || "", // título o nombre
+          item?.artist || item?.artistName || "", // nombre artista
+          item?.coverUrl || "", // url de portada si tienes
+          item?.releaseDate || "",
+          item?.duration || "",
+        );
       }
+
       const newCount = await getFavoriteCount(id);
       setFavoriteCounts((prev) => ({
         ...prev,
@@ -284,8 +322,6 @@ function Search() {
         console.error("Error obteniendo ratings", err)
       );
     }
-    fetchAllLists();
-    fetchAllUsers(token);
   }, [
     artistResults,
     selectedArtistAlbums,
@@ -303,7 +339,7 @@ function Search() {
       style={{
         paddingLeft: 0,
         listStyle: "none",
-        maxminminHeight: "30vh",
+        maxHeight: "30vh",
         overflowY: "auto",
       }}
     >
@@ -319,6 +355,19 @@ function Search() {
             cursor: onClickItem ? "pointer" : "default",
           }}
         >
+          {type === "album" && item.coverUrl && (
+            <img
+              src={item.coverUrl}
+              alt="Cover"
+              style={{
+                width: 40,
+                height: 40,
+                objectFit: "cover",
+                marginRight: 8,
+                borderRadius: 4,
+              }}
+            />
+          )}
           <span
             onClick={onClickItem ? () => onClickItem(item.id) : undefined}
             style={{
@@ -330,16 +379,34 @@ function Search() {
             {type === "album" && item.title
               ? `${item.title}${item.artist ? " — " + item.artist : ""}`
               : type === "song" && item.title
-              ? `${item.title}${item.album ? " — " + item.album : ""}${item.artist ? " — " + item.artist : ""}`
+              ? `${item.title}${item.album ? " — " + item.album : ""}${
+                  item.artist ? " — " + item.artist : ""
+                }`
               : item.name || item.title}
           </span>
+          <Typography
+            variant="body2"
+            sx={{ mr: 3, minWidth: 60, textAlign: "right" }}
+          >
+            {type === "song"
+              ? formatDuration(item.duration)
+              : type === "album"
+              ? item?.releaseDate?.split("-")[0] || "" // Año de release
+              : ""}
+          </Typography>
           <RatingDisplay
             mbid={item.id}
             type={type}
             getItemStats={getItemStats}
             getRatingFor={getRatingFor}
             rateItem={rateItem}
-            deleteRating={deleteRating} />
+            deleteRating={deleteRating}
+            title={item.title || item.name}
+            artistName={item.artist || item.artistName || ""}
+            coverUrl={item.coverUrl || ""}
+            releaseDate={item.releaseDate || ""}
+            duration={item.duration || ""}
+          />
 
           <IconButton
             onClick={() => handleFavoriteToggle(item.id, type)}
@@ -363,13 +430,45 @@ function Search() {
             >
               +
             </Button>
-          )}
+          )}          
         </li>
       ))}
     </ul>
   );
-  /*Buscar listas */
-  const handleSearchListByName = useCallback(async () => {
+  const formatDuration = (ms) => {
+    if (!ms) return "";
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+  const handleOpenListModal = async (song) => {
+    const user = await getCurrentUser();
+    await fetchListsByUser(user._id);
+    setSelectedSong(song); // Guarda el id de la canción
+    setOpen(true);
+  };
+
+  const handleCloseListModal = () => {
+    setOpen(false); // Cierra el modal
+  };
+
+  const handleAddSong = async () => {
+  try {
+    console.log('SELECTED SONG')
+    await addSong(selectedListId, selectedSong.id, selectedSong.title, selectedSong.artist, selectedSong.coverUrl, selectedSong.releaseDate, selectedSong.duration);
+    alert('Canción añadida correctamente');
+    setOpen(false); // Cierra el modal si quieres
+  } catch (err) {
+    alert('Error al añadir la canción');
+    console.error(err);
+  }
+};
+useEffect(() => {
+  fetchAllLists();
+  fetchAllUsers(token);
+}, [fetchAllLists, fetchAllUsers, token]);
+const handleSearchListByName = useCallback(async () => {
           setLoading(true);
           setError(null);
           try {
@@ -395,7 +494,7 @@ function Search() {
           }
         }, [lists, searchTerm, getCurrentUser, t]);
 
-        const handlefollowList = async (listId) => {
+const handlefollowList = async (listId) => {
               try {
                 console.log('List followed successfully:', listId);
                 await followL(listId);
@@ -408,89 +507,45 @@ function Search() {
                 alert(t('errorFollowingList')); // Muestra un mensaje de error
               }
             }
-    // Buscar usuarios
-    const handleSearchUser = async () => {
-    try {
-      const user = await getCurrentUser();
-      await fetchFollowing(user._id);
-      if (users.length > 0) {
-      const filtered = users
-        .filter(u => u._id !== user._id)
-        .filter(u => u.username.toLowerCase().includes(searchTerm.toLowerCase()));
-         
-        setSearches(filtered);
-        console.log('Filtered users:', filtered);
-      };
-    } catch (err) {
-      setError(err.message || 'Error fetching users');
-    }
-  };
-
-  const isFollowing = useCallback((userId) => {
-    return following.some(f => f.followed && f.followed._id === userId);
-  }, [following]);
-  
- 
-
-  const handleFollow = async (followedId) => {
-    try {
-      await follow(followedId); // Llama a la función follow
-      const user = await getCurrentUser()
-      await fetchFollowing(user._id);
-      alert(t('userFollowed')); // Muestra un mensaje de éxito
-    } catch (err) {
-      console.error('Error following user:', err);
-      alert(t('errorFollowingUser')); // Muestra un mensaje de error
-    }
-  };
-  const handleOpenListModal = async (song) => {
-    const user = await getCurrentUser();
-    await fetchListsByUser(user._id);
-    setSelectedSong(song); // Guarda el id de la canción
-    setOpen(true);
-  };
-
-  const handleAddSong = async () => {
-  try {
-    console.log('SELECTED SONG:', selectedSong);
-    await addSong(selectedListId, selectedSong.id, selectedSong.title, selectedSong.artist, selectedSong.coverUrl, selectedSong.releaseDate, selectedSong.duration);
-    alert('Canción añadida correctamente');
-    setOpen(false); // Cierra el modal si quieres
-  } catch (err) {
-    alert('Error al añadir la canción');
-    console.error(err);
-  }
-};
-
-  const handleCloseListModal = () => {
-    setOpen(false); // Cierra el modal
-  };
-
- 
-
 
   return (
-        <Container >
-          <Box sx={{ display: 'flex', justifyContent:'center', alignItems: "center", gap: 2, width: '100%' }}>
-          <CustomTextField
-            label="Buscar artistas, álbumes, canciones, listas, usuarios "
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleGeneralSearch();
-                handleSearchListByName();
-                handleSearchUser();
-              }
-            }}
-            margin="normal"/>
-          <Button variant="contained"   onClick={() => { handleGeneralSearch(); handleSearchListByName(); handleSearchUser(); }}> <FontAwesomeIcon icon= {faMagnifyingGlass} /> </Button>
-        </Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{display: 'flex', width: '50vw'}}>  
+        <CustomTextField
+          fullWidth
+          label="Buscar artistas, álbumes o canciones"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleGeneralSearch()}
+          margin="normal"
+        />
+        <Button onClick={() => { handleGeneralSearch(); handleSearchListByName(); }}><FontAwesomeIcon style={{fontSize: 24, color: '#3e4a4c'}} icon={faMagnifyingGlass} />
+        </Button>
+      </Box>
 
-        <Box sx={{ display: "flex", gap: 2, overflow: "auto", flexWrap: "wrap" }} >
-          {/* COLUMNA ARTISTAS */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%' }} >
-            {artistResults.length > 0 && (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          px: 2,
+          gap: 2,
+          overflow: "auto",
+          
+        }}
+      >
+        {/* COLUMNA ARTISTAS */}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            borderRadius: 1,
+            p: 2,
+            overflowY: "auto",
+          }}
+        >
+
+          {artistResults.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Artistas encontrados</Typography>
@@ -502,7 +557,8 @@ function Search() {
               )}
             </>
           )}
-            {selectedArtistAlbums.length > 0 && (
+
+          {selectedArtistAlbums.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Álbumes del artista</Typography>
@@ -515,19 +571,27 @@ function Search() {
             </>
           )}
 
-            {selectedAlbumSongsFromArtist.length > 0 && (
+          {selectedAlbumSongsFromArtist.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Canciones del álbum</Typography>
               {renderItemList(selectedAlbumSongsFromArtist, "song", null, null)}
             </>
           )}
-            
-          </Box>
+        </Box>
 
-          {/* COLUMNA ALBUMES */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%' }} >
-            {albumResults.length > 0 && (
+        {/* COLUMNA ALBUMES */}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            borderRadius: 1,
+            p: 2,
+            overflowY: "auto",
+          }}
+        >
+          {albumResults.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Álbumes encontrados</Typography>
@@ -547,18 +611,28 @@ function Search() {
               {renderItemList(selectedAlbumSongs, "song", null, null)}
             </>
           )}
-          </Box>
+        </Box>
 
-          {/* COLUMNA CANCIONES */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
-            {songResults.length > 0 && (
+        {/* COLUMNA CANCIONES */}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            borderRadius: 1,
+            p: 2,
+            overflowY: "auto",
+          }}
+        >
+
+          {songResults.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Canciones encontradas</Typography>
               {renderItemList(songResults, "song", null, null)}
             </>
           )}
-            <Dialog open={open} onClose={handleCloseListModal}>
+          <Dialog open={open} onClose={handleCloseListModal}>
               <DialogTitle>{t('addsong')}</DialogTitle>
               <DialogContent>
                 <select
@@ -585,81 +659,39 @@ function Search() {
                 </Button>
               </DialogActions>
             </Dialog>
-          </Box>
-
-
-          {/* COLUMNA LISTAS */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
-          {searchResults.length > 0 && (
-              <>
-                  {searchResults.map(l => (
-                    <Card key={l._id} sx={{ width: "45%" }}> 
-                      <CardContent>
-                        <Typography variant="h6" color="primary">{t('list')}</Typography>
-                        <Divider />
+        </Box>
+        {/* COLUMNA LISTAS */}
+          <Box sx={{ display: "flex", flexDirection:'column', gap: 2 }}>
+            {searchResults.length > 0 && (
+                <>
+                <Typography>Listas</Typography>
+                {searchResults.map(l => (
+                    <Card key={l._id} sx={{ width: "80%", mb: 2,  }}>
+                    <CardContent>
                         <Typography variant="h5" sx={{ mb: 1 }}>{l.name}</Typography>
+                        <Divider/>
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                          {t('Canciones')}: {l.songs.join(', ')}
+                        {t('songs')}: {l.songs.join(', ')}
                         </Typography>
                         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography variant="body2" color="text.secondary">
-                            {t('Creador de la lista')}: {l.creator.name || t('unknown')}
-                          </Typography>
-                          {followedLists.some(followed => followed._id === l._id) ? (
+                        <Typography variant="body2" color="text.secondary">
+                            {t('creator')}: {l.creator.name || t('unknown')}
+                        </Typography>
+                        {followedLists.some(followed => followed._id === l._id) ? (
                             <Typography color="success.main">{t('following')}</Typography>
-                          ) : (
+                        ) : (
                             <Button onClick={() => handlefollowList(l._id)} color="error">{t('follow')}</Button>
-                          )}
+                        )}
                         </Box>
-                      </CardContent>
-                    </Card>
-                  ))}    
-                   </>
-                )}     
-          </Box>
-          { /* COLUMNA USUARIOS */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
-                {searches.map(user => (
-                  <Card key={user._id} sx={{ width: "45%" }}>
-                  <CardContent>
-                  <Typography variant="h6" color="primary">{t('user')}</Typography>
-                    <Divider />
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar
-                      src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/default-avatar.png'}
-                       alt={user.name}
-                       sx={{ width: 56, height: 56, mr: 2 }}
-                    />
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant="h5" color="primary">{user.name} </Typography>
-                    <Typography variant="h6" color="primary">({user.username}) </Typography>
-                    <Typography>{t('bio')}:{user.bio} </Typography>
-                    </Box>
-                    
-                    {isFollowing(user._id) ? (
-                      <Typography sx={{ ml: 2, color: 'green', display: 'inline-block' }}>
-                        {t('following')}
-                      </Typography>
-                    ) : (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleFollow(user._id)}
-                        sx={{ ml: 2 }}
-                      >
-                        {t('follow')}
-                      </Button>
-                    )}
-                    </Box>
                     </CardContent>
-                  </Card>
+                    </Card>
                 ))}
-          </Box>
+                </>
+            )}
+            </Box>
+      </Box>
     </Box>
-    </Container>
-
   );
 }
 
-
-export default Search;
+export default Search2;

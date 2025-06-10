@@ -1,13 +1,32 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import Menu from '../components/Menu';
-import { getAllUsers } from '../api/internal/userApi'
+import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, styled } from '@mui/material';
+import Menu2 from '../components/Menu2';
+import Search2 from '../components/Search2'
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
-import TopRatingsList from "../components/TopRatingsList";
-import TopFavoritosList from "../components/TopFavoritosList";
+import TopRatingsList from '../components/TopRatingsList';
+import TopFavoritosList from '../components/TopFavoritosList'
+import Timeline from '../components/Timeline'
+import MyLists from '../components/MyLists'
+import { useNavigate } from 'react-router-dom';
+
+const MenuBox= styled(Box)`
+ margin-left: 15px;
+ position: fixed;
+ width:100vw;
+ display: flex;
+ justify-content: center;
+ align-item: center;
+  @media (min-width: 601px) and (max-width: 960px) {
+    width: 180px;
+  }
+  @media (max-width: 600px) {
+    width: 30px;
+  }
+
+`;
 
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -59,92 +78,22 @@ function Dashboard() {
 
 
   return (
-    <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', width: '100vw' }}>
-      <Menu></Menu>
-      <Box sx={{ p: 4, fontFamily: 'sans-serif', maxWidth: 600, mx: 'auto' }}>
+    <Box sx={{width:'100vw', display: 'flex', flexDirection:'column'}}>
+      <Menu2/>
+      <Box sx={{ display: 'flex', justifyContent:'space-between', mr: 5, alignItems:'start' }}>
+        <Box sx={{width:'20%', height: '100%',  borderRight: '2px solid' }}>
+          <MyLists/>
+        </Box>
+        <Box sx={{width:'40%' }}>
+          <Timeline/>
+        </Box>
         
-        {/* Estado de sesión */}
-        <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ color: token ? 'green' : 'red' }}>
-              {token ? t('userLoggedIn', { role }) : t('noUserLoggedIn')}
-            </Typography>
-            {token && (
-              <Button variant="outlined" onClick={logout} sx={{ mt: 1 }}>
-                {t('logout')}
-              </Button>
-            )}
-          </CardContent>
-        </Card>     
-        
-        <Card>
-          <CardContent>
-            <Typography variant="h5">{t('findUsers')}</Typography>
-            <TextField
-              fullWidth
-              label={t('userName')}
-              onChange={e => setUserUsername(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  handleSearchUser();
-                }
-              }}
-              margin="normal"
-            />
-          </CardContent>
-        </Card>
-
-        {/* Mostrar los usuarios obtenidos */}
-        <Card>
-          <CardContent>
-            <Typography variant="h6">{t('searchResults')}</Typography>
-            {loading ? (
-              <Typography>{t('loading')}</Typography>
-            ) : error ? (
-              <Typography color="error">{error}</Typography>
-            ) : searches.length > 0 ? (
-              <ul>
-                {searches.map(user => (
-                  <li key={user._id}>
-                    <Avatar
-                      src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/default-avatar.png'}
-                       alt={user.name}
-                       sx={{ width: 56, height: 56, mr: 2 }}
-                    />
-                    {user.name} ({user.username})
-                    {isFollowing(user._id) ? (
-                      <Typography sx={{ ml: 2, color: 'green', display: 'inline-block' }}>
-                        {t('following')}
-                      </Typography>
-                    ) : (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleFollow(user._id)}
-                        sx={{ ml: 2 }}
-                      >
-                        {t('follow')}
-                      </Button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <Typography>{t('noResults')}</Typography>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* COLUMNA MEDIA */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-        <TopRatingsList limit={5} title="Top 5 por Rating" />        
+        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', alignItems:'start', width:'40%' }}>    
+          <TopRatingsList limit={5} title="Top 5 por Rating" />        
+          <TopFavoritosList limit={5}/>        
+      </Box>  
       </Box>
-      {/* COLUMNA DERECHA */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
-        <TopFavoritosList limit={5}/>        
-      </Box>
-
-      </Box>
+       
     </Box>
   );
 }
