@@ -2,7 +2,10 @@ import React from "react";
 import { Typography, IconButton } from "@mui/material";
 import RatingDisplay from "./RatingDisplay";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart as solidHeart, faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faHeart as solidHeart,
+  faPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 
 function formatDuration(ms) {
@@ -27,7 +30,6 @@ const ItemRow = ({
   compact = false,
 }) => {
   const showCover = type === "album" && item.coverUrl;
-  console.log('ITEM', item)
   return (
     <div
       style={{
@@ -62,15 +64,30 @@ const ItemRow = ({
         }}
       >
         {type === "album"
-          ? `${item.title}${item.artist ? " — " + item.artist : item.artistName ? " — " + item.artistName : ""}`
+          ? `${item.title}${
+              item.artist
+                ? " — " + item.artist
+                : item.artistName
+                ? " — " + item.artistName
+                : ""
+            }`
           : type === "song"
-          ? `${item.title}${item.album || item.albumName ? " — " + (item.album || item.albumName) : ""}${
-              item.artist || item.artistName ? " — " + (item.artist || item.artistName) : ""
+          ? `${item.title}${
+              item.album || item.albumName
+                ? " — " + (item.album || item.albumName)
+                : ""
+            }${
+              item.artist || item.artistName
+                ? " — " + (item.artist || item.artistName)
+                : ""
             }`
           : item.name || item.title}
       </span>
 
-      <Typography variant="body2" sx={{ mr: 2, minWidth: 60, textAlign: "right" }}>
+      <Typography
+        variant="body2"
+        sx={{ mr: 2, minWidth: 60, textAlign: "right" }}
+      >
         {type === "song"
           ? formatDuration(item.duration)
           : type === "album"
@@ -108,10 +125,12 @@ const ItemRow = ({
         color={isFavorite(item.id) ? "error" : "default"}
         size="small"
       >
-        <FontAwesomeIcon icon={isFavorite(item.id) ? solidHeart : regularHeart} />
+        <FontAwesomeIcon
+          icon={isFavorite(item.id) ? solidHeart : regularHeart}
+        />
       </IconButton>
       <Typography variant="body2" sx={{ ml: 1, minWidth: 25 }}>
-        {favoriteCounts[`${type}s`]?.[item.id] || 0}
+        {favoriteCounts[item.id] || 0}
       </Typography>
     </div>
   );

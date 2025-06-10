@@ -51,11 +51,7 @@ function TestBuscador() {
     useState([]);
   const [selectedAlbumSongs, setSelectedAlbumSongs] = useState([]);
 
-  const [favoriteCounts, setFavoriteCounts] = useState({
-    artists: {},
-    albums: {},
-    songs: {},
-  });
+  const [favoriteCounts, setFavoriteCounts] = useState({});
 
   const handleFavoriteToggle = async (id, type) => {
     try {
@@ -90,10 +86,7 @@ function TestBuscador() {
       const newCount = await getFavoriteCount(id);
       setFavoriteCounts((prev) => ({
         ...prev,
-        [`${type}s`]: {
-          ...prev[`${type}s`],
-          [id]: newCount,
-        },
+        [id]: newCount,
       }));
     } catch (e) {
       console.error("Error alternando favorito", e);
@@ -114,27 +107,21 @@ function TestBuscador() {
       setSelectedAlbumSongs([]);
       setSelectedAlbumSongsFromArtist([]);
 
-      const artistCounts = {};
-      const albumCounts = {};
-      const songCounts = {};
+      const counts = {};
 
       await Promise.all([
         ...artists.map(async (a) => {
-          artistCounts[a.id] = (await getFavoriteCount(a.id)) || 0;
+          counts[a.id] = (await getFavoriteCount(a.id)) || 0;
         }),
         ...albums.map(async (a) => {
-          albumCounts[a.id] = (await getFavoriteCount(a.id)) || 0;
+          counts[a.id] = (await getFavoriteCount(a.id)) || 0;
         }),
         ...songs.map(async (s) => {
-          songCounts[s.id] = (await getFavoriteCount(s.id)) || 0;
+          counts[s.id] = (await getFavoriteCount(s.id)) || 0;
         }),
       ]);
 
-      setFavoriteCounts({
-        artists: artistCounts,
-        albums: albumCounts,
-        songs: songCounts,
-      });
+      setFavoriteCounts(counts);
     } catch (e) {
       alert("Error en la búsqueda general");
       console.error(e);
@@ -153,7 +140,7 @@ function TestBuscador() {
           counts[artist.id] = (await getFavoriteCount(artist.id)) || 0;
         })
       );
-      setFavoriteCounts((prev) => ({ ...prev, artists: counts }));
+      setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
       alert("Error al buscar artistas");
       console.error(e);
@@ -171,7 +158,7 @@ function TestBuscador() {
           counts[album.id] = (await getFavoriteCount(album.id)) || 0;
         })
       );
-      setFavoriteCounts((prev) => ({ ...prev, albums: counts }));
+      setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
       alert("Error al obtener álbumes del artista");
       console.error(e);
@@ -193,7 +180,7 @@ function TestBuscador() {
           counts[song.id] = (await getFavoriteCount(song.id)) || 0;
         })
       );
-      setFavoriteCounts((prev) => ({ ...prev, songs: counts }));
+      setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
       alert("Error al obtener canciones del álbum");
       console.error(e);
@@ -211,7 +198,7 @@ function TestBuscador() {
           counts[album.id] = (await getFavoriteCount(album.id)) || 0;
         })
       );
-      setFavoriteCounts((prev) => ({ ...prev, albums: counts }));
+      setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
       alert("Error al buscar álbumes");
       console.error(e);
@@ -233,7 +220,7 @@ function TestBuscador() {
           counts[song.id] = (await getFavoriteCount(song.id)) || 0;
         })
       );
-      setFavoriteCounts((prev) => ({ ...prev, songs: counts }));
+      setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
       alert("Error al obtener canciones del álbum");
       console.error(e);
@@ -250,7 +237,7 @@ function TestBuscador() {
           counts[song.id] = (await getFavoriteCount(song.id)) || 0;
         })
       );
-      setFavoriteCounts((prev) => ({ ...prev, songs: counts }));
+      setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
       alert("Error al buscar canciones");
       console.error(e);
@@ -289,7 +276,9 @@ function TestBuscador() {
   };
 
   return (
-    <Box sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}>
+    <Box
+      sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}
+    >
       <Menu />
       <Box sx={{ p: 2, backgroundColor: "#fff" }}>
         <Typography variant="h4" gutterBottom>
@@ -311,7 +300,9 @@ function TestBuscador() {
       <Box sx={{ display: "flex", px: 2, gap: 2 }}>
         {/* ARTISTAS */}
         <Box sx={{ flex: 1, p: 2, backgroundColor: "#fff", borderRadius: 1 }}>
-          <Typography variant="h5" gutterBottom>Buscar Artista</Typography>
+          <Typography variant="h5" gutterBottom>
+            Buscar Artista
+          </Typography>
           <TextField
             fullWidth
             label="Nombre del artista"
@@ -320,7 +311,9 @@ function TestBuscador() {
             onKeyDown={(e) => e.key === "Enter" && handleSearchArtist()}
             margin="normal"
           />
-          <Button variant="contained" onClick={handleSearchArtist}>Buscar</Button>
+          <Button variant="contained" onClick={handleSearchArtist}>
+            Buscar
+          </Button>
 
           {artistResults.length > 0 && (
             <>
@@ -372,7 +365,9 @@ function TestBuscador() {
 
         {/* ÁLBUMES */}
         <Box sx={{ flex: 1, p: 2, backgroundColor: "#fff", borderRadius: 1 }}>
-          <Typography variant="h5" gutterBottom>Buscar Álbum</Typography>
+          <Typography variant="h5" gutterBottom>
+            Buscar Álbum
+          </Typography>
           <TextField
             fullWidth
             label="Nombre del álbum"
@@ -381,7 +376,9 @@ function TestBuscador() {
             onKeyDown={(e) => e.key === "Enter" && handleSearchAlbums()}
             margin="normal"
           />
-          <Button variant="contained" onClick={handleSearchAlbums}>Buscar</Button>
+          <Button variant="contained" onClick={handleSearchAlbums}>
+            Buscar
+          </Button>
 
           {albumResults.length > 0 && (
             <>
@@ -417,7 +414,9 @@ function TestBuscador() {
 
         {/* CANCIONES */}
         <Box sx={{ flex: 1, p: 2, backgroundColor: "#fff", borderRadius: 1 }}>
-          <Typography variant="h5" gutterBottom>Buscar Canción</Typography>
+          <Typography variant="h5" gutterBottom>
+            Buscar Canción
+          </Typography>
           <TextField
             fullWidth
             label="Nombre de la canción"
@@ -426,7 +425,9 @@ function TestBuscador() {
             onKeyDown={(e) => e.key === "Enter" && handleSearchSongs()}
             margin="normal"
           />
-          <Button variant="contained" onClick={handleSearchSongs}>Buscar</Button>
+          <Button variant="contained" onClick={handleSearchSongs}>
+            Buscar
+          </Button>
 
           {songResults.length > 0 && (
             <>

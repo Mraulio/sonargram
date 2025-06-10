@@ -1,11 +1,11 @@
 /* src/components/Timeline.js */
-import React, { useContext, useEffect, useState } from 'react';
-import { UserContext } from '../context/UserContext';
-import useActivity from '../hooks/useActivity';
-import ActivityCard from './ActivityCard';
-import { Typography, Box } from '@mui/material';
-import useRatings from '../hooks/useRatings';
-import useFavorites from '../hooks/useFavorites';
+import React, { useContext, useEffect, useState } from "react";
+import { UserContext } from "../context/UserContext";
+import useActivity from "../hooks/useActivity";
+import ActivityCard from "./ActivityCard";
+import { Typography, Box } from "@mui/material";
+import useRatings from "../hooks/useRatings";
+import useFavorites from "../hooks/useFavorites";
 
 const Timeline = () => {
   const { token } = useContext(UserContext);
@@ -15,13 +15,18 @@ const Timeline = () => {
   const favoriteProps = useFavorites(token);
   //console.log('favorite props TIMELINE', favoriteProps);
 
-  const [favoriteCounts, setFavoriteCounts] = useState({});
+  const [favoriteCounts, setFavoriteCounts] = useState({
+    artists: {},
+    albums: {},
+    songs: {},
+  });
 
   useEffect(() => {
     if (token) fetchTimeline();
   }, [token, fetchTimeline]);
 
   const handleFavoriteToggle = async (id, type, item) => {
+    console.log('DATOS: ', id, type, item)
     try {
       if (favoriteProps.isFavorite(id)) {
         await favoriteProps.removeFavorite(id);
@@ -29,18 +34,21 @@ const Timeline = () => {
         await favoriteProps.addFavorite(
           id,
           type,
-          item?.title || item?.name || '',
-          item?.artist || item?.artistName || '',
-          item?.coverUrl || '',
-          item?.releaseDate || '',
-          item?.duration || ''
+          item?.title || item?.name || "",
+          item?.artist || item?.artistName || "",
+          item?.coverUrl || "",
+          item?.releaseDate || "",
+          item?.duration || ""
         );
       }
 
       const newCount = await favoriteProps.getFavoriteCount(id);
       setFavoriteCounts((prev) => ({
         ...prev,
-        [id]: newCount,
+        [`${type}s`]: {
+          ...(prev[`${type}s`] || {}),
+          [id]: newCount,
+        },
       }));
     } catch (e) {
       console.error("Error alternando favorito", e);
@@ -56,7 +64,9 @@ const Timeline = () => {
         <Typography>No hay actividades recientes.</Typography>
       ) : (
         <>
-          <Typography variant="h5" gutterBottom>Timeline</Typography>
+          <Typography variant="h5" gutterBottom>
+            Timeline
+          </Typography>
           {activities.map((activity) => (
             <ActivityCard
               key={activity._id}
@@ -64,6 +74,7 @@ const Timeline = () => {
               ratingProps={ratingProps}
               favoriteProps={{
                 ...favoriteProps,
+                favoriteCounts,
                 handleFavoriteToggle,
               }}
             />
