@@ -51,8 +51,7 @@ export default function SonargramIntro() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                height: '100vh',
-                overflow: 'hidden',
+                overflow: 'visible',
                 gap: '0.1rem', // aún más pegado
                 whiteSpace: 'nowrap',
                 minWidth: '600px',

@@ -1,12 +1,13 @@
 import { Typography, Box, Link } from '@mui/material';
 import Login  from '../components/Login'
+import SonargramIntro from '../components/SonargramIntro';
 //backgroundImage: `url(assets/images/imagen.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
 function IndexPage() {  
 
   return (
   
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100vw',  gap: 10 }}>
-      <img src='assets/images/logoSonargram.png' alt="Logo" style={{ width: '800px', height: 'auto' }} />
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100%',  gap: 10 }}>
+      <SonargramIntro/>
       <Box sx={{ display:'flex', flexDirection: 'row', gap: 10 }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', gap: 5,  }}>
       
