@@ -1,5 +1,5 @@
-/* src/components/InfoModal.js */
-import React from 'react';
+// src/components/InfoModal.js
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   Paper,
@@ -7,10 +7,13 @@ import {
   Typography,
   Divider,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import ItemRow from './ItemRow';
+import ItemList from './ItemList';
+import useList from '../hooks/useList';
 
 const style = {
   position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
@@ -19,9 +22,20 @@ const style = {
 };
 
 const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) => {
-  if (!open || !data) return null;
-  if (!['song', 'album', 'artist'].includes(type)) return null;
+  const [listItems, setListItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { fetchListById } = useList(); // no necesitas token para esto si ya viene desde la actividad
 
+  useEffect(() => {
+    if (type === 'list' && data?._id) {
+      setLoading(true);
+      fetchListById(data._id)
+        .then((res) => setListItems(res.songs || []))
+        .finally(() => setLoading(false));
+    }
+  }, [type, data?._id]);
+
+  if (!open || !data) return null;
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -33,15 +47,38 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
           </IconButton>
         </Stack>
         <Divider sx={{ mb: 2 }} />
-        <ItemRow
-          item={data}
-          type={type}
-          ratingProps={ratingProps}
-          favoriteCounts={favoriteProps.favoriteCounts}
-          isFavorite={favoriteProps.isFavorite}
-          onToggleFavorite={favoriteProps.handleFavoriteToggle}
-          compact={false}
-        />
+
+        {['song', 'album', 'artist'].includes(type) && (
+          <ItemRow
+            item={data}
+            type={type}
+            ratingProps={ratingProps}
+            favoriteCounts={favoriteProps.favoriteCounts}
+            isFavorite={favoriteProps.isFavorite}
+            onToggleFavorite={favoriteProps.handleFavoriteToggle}
+            compact={false}
+          />
+        )}
+
+        {type === 'list' && (
+          <>
+            <Typography variant="subtitle1" gutterBottom>
+              Lista: {data.name}
+            </Typography>
+            {loading ? (
+              <CircularProgress />
+            ) : (
+              <ItemList
+                items={listItems}
+                type="song"
+                ratingProps={ratingProps}
+                favoriteCounts={favoriteProps.favoriteCounts}
+                isFavorite={favoriteProps.isFavorite}
+                onToggleFavorite={favoriteProps.handleFavoriteToggle}
+              />
+            )}
+          </>
+        )}
       </Paper>
     </Modal>
   );

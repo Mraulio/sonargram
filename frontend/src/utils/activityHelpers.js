@@ -81,6 +81,7 @@ export function getRelatedContent(action, activity) {
       return activityRef?.name
         ? { single: activityRef.name, type: 'list', data: activityRef }
         : null;
+
     case 'followUser':
       return activityRef?.username
         ? { single: `@${activityRef.username}`, type: 'user', data: activityRef }
