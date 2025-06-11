@@ -35,16 +35,16 @@ const Timeline = () => {
       });
     }
   }, [activities, favoriteProps, favoriteCounts]);
-  
+
   useEffect(() => {
     if (activities.length > 0) {
       const mbids = activities.map(act => act.targetId || act.mbid || act._id);
       ratingProps.fetchMultipleItemRatings(mbids);
     }
-  }, [activities, ratingProps]);
+  }, [activities, ratingProps.fetchMultipleItemRatings]);
+
 
   const handleFavoriteToggle = async (id, type, item) => {
-    console.log('DATOS: ', id, type, item)
     try {
       if (favoriteProps.isFavorite(id)) {
         await favoriteProps.removeFavorite(id);
@@ -61,7 +61,6 @@ const Timeline = () => {
       }
 
       const newCount = await favoriteProps.getFavoriteCount(id);
-      console.log('countss', favoriteCounts);
       setFavoriteCounts((prev) => ({
         ...prev,
         [id]: newCount,
