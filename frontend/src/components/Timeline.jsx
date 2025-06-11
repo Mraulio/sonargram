@@ -20,6 +20,21 @@ const Timeline = () => {
   useEffect(() => {
     if (token) fetchTimeline();
   }, [token, fetchTimeline]);
+  
+useEffect(() => {
+  if (activities.length > 0 && Object.keys(favoriteCounts).length === 0) {
+    Promise.all(
+      activities.map(act => favoriteProps.getFavoriteCount(act.targetId || act.mbid || act._id))
+    ).then(countsArray => {
+      const countsMap = {};
+      activities.forEach((act, idx) => {
+        const id = act.targetId || act.mbid || act._id;
+        countsMap[id] = countsArray[idx] || 0;
+      });
+      setFavoriteCounts(countsMap);
+    });
+  }
+}, [activities, favoriteProps, favoriteCounts]);
 
   const handleFavoriteToggle = async (id, type, item) => {
     console.log('DATOS: ', id, type, item)

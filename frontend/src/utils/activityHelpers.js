@@ -54,9 +54,7 @@ export function getRelatedContent(action, activity) {
       : targetType === 'album'
         ? `Álbum: ${mbidData.title || 'Desconocida'}`
         : `Artista: ${mbidData.title || 'Desconocida'}`;
-        console.log("MBID DAAAATa",mbidData)
     const data = {...mbidData, id: mbidData.mbid}
-    console.log('data cambiada', data);
     return { single: label, type: targetType, data: data };
   }
 
