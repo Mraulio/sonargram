@@ -40,22 +40,39 @@ export function getRelatedContent(action, activity) {
   const targetType = activity.targetType;
 
   if (action === 'addListSong') {
-    const songTitle = mbidData?.title && mbidData?.artistName
-      ? `${mbidData.title} - ${mbidData.artistName}`
-      : null;
-    return songTitle
-      ? { single: songTitle, type: 'song', data: mbidData, list: list }
-      : null;
+    const songTitle =
+      mbidData?.title && mbidData?.artistName
+        ? `${mbidData.title} - ${mbidData.artistName}`
+        : null;
+
+    if (!songTitle || !list?.name) return null;
+
+    return {
+      type: 'compound',
+      items: [
+        {
+          single: songTitle,
+          type: 'song',
+          data: { ...mbidData, id: mbidData?.mbid },
+        },
+        {
+          single: list.name,
+          type: 'list',
+          data: list,
+        },
+      ],
+    };
   }
 
   if (['song', 'album', 'artist'].includes(targetType) && mbidData) {
-    const label = targetType === 'song'
-      ? `Canción: ${mbidData.title || 'Desconocida'}`
-      : targetType === 'album'
-        ? `Álbum: ${mbidData.title || 'Desconocida'}`
-        : `Artista: ${mbidData.title || 'Desconocida'}`;
-    const data = {...mbidData, id: mbidData.mbid}
-    return { single: label, type: targetType, data: data };
+    const label =
+      targetType === 'song'
+        ? `Canción: ${mbidData.title || 'Desconocida'}`
+        : targetType === 'album'
+          ? `Álbum: ${mbidData.title || 'Desconocida'}`
+          : `Artista: ${mbidData.title || 'Desconocida'}`;
+    const data = { ...mbidData, id: mbidData.mbid };
+    return { single: label, type: targetType, data };
   }
 
   switch (action) {
@@ -64,18 +81,19 @@ export function getRelatedContent(action, activity) {
       return activityRef?.name
         ? { single: activityRef.name, type: 'list', data: activityRef }
         : null;
-
     case 'followUser':
       return activityRef?.username
         ? { single: `@${activityRef.username}`, type: 'user', data: activityRef }
         : null;
-
     case 'comment':
     case 'recommendComment':
       return activityRef?.text
-        ? { single: `"${activityRef.text.slice(0, 100)}"`, type: 'comment', data: activityRef }
+        ? {
+          single: `"${activityRef.text.slice(0, 100)}"`,
+          type: 'comment',
+          data: activityRef,
+        }
         : null;
-
     default:
       return null;
   }

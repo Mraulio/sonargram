@@ -107,15 +107,49 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                   {user?.username || "Alguien"}
                 </Box>{" "}
                 {getActionDescription(action, activity)}{" "}
-                {related && related.single && (
+                {related && related.type === "compound" ? (
+                  <>
+                    <Box
+                      component="span"
+                      onClick={() =>
+                        openDetail(related.items[0].type, related.items[0].data)
+                      }
+                      sx={{
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        color: "primary.main",
+                      }}
+                    >
+                      {related.items[0].single}
+                    </Box>{" "}
+                    a la lista{" "}
+                    <Box
+                      component="span"
+                      onClick={() =>
+                        openDetail(related.items[1].type, related.items[1].data)
+                      }
+                      sx={{
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        color: "primary.main",
+                      }}
+                    >
+                      {related.items[1].single}
+                    </Box>
+                  </>
+                ) : related && related.single ? (
                   <Box
                     component="span"
-                    onClick={() =>activity.action === 'followUser' ? 
-                      navigate(`/userresult/${user._id}`) :
-                      openDetail(
-                        related.type,
-                        related.data || activity.mbidData || activity.activityRef
-                      )
+                    onClick={() =>
+                      action === "followUser"
+                        ? navigate(`/userresult/${user._id}`)
+                        : openDetail(related.type, {
+                          ...related.data,
+                          id:
+                            activity.targetId ||
+                            related.data?.mbid ||
+                            related.data?._id,
+                        })
                     }
                     sx={{
                       fontWeight: "bold",
@@ -125,7 +159,7 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                   >
                     {related.single}
                   </Box>
-                )}
+                ) : null}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {new Date(createdAt).toLocaleString()}
