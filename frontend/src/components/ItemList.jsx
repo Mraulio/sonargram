@@ -84,7 +84,6 @@ const ItemList = ({
               isFavorite={isFavorite}
               onToggleFavorite={onToggleFavorite}
               favoriteCounts={favoriteCounts}
-              showAddButton={type === "song"}
               onAddClick={handleAddClick}
               highlightColor={highlightColor}
               onClickItem={onClickItem}

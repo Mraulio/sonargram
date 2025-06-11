@@ -23,7 +23,6 @@ const ItemRow = ({
   favoriteCounts = {},
   isFavorite,
   onToggleFavorite,
-  showAddButton = false,
   onAddClick,
   onClickItem,
   highlightColor,
@@ -109,7 +108,7 @@ const ItemRow = ({
         duration={item.duration}
       />
 
-      {showAddButton && (
+      {type === "song" && (
         <IconButton
           onClick={() => onAddClick(item)}
           size="small"
