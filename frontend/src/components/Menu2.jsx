@@ -129,7 +129,7 @@ function Menu2() {
 
   return (
     <CustomMenu>
-        <Link href="/dashboard" ><img src={logo} alt="Logo" style={{ width: "150px" }} /></Link>
+        <Link href="/dashboard" ><img src='assets/images/logoSonargram.png' alt="Logo" style={{ width: "150px", marginLeft: '25px' }} /></Link>
         <Box sx={{ display: 'flex', gap: 1, width:'60vw', justifyContent:'start', alignItems: 'center', gap:3 }}>
           <Box sx= {{ display: 'flex', justifyContent:'center', alignItems:'center', width: '500px' }}>
             <CustomTextField
