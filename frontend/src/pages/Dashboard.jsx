@@ -10,6 +10,7 @@ import TopRatingsList from '../components/TopRatingsList';
 import TopFavoritosList from '../components/TopFavoritosList'
 import Timeline from '../components/Timeline'
 import MyLists from '../components/MyLists'
+import FooterBar from '../components/Footer'
 import { useNavigate } from 'react-router-dom';
 
 const MenuBox= styled(Box)`
@@ -40,8 +41,17 @@ function Dashboard() {
    
   useEffect(() => {
     fetchAllUsers(token);
-    
-  }, []);
+    handleCurrentUser();
+  }, [token, fetchAllUsers]);
+
+  const handleCurrentUser= async () => {
+    try {
+      const user = await getCurrentUser();
+      setUserUsername(user.name);
+    } catch (err) {
+      setError(err.message || 'Error fetching users');
+    }
+  };
 
   const handleSearchUser = async () => {
     try {
@@ -80,20 +90,27 @@ function Dashboard() {
   return (
     <Box sx={{width:'100vw', display: 'flex', flexDirection:'column'}}>
       <Menu2/>
-      <Box sx={{ display: 'flex', justifyContent:'space-between', mr: 5, alignItems:'start' }}>
-        <Box sx={{width:'20%', height: '100%',  borderRight: '2px solid' }}>
+      <Box sx={{ display: 'flex', justifyContent:'space-between', mr: 5, alignItems:'start', width:'100%', gap: 5 }}>
+        <Box sx={{width:'20%', height: '100vh', paddingLeft:2, borderRight: '2px solid' }}>
+
+          <Typography variant="h6" fontWeight={600}>
+            {t('welcome')} {userUsername}!!    
+          </Typography>
+          
           <MyLists/>
         </Box>
-        <Box sx={{width:'40%' }}>
-          <Timeline/>
-        </Box>
-        
-        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', alignItems:'start', width:'40%' }}>    
+        <Box sx={{ display: 'flex', flexDirection:'column'}}>  
+          <Box>
+            <Timeline/>
+              
+          </Box>
+        </Box>     
+        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', width:'40%' }}>    
           <TopRatingsList limit={5} title="Top 5 por Rating" />        
           <TopFavoritosList limit={5}/>        
       </Box>  
       </Box>
-       
+   
     </Box>
   );
 }

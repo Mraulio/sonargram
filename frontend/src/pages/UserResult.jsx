@@ -51,9 +51,9 @@ function UserResult() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginTop: '5rem' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <Menu2 />
-      <Box>
+      <Box sx={{ height:'100vh' }}>
         <Typography variant="h5" gutterBottom>
           {t('publicProfile')}
         </Typography>
@@ -78,7 +78,7 @@ function UserResult() {
         <OtherFollowers userId={userResult.id} />
         <OtherLists userId={userResult.id} />
       </Box>
-    </div>
+    </Box>
   );
 }
 

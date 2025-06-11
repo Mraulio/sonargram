@@ -90,7 +90,7 @@ const CustomTextField = styled(TextField)({
   '& label.Mui-focused': {
     color: '#3e4a4c',
   },
-  width: '550px',
+  width: '300px',
 });
 
 function Menu2() {
@@ -129,10 +129,10 @@ function Menu2() {
 
   return (
     <CustomMenu>
-        <Link href="/dashboard" ><img src={logo} alt="Logo" style={{ width: "150px" }} /></Link>
+        <Link href="/dashboard" ><img src='assets/images/logoSonargram.png' alt="Logo" style={{ width: "150px", marginLeft: '25px' }} /></Link>
         <Box sx={{ display: 'flex', gap: 1, width:'60vw', justifyContent:'start', alignItems: 'center', gap:3 }}>
+          <Box sx= {{ display: 'flex', justifyContent:'center', alignItems:'center', width: '500px' }}>
             <CustomTextField
-                fullWidth
                 label="Buscar artistas, álbumes o canciones"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)} // <-- agrega esto
@@ -140,9 +140,9 @@ function Menu2() {
                 margin="normal"
               />
             <Button onClick={handleSearchClick}><FontAwesomeIcon style={{fontSize: 24, color: '#3e4a4c'}} icon={faMagnifyingGlass} /></Button>
-            <CustomLink href="/community" underline="hover"><FontAwesomeIcon style={{ fontSize: '35px' }} icon={faUsers} /><span>{t('community')}</span></CustomLink>
+          </Box>
             <CustomLink href="/lists" underline="hover" ><FontAwesomeIcon sx={{ width: '50%' }}style={{ fontSize: '35px' }} icon={faListUl} /><span>{t('lists')}</span></CustomLink>
-            <CustomLink href="" underline="hover"><FontAwesomeIcon sx={{ width: '50%' }}style={{ fontSize: '35px' }} icon={faHeart} /><span>{t('favorites')}</span></CustomLink>
+            
             {role === 'admin' && <Link sx={{color: 'red'}} href="/admin" underline="hover">Admin</Link>}
             {/* Avatar con onClick para abrir el modal */}
             <Avatar
@@ -179,5 +179,5 @@ function Menu2() {
     </CustomMenu>
   );
 }
-
+//<CustomLink href="" underline="hover"><FontAwesomeIcon sx={{ width: '50%' }}style={{ fontSize: '35px' }} icon={faHeart} /><span>{t('favorites')}</span></CustomLink>
 export default Menu2;

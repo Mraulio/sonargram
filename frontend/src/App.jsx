@@ -4,14 +4,11 @@ import { ThemeProviderCustom, ThemeContext } from './context/ThemeContext';
 import { ThemeProvider, CssBaseline, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, Link } from '@mui/material';
 import Menu2 from './components/Menu2'; // Asegúrate de importar el componente del menú
 import { useContext } from 'react';
-
+import FooterBar from './components/Footer';
 // Pages
 import IndexPage from './pages/IndexPage';
 import Dashboard from './pages/Dashboard';
 import UserPage from './pages/UserPage';
-import AlbumPage from './pages/AlbumPage';
-import SongPage from './pages/SongPage';
-import ArtistPage from './pages/ArtistPage';
 import ListPage from './pages/ListPage';
 import FollowerPage from './pages/FollowerPage';
 import FollowedPage from './pages/FollowedPage';
@@ -62,9 +59,6 @@ function App() {
         <Route path="/admin" element={<PrivateRoute><AdminPage/></PrivateRoute>} />
         <Route path="/editUser/:id" element={<PrivateRoute><EditUser/></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><UserPage/></PrivateRoute>} />
-        <Route path="/album" element={<PrivateRoute><AlbumPage/></PrivateRoute>} />
-        <Route path="/songs" element={<PrivateRoute><SongPage/></PrivateRoute>} />
-        <Route path="/artists" element={<PrivateRoute><ArtistPage/></PrivateRoute>} />
         <Route path="/lists" element={<PrivateRoute><ListPage/></PrivateRoute>} />
         <Route path="/followers" element={<PrivateRoute><FollowerPage/></PrivateRoute>} />
         <Route path="/followed" element={<PrivateRoute><FollowedPage/></PrivateRoute>} />
@@ -96,12 +90,8 @@ function ThemeWrapper() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <CustomMenu2>
-        <CustomButton onClick={toggleTheme}><FontAwesomeIcon icon={mode === 'light' ? faMoon : faSun} size="lg" /></CustomButton> 
-        <CustomButton onClick={() => i18n.changeLanguage('en')}>EN</CustomButton>
-        <CustomButton onClick={() => i18n.changeLanguage('es')}>ES</CustomButton>
-      </CustomMenu2>
       <App />
+      <FooterBar toggleTheme={toggleTheme} mode={mode} />
     </ThemeProvider>
   );
 }
