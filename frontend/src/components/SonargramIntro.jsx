@@ -81,13 +81,12 @@ export default function SonargramIntro() {
                     draggable={false}
                     style={{ display: 'block' }}
                     animate={{
-                        x: [0, 1, -1, 1, 0],       // mueve un poco izquierda-derecha
-                        rotate: [0, 1, -1, 1, 0],  // rota un poco
+                        scale: [1, 1.05, 1],  // pequeño "latido" agrandando un 5%
                     }}
                     transition={{
                         repeat: Infinity,
                         repeatType: 'loop',
-                        duration: 0.4,
+                        duration: 1.6,        // duración suave y lenta
                         ease: 'easeInOut',
                     }}
                 />
