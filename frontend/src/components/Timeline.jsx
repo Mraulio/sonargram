@@ -20,22 +20,28 @@ const Timeline = () => {
   useEffect(() => {
     if (token) fetchTimeline();
   }, [token, fetchTimeline]);
-  
-useEffect(() => {
-  if (activities.length > 0 && Object.keys(favoriteCounts).length === 0) {
-    console.log('ACTIVITIES: ', activities);
-    Promise.all(
-      activities.map(act => favoriteProps.getFavoriteCount(act.targetId || act.mbid || act._id))
-    ).then(countsArray => {
-      const countsMap = {};
-      activities.forEach((act, idx) => {
-        const id = act.targetId || act.mbid || act._id;
-        countsMap[id] = countsArray[idx] || 0;
+
+  useEffect(() => {
+    if (activities.length > 0 && Object.keys(favoriteCounts).length === 0) {
+      Promise.all(
+        activities.map(act => favoriteProps.getFavoriteCount(act.targetId || act.mbid || act._id))
+      ).then(countsArray => {
+        const countsMap = {};
+        activities.forEach((act, idx) => {
+          const id = act.targetId || act.mbid || act._id;
+          countsMap[id] = countsArray[idx] || 0;
+        });
+        setFavoriteCounts(countsMap);
       });
-      setFavoriteCounts(countsMap);
-    });
-  }
-}, [activities, favoriteProps, favoriteCounts]);
+    }
+  }, [activities, favoriteProps, favoriteCounts]);
+  
+  useEffect(() => {
+    if (activities.length > 0) {
+      const mbids = activities.map(act => act.targetId || act.mbid || act._id);
+      ratingProps.fetchMultipleItemRatings(mbids);
+    }
+  }, [activities, ratingProps]);
 
   const handleFavoriteToggle = async (id, type, item) => {
     console.log('DATOS: ', id, type, item)
