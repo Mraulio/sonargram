@@ -1,6 +1,7 @@
 import { Typography, Box, Link } from '@mui/material';
 import Login  from '../components/Login'
 import SonargramIntro from '../components/SonargramIntro';
+
 //backgroundImage: `url(assets/images/imagen.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
 function IndexPage() {  
 

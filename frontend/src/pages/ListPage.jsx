@@ -33,6 +33,8 @@ function ListPage() {
     const [searchTermSong, setSearchTermSong] = useState("");
     const [songResults, setSongResults] = useState([]);
     const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } = useFavorites(token);
+    const { getUserById } = useUser(token);
+    const [creatorNames, setCreatorNames] = useState({});
     const [favoriteCounts, setFavoriteCounts] = useState({
         artists: {},
         albums: {},
@@ -62,6 +64,8 @@ function ListPage() {
             fetchFollowedLists(user?.userId); // Opcional: cargar listas seguidas al cargar la página
           }
         }, [token]);
+
+        
 
         const handleSearchListByName = useCallback(async () => {
           setLoading(true);
@@ -212,8 +216,16 @@ function ListPage() {
         }
       };
 
+      const handleGetCreatorName = async (creatorId) => {
+        if (!creatorId || creatorNames[creatorId]) return;
+        const user = await getUserById(creatorId);
+        if (user && user.name) {
+          setCreatorNames(prev => ({ ...prev, [creatorId]: user.name }));
+        }
+      };
+
  return (
-  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100vw", height:'100vh' }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100vw", minHeight:'100vh' }}>
     <Menu2 /> 
         <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
@@ -225,7 +237,9 @@ function ListPage() {
                   <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>{ t('createListButton')}</Button>
                 </CardContent>
               </Card>   
-              {userLists.map(l => (
+              {userLists.map(l => {
+              handleGetCreatorName(l.creator);
+              return (
                 <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
                   <CardContent>
                     <Typography
@@ -239,12 +253,9 @@ function ListPage() {
                     >
                       {l.name}
                     </Typography>
-                    <Divider sx={{ my: 1 }} />
-      
-              
                     <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {t('Creador de la lista')}: {l.creator.name || t('unknown')}
+                       <Typography variant="body2" color="text.secondary">
+                        {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
                       </Typography>
                       <Button
                         variant="outlined"
@@ -262,16 +273,19 @@ function ListPage() {
                       <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}</Button>
                     </Box>
                 </CardContent>
-              </Card>
-              ))}
+               </Card>
+                );
+              })}
             </Box>
         </Box>            
                 
         <Box sx={{  display: 'flex',  flexDirection: 'column', p: 4 }}>
           <Typography variant="h6">{t('followLists')}</Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
-            {followedLists.map(l => (
-              <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
+            {followedLists.map(l => {
+              handleGetCreatorName(l.creator);
+              return (
+                <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
                 <CardContent>
                   <Typography
                     variant="h5"
@@ -292,14 +306,14 @@ function ListPage() {
                   <Divider sx={{ my: 1 }} />              
                   <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
-                      {t('Creador de la lista')}: {l.creator.name || t('unknown')}
+                      {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
                     </Typography>
                     <Button onClick={() => (handleUnfollowList(l._id))} color="error">{t('unfollow')}</Button>
                   </Box>
                 </CardContent>
-              </Card>
-              
-            ))}
+               </Card>
+              );
+            })}
           </Box>
         </Box>
                 

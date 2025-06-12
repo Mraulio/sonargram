@@ -22,7 +22,7 @@ const CustomMenu = styled(Box)`
   gap: 50px;
   border-bottom: solid 1px;
   background-color: 
-  
+
 
   @media (min-width: 601px) and (max-width: 960px) {
     width: 120px;
@@ -141,12 +141,13 @@ function Menu2() {
               />
             <Button onClick={handleSearchClick}><FontAwesomeIcon style={{fontSize: 24, color: '#3e4a4c'}} icon={faMagnifyingGlass} /></Button>
           </Box>
-            <CustomLink href="/lists" underline="hover" ><FontAwesomeIcon sx={{ width: '50%' }}style={{ fontSize: '35px' }} icon={faListUl} /><span>{t('lists')}</span></CustomLink>
+            <CustomLink href="/lists" underline="hover" >{t('lists')}</CustomLink>
+             <CustomLink href="/community" underline="hover" >{t('community')}</CustomLink>
             
             {role === 'admin' && <Link sx={{color: 'red'}} href="/admin" underline="hover">Admin</Link>}
             {/* Avatar con onClick para abrir el modal */}
             <Avatar
-              sx={{width: '100px', height: '100px', cursor: 'pointer'}}
+              sx={{width: '80px', height: '80px', cursor: 'pointer', marginTop:'5px', marginBottom:'5px'}}
               src={
                 currentUser && currentUser.profilePic
                   ? `http://localhost:5000/uploads/${currentUser.profilePic}`
@@ -155,10 +156,8 @@ function Menu2() {
               alt="imagen perfil"
               onClick={() => navigate('/profile')}
             />
-            <CustomButton variant="outlined" onClick={logout} sx={{ color: 'white', borderColor: 'white' }}><FontAwesomeIcon sx={{ width: '50%' }}style={{ fontSize: '25px', color: 'gray' }} icon={faXmark} /></CustomButton>
-        </Box>
-        
-      
+            <Button variant="outlined" onClick={logout} sx={{ color: 'gray', borderColor: 'gray' }}>{t('logout')}</Button>
+        </Box> 
           
       {/* Modal para editar usuario */}
       <Modal open={openUserEdit} onClose={handleCloseUserEdit}>

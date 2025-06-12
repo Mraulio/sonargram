@@ -47,7 +47,8 @@ const CustomTextField = styled(TextField)({
 });
 
 function ResultsPage() {
-  const { token } = useContext(UserContext);
+  const { token, user } = useContext(UserContext);
+  console.log("USER CONTEXT:", user.userId);
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const {
     rateItem,
@@ -74,7 +75,10 @@ function ResultsPage() {
   const [artistResults, setArtistResults] = useState([]);
   const [albumResults, setAlbumResults] = useState([]);
   const [songResults, setSongResults] = useState([]);
-
+  //estados listas
+  const [openSongsModal, setOpenSongsModal] = useState(false);
+  const [selectedListSongs, setSelectedListSongs] = useState([]);
+ 
   // Selecciones para cargar info relacionada
   const [selectedArtistAlbums, setSelectedArtistAlbums] = useState([]);
   const [selectedAlbumSongsFromArtist, setSelectedAlbumSongsFromArtist] =
@@ -84,7 +88,7 @@ function ResultsPage() {
   const [open, setOpen] = useState(false); // Estado para controlar el modal
   const [selectedSong, setSelectedSong] = useState(null); //canciones dentro del modal
   const { users, fetchAllUsers, getCurrentUser } = useUser(token);
-  const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, addSong } = useList(token);
+  const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, addSong, fetchListById } = useList(token);
   const [selectedListId, setSelectedListId] = useState("");
   const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
   const { followers, followersCount, followedLists, followL, unfollowList, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
@@ -92,48 +96,64 @@ function ResultsPage() {
   const [error, setError] = useState(null);
   // Resultados generales
   const [searchTerm, setSearchTerm] = useState("");
+
   const handleGeneralSearch = async (term = searchTerm) => {
-    if (!term || !term.trim()) return;
-    try {
-      const [artists, albums, songs] = await Promise.all([
-        searchArtists(term),
-        searchAlbums(term),
-        searchSongs(term),
-      ]);
-      setArtistResults(artists);
-      setAlbumResults(albums);
-      setSongResults(songs);
-      setSelectedArtistAlbums([]);
-      setSelectedAlbumSongs([]);
-      setSelectedAlbumSongsFromArtist([]);
+  if (!term || !term.trim()) return;
+  try {
+    const [artists, albums, songs] = await Promise.all([
+      searchArtists(term).catch(e => { console.error("Error searchArtists", e); return []; }),
+      searchAlbums(term).catch(e => { console.error("Error searchAlbums", e); return []; }),
+      searchSongs(term).catch(e => { console.error("Error searchSongs", e); return []; }),
+    ]);
+    setArtistResults(artists);
+    setAlbumResults(albums);
+    setSongResults(songs);
+    setSelectedArtistAlbums([]);
+    setSelectedAlbumSongs([]);
+    setSelectedAlbumSongsFromArtist([]);
 
-      // Contadores favoritos (puedes mover esto a una función auxiliar si prefieres)
-      const artistCounts = {};
-      const albumCounts = {};
-      const songCounts = {};
+    // Contadores favoritos
+    const artistCounts = {};
+    const albumCounts = {};
+    const songCounts = {};
 
-      await Promise.all([
-        ...artists.map(async (a) => {
+    await Promise.all([
+      ...artists.map(async (a) => {
+        try {
           artistCounts[a.id] = (await getFavoriteCount(a.id)) || 0;
-        }),
-        ...albums.map(async (a) => {
+        } catch (e) {
+          console.error("Error getFavoriteCount artist", a.id, e);
+          artistCounts[a.id] = 0;
+        }
+      }),
+      ...albums.map(async (a) => {
+        try {
           albumCounts[a.id] = (await getFavoriteCount(a.id)) || 0;
-        }),
-        ...songs.map(async (s) => {
+        } catch (e) {
+          console.error("Error getFavoriteCount album", a.id, e);
+          albumCounts[a.id] = 0;
+        }
+      }),
+      ...songs.map(async (s) => {
+        try {
           songCounts[s.id] = (await getFavoriteCount(s.id)) || 0;
-        }),
-      ]);
+        } catch (e) {
+          console.error("Error getFavoriteCount song", s.id, e);
+          songCounts[s.id] = 0;
+        }
+      }),
+    ]);
 
-      setFavoriteCounts({
-        artists: artistCounts,
-        albums: albumCounts,
-        songs: songCounts,
-      });
-    } catch (e) {
-      alert("Error en la búsqueda general");
-      console.error(e);
-    }
-  };
+    setFavoriteCounts({
+      artists: artistCounts,
+      albums: albumCounts,
+      songs: songCounts,
+    });
+  } catch (e) {
+    alert("Error en la búsqueda general");
+    console.error("Error en la búsqueda general:", e);
+  }
+};
 
   // Favoritos contadores
   const [favoriteCounts, setFavoriteCounts] = useState({
@@ -466,52 +486,49 @@ function ResultsPage() {
 useEffect(() => {
   fetchAllLists();
   fetchAllUsers(token);
-}, [fetchAllLists, fetchAllUsers, token]);
+  fetchFollowedLists(user.userId);
+  // eslint-disable-next-line
+}, []);
 
 //funciones para buscar listas
-const handleSearchListByName = useCallback(async (term = searchTerm) => {
-          setLoading(true);
-          setError(null);
-          try {
-            const currentUser = await getCurrentUser(); // Asegúrate de obtener el usuario actual
-            if (!currentUser || !currentUser._id) {
-              alert(t('errorFetchingUserId'));
-              return;
-            }
-            await fetchListsByUser(currentUser._id);
-            await fetchFollowedLists(currentUser._id);
-
-            const filteredLists = lists.filter(list =>
-              list.name.toLowerCase().includes(term.toLowerCase()) &&
-              list.creator._id !== currentUser._id // Filtra las listas que no son del usuario actual
-            );
-
-            setSearchResults(filteredLists);
-            console.log('Filtered lists (excluding user-owned):', filteredLists);
-          } catch (err) {
-            setError(err.message || 'Error fetching lists');
-          } finally {
-            setLoading(false);
-          }
-        }, [lists, searchTerm, getCurrentUser, t]);
+const handleSearchListByName = useCallback((term = searchTerm) => {
+  setLoading(true);
+  setError(null);
+  try {
+    if (!user || !user.userId) {
+      alert(t('errorFetchingUserId'));
+      return;
+    }
+    // Filtra en memoria
+    const filteredLists = lists.filter(list =>
+      list.name.toLowerCase().includes(term.toLowerCase()) &&
+      list.creator._id !== user.userId
+    );
+    setSearchResults(filteredLists);
+    console.log('Filtered lists (excluding user-owned):', filteredLists);
+    console.log("followedLists:", followedLists);
+    console.log("searchResults:", searchResults);
+  } catch (err) {
+    setError(err.message || 'Error fetching lists');
+  } finally {
+    setLoading(false);
+  }
+}, [lists, searchTerm, t, user]);
 
 const handlefollowList = async (listId) => {
-              try {
-                console.log('List followed successfully:', listId);
-                await followL(listId);
-                
-                const currentUser= await getCurrentUser();
-                await fetchFollowedLists(currentUser._id);
-                alert(t('listFollowed')); // Muestra un mensaje de éxito
-              } catch (err) {
-                console.error('Error following list:', err);
-                alert(t('errorFollowingList')); // Muestra un mensaje de error
-              }
-            }
+  try {
+    await followL(listId);
+    if (!user || !user.userId) return;
+    await fetchFollowedLists(user.userId); // <-- Esto refresca el estado
+    alert(t('listFollowed'));
+  } catch (err) {
+    console.error('Error following list:', err);
+    alert(t('errorFollowingList'));
+  }
+};
 
 const handleOpenListModal = async (song) => {
-    const user = await getCurrentUser();
-    await fetchListsByUser(user._id);
+    await fetchListsByUser(user.userId);
     setSelectedSong(song); // Guarda el id de la canción
     setOpen(true);
   };
@@ -531,14 +548,36 @@ const handleOpenListModal = async (song) => {
     console.error(err);
   }
 };
+
+const handleOpenSongsModal = async (list) => {
+  let songs = list.songs;
+  // Si las canciones no tienen título, intenta obtenerlas (si tienes fetchListById, úsala aquí)
+  if (!songs.length || !songs[0].title) {
+    // Si tienes fetchListById, úsala aquí. Si no, busca en lists:
+    const found = lists.find(l => l._id === list._id);
+    songs = found && found.songs ? found.songs : [];
+  }
+  setSelectedListSongs(songs);
+  setSelectedListId(list._id);
+  setOpenSongsModal(true);
+};
+
+const fetchListWithSongs = async (listId) => {
+        try {
+          const list = await fetchListById(listId);
+          return list && list.songs ? list.songs : [];
+        } catch (err) {
+          console.error('Error fetching list songs:', err);
+          return [];
+        }
+      };
 //funciones para buscar usuarios 
 const handleSearchUser = async (term = searchTerm) => {
     try {
-      const user = await getCurrentUser();
-      await fetchFollowing(user._id);
+      await fetchFollowing(user.userId);
       if (users.length > 0) {
       const filtered = users
-        .filter(u => u._id !== user._id)
+        .filter(u => u._id !== user.userId)
         .filter(u => u.username.toLowerCase().includes(term.toLowerCase()));
          
         setSearches(filtered);
@@ -552,11 +591,11 @@ const handleSearchUser = async (term = searchTerm) => {
   const isFollowing = useCallback((userId) => {
     return following.some(f => f.followed && f.followed._id === userId);
   }, [following]);
+
   const handleFollow = async (followedId) => {
     try {
       await follow(followedId); // Llama a la función follow
-      const user = await getCurrentUser()
-      await fetchFollowing(user._id);
+      await fetchFollowing(user.userId);
       alert(t('userFollowed')); // Muestra un mensaje de éxito
     } catch (err) {
       console.error('Error following user:', err);
@@ -565,21 +604,8 @@ const handleSearchUser = async (term = searchTerm) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Menu2/>
-      <Box sx={{display: 'flex', width: '50vw'}}>  
-        <CustomTextField
-          fullWidth
-          label="Buscar artistas, álbumes o canciones"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleGeneralSearch()}
-          margin="normal"
-        />
-        <Button onClick={() => { handleGeneralSearch(); handleSearchListByName(); }}><FontAwesomeIcon style={{fontSize: 24, color: '#3e4a4c'}} icon={faMagnifyingGlass} />
-        </Button>
-      </Box>
-
       <Box
         sx={{
           display: "flex",
@@ -720,36 +746,54 @@ const handleSearchUser = async (term = searchTerm) => {
         {/* COLUMNA LISTAS */}
           <Box sx={{ display: "flex", flexDirection:'column', gap: 2 }}>
             {searchResults.length > 0 && (
-                <>
-                <Typography>Listas</Typography>
-                {searchResults.map(l => (
-                    <Card key={l._id} sx={{ width: "80%", mb: 2,  }}>
-                    <CardContent>
-                        <Typography variant="h5" sx={{ mb: 1 }}>{l.name}</Typography>
-                        <Divider/>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        {t('songs')}: {l.songs.join(', ')}
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="body2" color="text.secondary">
-                            {t('creator')}: {l.creator.name || t('unknown')}
-                        </Typography>
-                        {followedLists.some(followed => followed._id === l._id) ? (
-                            <Typography color="success.main">{t('following')}</Typography>
-                        ) : (
-                            <Button onClick={() => handlefollowList(l._id)} color="error">{t('follow')}</Button>
-                        )}
-                        </Box>
-                    </CardContent>
-                    </Card>
-                ))}
-                </>
-            )}
+              <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                {t('foundLists')}
+              </Typography>)}
+            {searchResults.map(l => (
+              <Card key={l._id} sx={{ width: "45%", mb: 2 }}>
+                <CardContent>
+                  <Typography
+                    variant="h5"
+                    sx={{ mb: 1, cursor: 'pointer', textDecoration: 'underline' }}
+                    onClick={async () => {
+                      let songs = l.songs;
+                      // Si las canciones no tienen título, haz fetch de la lista completa
+                      if (!songs.length || !songs[0].title) {
+                        songs = await fetchListWithSongs(l._id);
+                      }
+                      setSelectedListSongs(songs);
+                      setSelectedListId(l._id);
+                      setOpenSongsModal(true);
+                    }}
+                  >
+                    {l.name}
+                  </Typography>
+                  <Divider/>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('creator')}: {l.creator.name || t('unknown')}
+                    </Typography>
+                    {followedLists.some(followed => String(followed._id) === String(l._id)) ? (
+                      <Typography color="success.main">{t('following')}</Typography>
+                    ) : (
+                      <Button onClick={() => handlefollowList(l._id)} color="error">
+                        {t('follow')}
+                      </Button>
+                    )}
+                  </Box>
+                </CardContent>
+              </Card>
+            ))}
             </Box>
             {/* COLUMNA Usuarios */}
-            <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'center', alignItems:'center', gap: 2, width:'100%'}} >
+            <Box sx={{ display: "flex", flexDirection:'column', gap: 2}} >
+              {searches.length > 0 && (
+              <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                {t('foundUsers')}
+              </Typography>
+            )}
               {searches.map(user => (
-                <Card key={user._id} sx={{ width: 400, display: 'flex', alignItems: 'center', p: 2, mb: 2 }}>
+                <Card key={user._id} sx={{ width: '45%', display: 'flex', alignItems: 'center', p: 2, mb: 2 }}>
                   <Avatar
                     src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png'}
                     alt={user.name}
@@ -771,11 +815,46 @@ const handleSearchUser = async (term = searchTerm) => {
                     </Typography>
                     <Typography variant="body2" color="text.secondary">{user.email}</Typography>
                     <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>
+                    {/* Botón Follow/Following */}
+                    {isFollowing(user._id) ? (
+                      <Typography color="success.main">{t('following')}</Typography>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleFollow(user._id)}
+                        sx={{ mt: 1 }}
+                      >
+                        {t('follow')}
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               ))}
             </Box>
       </Box>
+      <Dialog open={openSongsModal} onClose={() => setOpenSongsModal(false)}>
+        <DialogTitle>{t('songs')}</DialogTitle>
+        <DialogContent>
+          <ul>
+            {selectedListSongs.length === 0 && (
+              <Typography variant="body2" color="text.secondary">{t('noSongs')}</Typography>
+            )}
+            {selectedListSongs.map((song, index) => (
+              <li key={index}>
+                {song.title
+                  ? `${song.title} - ${song.artistName || ''}`
+                  : song.musicbrainzId || song._id || t('noTitle')}
+              </li>
+            ))}
+          </ul>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenSongsModal(false)} color="primary">
+            {t('close') || 'Cerrar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

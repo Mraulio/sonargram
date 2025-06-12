@@ -199,10 +199,10 @@ function UserPage() {
 
 
  return (
-  <Box style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center' }}>
+  <Box style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center',  }}>
     <Menu2 />
-    <Box sx={{ display: 'flex', flexDirection:'column', height: '100vh', alignItems:'center'}}>
-      <Box sx={{ display: 'flex', flexDirection:'column', width: '50vw', marginBottom: '50px'}}>
+    <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh'}}>
+      <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center', width: '50vw', marginBottom: '50px'}}>
         <Typography variant="h5" gutterBottom>
           {t('dataUser')}
         </Typography>
@@ -239,12 +239,14 @@ function UserPage() {
         {t('deleteProfilePic')}
         </Button>
         <TextField
+          fullWidth
           label={t('name')}
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
           margin="normal"
         />
         <TextField
+          fullWidth
           label={t('bio')} // Etiqueta traducida para la biografía
           value={userBio} // Estado para la biografía
           onChange={(e) => setUserBio(e.target.value)} // Actualiza el estado de la biografía

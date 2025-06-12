@@ -53,7 +53,7 @@ function UserResult() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <Menu2 />
-      <Box sx={{ height:'100vh' }}>
+      <Box sx={{ minHeight:'100vh' }}>
         <Typography variant="h5" gutterBottom>
           {t('publicProfile')}
         </Typography>

@@ -90,27 +90,14 @@ function Dashboard() {
   return (
     <Box sx={{width:'100vw', display: 'flex', flexDirection:'column'}}>
       <Menu2/>
-      <Box sx={{ display: 'flex', justifyContent:'space-between', mr: 5, alignItems:'start', width:'100%', gap: 5 }}>
-        <Box sx={{width:'20%', height: '100vh', paddingLeft:2, borderRight: '2px solid' }}>
-
-          <Typography variant="h6" fontWeight={600}>
-            {t('welcome')} {userUsername}!!    
-          </Typography>
-          
-          <MyLists/>
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection:'column'}}>  
-          <Box>
-            <Timeline/>
-              
-          </Box>
-        </Box>     
-        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', width:'40%' }}>    
-          <TopRatingsList limit={5} title="Top 5 por Rating" />        
-          <TopFavoritosList limit={5}/>        
-      </Box>  
+      <Box sx={{ display: 'flex',  mr: 5, width:'100%', gap: 5 }}>
+      <Box sx={{width:'30%', height: '100vh', paddingLeft:2, borderRight: '2px solid' }}>  
+        <MyLists/>
       </Box>
-   
+      <Box sx={{ display: 'flex', flexDirection:'column', height: '100vh', overflowY: 'auto', flex: 1 }}>  
+        <Timeline/>
+      </Box>     
+    </Box>
     </Box>
   );
 }

@@ -12,6 +12,7 @@ import { searchArtists, searchAlbums, searchSongs, getAlbumsByArtist, getSongsBy
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
+
 function MyLists() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
     const { token, role, logout, user } = useContext(UserContext);
@@ -32,6 +33,8 @@ function MyLists() {
     const [searchTermSong, setSearchTermSong] = useState("");
     const [songResults, setSongResults] = useState([]);
     const [selectedListId, setSelectedListId] = useState(null);
+    const [creatorNames, setCreatorNames] = useState({});
+ const { getUserById } = useUser(token);
     const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } = useFavorites(token);
     const [favoriteCounts, setFavoriteCounts] = useState({
         artists: {},
@@ -209,13 +212,22 @@ function MyLists() {
           console.error(err);
         }
       };
-
+      
+      const handleGetCreatorName = async (creatorId) => {
+        if (!creatorId || creatorNames[creatorId]) return;
+        const user = await getUserById(creatorId);
+        if (user && user.name) {
+          setCreatorNames(prev => ({ ...prev, [creatorId]: user.name }));
+        }
+      };
 return (
   <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', gap: 3 }}>
     <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
-    {userLists.map(l => (
-      <li key={l._id}>
+    {userLists.map(l => {
+      handleGetCreatorName(l.creator);
+      return (
+    <li key={l._id}>
         <Typography
           variant="h6"
           sx={{ mb: 1, cursor: 'pointer' }}
@@ -233,7 +245,7 @@ return (
           {l.name !== "Favoritos" && (
           <>
           <Typography variant="body2" color="text.secondary">
-            {t('Creador de la lista')}: {l.creator.name || t('unknown')}
+            {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
           </Typography>
             <Button
               variant="outlined"
@@ -250,40 +262,44 @@ return (
         )}
         </Box>
         <Divider/>
-      </li>
-    ))}
+       </li>
+      );
+    })}
     </ul>
     <Typography variant="h6" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
-<ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
-  {followedLists.map(l => (
-    <li key={l._id}>
-      <Typography
-        variant="h6"
-        sx={{ mb: 1, cursor: 'pointer' }}
-        onClick={async () => {
-          let songs = l.songs;
-          if (!songs.length || !songs[0].title) {
-            songs = await fetchListWithSongs(l._id);
-          }
-          setSelectedListSongs(songs);
-          setSelectedListId(l._id);
-          setOpenSongsModal(true);
-        }}
-      >
-        {l.name}
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="body2" color="text.secondary">
-          {t('Creador de la lista')}: {l.creator.name || t('unknown')}
-        </Typography>
-        <Button onClick={() => handleUnfollowList(l._id)} color="error">
-          {t('unfollow')}
-        </Button>
-        <Divider/>
-      </Box>
-    </li>
-  ))}
-</ul>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
+        {followedLists.map(l => {
+          handleGetCreatorName(l.creator);
+          return (
+            <li key={l._id}>
+              <Typography
+                variant="h6"
+                sx={{ mb: 1, cursor: 'pointer' }}
+                onClick={async () => {
+                  let songs = l.songs;
+                  if (!songs.length || !songs[0].title) {
+                    songs = await fetchListWithSongs(l._id);
+                  }
+                  setSelectedListSongs(songs);
+                  setSelectedListId(l._id);
+                  setOpenSongsModal(true);
+                }}
+              >
+                {l.name}
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
+                </Typography>
+                <Button onClick={() => handleUnfollowList(l._id)} color="error">
+                  {t('unfollow')}
+                </Button>
+                <Divider />
+              </Box>
+            </li>
+          );
+        })}
+      </ul>
     {/* Modal para mostrar canciones de la lista */}
     <Dialog open={openSongsModal} onClose={() => setOpenSongsModal(false)}>
   <DialogTitle>{t('songs')}</DialogTitle>
