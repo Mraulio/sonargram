@@ -62,6 +62,7 @@ export default function useRatings(token) {
   }, [token]);
 
   const rateItem = async (mbid, type, rating, title, artistName, coverUrl, releaseDate, duration) => {
+    console.log("Rate item:", mbid, type, rating, title, artistName, coverUrl, releaseDate, duration);
     try {
       const response = await api.rateItem(mbid, type, rating,title, artistName, coverUrl, releaseDate, duration, token);
       const updated = response.rating;

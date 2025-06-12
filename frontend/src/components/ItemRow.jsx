@@ -23,7 +23,6 @@ const ItemRow = ({
   favoriteCounts = {},
   isFavorite,
   onToggleFavorite,
-  showAddButton = false,
   onAddClick,
   onClickItem,
   highlightColor,
@@ -96,7 +95,7 @@ const ItemRow = ({
       </Typography>
 
       <RatingDisplay
-        mbid={item.id}
+        mbid={item.id || item.musicbrainzId}
         type={type}
         getItemStats={ratingProps.getItemStats}
         getRatingFor={ratingProps.getRatingFor}
@@ -109,7 +108,7 @@ const ItemRow = ({
         duration={item.duration}
       />
 
-      {showAddButton && (
+      {type === "song" && (
         <IconButton
           onClick={() => onAddClick(item)}
           size="small"
@@ -120,8 +119,8 @@ const ItemRow = ({
         </IconButton>
       )}
 
-      <IconButton
-        onClick={() => onToggleFavorite(item.id, type)}
+      <IconButton 
+        onClick={() => onToggleFavorite(item.id || item.musicbrainzId, type, item)}
         color={isFavorite(item.id) ? "error" : "default"}
         size="small"
       >

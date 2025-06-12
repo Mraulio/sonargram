@@ -54,12 +54,16 @@ const ItemList = ({
   const handleAddToList = async (list) => {
     if (!selectedSong) return;
     setAdding(true);
+
+      // Mapeo seguro con fallback de nombres alternativos
+  const id = selectedSong.id || selectedSong.musicbrainzId;
+  const artist = selectedSong.artist || selectedSong.artistName;
     try {
       await addSong(
         list._id,
-        selectedSong.id,
+        id,
         selectedSong.title,
-        selectedSong.artist,
+        artist,
         selectedSong.coverUrl,
         selectedSong.releaseDate,
         selectedSong.duration
@@ -84,7 +88,6 @@ const ItemList = ({
               isFavorite={isFavorite}
               onToggleFavorite={onToggleFavorite}
               favoriteCounts={favoriteCounts}
-              showAddButton={type === "song"}
               onAddClick={handleAddClick}
               highlightColor={highlightColor}
               onClickItem={onClickItem}
