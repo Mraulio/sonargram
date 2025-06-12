@@ -11,6 +11,8 @@ import useListFollowers from '../hooks/useListFollowers';
 import { searchArtists, searchAlbums, searchSongs, getAlbumsByArtist, getSongsByRelease, getReleasesByReleaseGroup } from "../api/external/apiMB";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import InfoModal from '../components/InfoModal';
+import useRatings from '../hooks/useRatings';
 
 
 function MyLists() {
@@ -34,7 +36,11 @@ function MyLists() {
     const [songResults, setSongResults] = useState([]);
     const [selectedListId, setSelectedListId] = useState(null);
     const [creatorNames, setCreatorNames] = useState({});
- const { getUserById } = useUser(token);
+    const [infoModalOpen, setInfoModalOpen] = useState(false);
+    const [modalData, setModalData] = useState({ type: '', data: null });
+    const favoriteProps = useFavorites(token);
+    const ratingProps = useRatings(token);
+    const { getUserById } = useUser(token);
     const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } = useFavorites(token);
     const [favoriteCounts, setFavoriteCounts] = useState({
         artists: {},
@@ -220,6 +226,39 @@ function MyLists() {
           setCreatorNames(prev => ({ ...prev, [creatorId]: user.name }));
         }
       };
+
+  const updateFavoriteCount = async (id) => {
+  try {
+    const count = await favoriteProps.getFavoriteCount(id);
+    setFavoriteCounts(prev => ({ ...prev, [id]: count }));
+  } catch (err) {
+    console.error("Error updating favorite count", err);
+  }
+};
+
+const handleFavoriteToggle = async (id, type, item) => {
+  if (favoriteProps.isFavorite(id)) {
+    await favoriteProps.removeFavorite(id);
+    setFavoriteCounts(prev => ({
+      ...prev,
+      [id]: Math.max((prev[id] || 1) - 1, 0)
+    }));
+  } else {
+    await favoriteProps.addFavorite(
+      id,
+      type,
+      item?.title || item?.name || "",
+      item?.artist || item?.artistName || "",
+      item?.coverUrl || "",
+      item?.releaseDate || "",
+      item?.duration || ""
+    );
+    setFavoriteCounts(prev => ({
+      ...prev,
+      [id]: (prev[id] || 0) + 1
+    }));
+  }
+};
 return (
   <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', gap: 3 }}>
     <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
@@ -275,14 +314,9 @@ return (
               <Typography
                 variant="h6"
                 sx={{ mb: 1, cursor: 'pointer' }}
-                onClick={async () => {
-                  let songs = l.songs;
-                  if (!songs.length || !songs[0].title) {
-                    songs = await fetchListWithSongs(l._id);
-                  }
-                  setSelectedListSongs(songs);
-                  setSelectedListId(l._id);
-                  setOpenSongsModal(true);
+                onClick={() => {
+                  setModalData({ type: 'list', data: l });
+                  setInfoModalOpen(true);
                 }}
               >
                 {l.name}
@@ -355,6 +389,19 @@ return (
         </Button>
       </DialogActions>
     </Dialog>
+    <InfoModal
+      open={infoModalOpen}
+      onClose={() => setInfoModalOpen(false)}
+      type={modalData.type}
+      data={modalData.data}
+      ratingProps={ratingProps}
+      favoriteProps={{
+        ...favoriteProps,
+        favoriteCounts,
+        setFavoriteCounts,
+        handleFavoriteToggle,
+      }}
+    />
   </Box>
 );
           }

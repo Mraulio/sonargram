@@ -19,6 +19,9 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Menu2 from '../components/Menu2'
 import { Link } from 'react-router-dom'; // Asegúrate de importar Link
+import InfoModal from '../components/InfoModal';
+
+
 
 const CustomTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
@@ -78,7 +81,11 @@ function ResultsPage() {
   //estados listas
   const [openSongsModal, setOpenSongsModal] = useState(false);
   const [selectedListSongs, setSelectedListSongs] = useState([]);
- 
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({ type: '', data: null });
+  const favoriteProps = useFavorites(token);
+  const ratingProps = useRatings(token);
+
   // Selecciones para cargar info relacionada
   const [selectedArtistAlbums, setSelectedArtistAlbums] = useState([]);
   const [selectedAlbumSongsFromArtist, setSelectedAlbumSongsFromArtist] =
@@ -161,6 +168,7 @@ function ResultsPage() {
     albums: {},
     songs: {},
   });
+  
 
   // Funciones de búsqueda y carga datos
   useEffect(() => {
@@ -301,7 +309,7 @@ function ResultsPage() {
   };
 
   // Toggle favorito para cualquier tipo
-  const handleFavoriteToggle = async (id, type) => {
+  const handleFavoriteToggleResult = async (id, type) => {
     try {
       if (isFavorite(id)) {
         await removeFavorite(id);
@@ -448,7 +456,7 @@ function ResultsPage() {
           />
 
           <IconButton
-            onClick={() => handleFavoriteToggle(item.id, type)}
+            onClick={() => handleFavoriteToggleResult(item.id, type)}
             color={isFavorite(item.id) ? "error" : "default"}
             size="small"
           >
@@ -571,6 +579,44 @@ const fetchListWithSongs = async (listId) => {
           return [];
         }
       };
+  const updateFavoriteCount = async (id) => {
+  try {
+    const count = await favoriteProps.getFavoriteCount(id);
+    setFavoriteCounts(prev => ({ ...prev, [id]: count }));
+  } catch (err) {
+    console.error("Error updating favorite count", err);
+  }
+};
+const [favoriteCountSongList, setFavoriteCountSongList] = useState({});
+const closeDetail = () => {
+        setInfoModalOpen(false);
+      };
+
+const handleFavoriteToggle = async (id, type, item) => {
+  if (favoriteProps.isFavorite(id)) {
+    await favoriteProps.removeFavorite(id);
+    setFavoriteCounts(prev => ({
+      ...prev,
+      [id]: Math.max((prev[id] || 1) - 1, 0)
+    }));
+  } else {
+    await favoriteProps.addFavorite(
+      id,
+      type,
+      item?.title || item?.name || "",
+      item?.artist || item?.artistName || "",
+      item?.coverUrl || "",
+      item?.releaseDate || "",
+      item?.duration || ""
+    );
+    setFavoriteCounts(prev => ({
+      ...prev,
+      [id]: (prev[id] || 0) + 1
+    }));
+  }
+};
+
+
 //funciones para buscar usuarios 
 const handleSearchUser = async (term = searchTerm) => {
     try {
@@ -753,17 +799,11 @@ const handleSearchUser = async (term = searchTerm) => {
               <Card key={l._id} sx={{ width: "45%", mb: 2 }}>
                 <CardContent>
                   <Typography
-                    variant="h5"
-                    sx={{ mb: 1, cursor: 'pointer', textDecoration: 'underline' }}
-                    onClick={async () => {
-                      let songs = l.songs;
-                      // Si las canciones no tienen título, haz fetch de la lista completa
-                      if (!songs.length || !songs[0].title) {
-                        songs = await fetchListWithSongs(l._id);
-                      }
-                      setSelectedListSongs(songs);
-                      setSelectedListId(l._id);
-                      setOpenSongsModal(true);
+                    variant="h6"
+                    sx={{ mb: 1, cursor: 'pointer' }}
+                    onClick={() => {
+                      setModalData({ type: 'list', data: l });
+                      setInfoModalOpen(true);
                     }}
                   >
                     {l.name}
@@ -855,6 +895,20 @@ const handleSearchUser = async (term = searchTerm) => {
           </Button>
         </DialogActions>
       </Dialog>
+     <InfoModal
+                open={infoModalOpen}
+                onClose={closeDetail}
+                type={modalData.type}
+                data={modalData.data}
+                ratingProps={ratingProps}
+                favoriteProps={{
+                  ...favoriteProps,
+                  favoriteCounts,
+                  setFavoriteCounts,
+                  handleFavoriteToggle,
+                }}
+              />
+           
     </Box>
   );
 }

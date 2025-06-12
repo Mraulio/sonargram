@@ -11,6 +11,10 @@ import useListFollowers from '../hooks/useListFollowers';
 import { searchArtists, searchAlbums, searchSongs, getAlbumsByArtist, getSongsByRelease, getReleasesByReleaseGroup } from "../api/external/apiMB";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import InfoModal from '../components/InfoModal';
+import useRatings from '../hooks/useRatings';
+
+
 
 function ListPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -28,13 +32,19 @@ function ListPage() {
     const [error, setError] = useState(null);
     const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
     const [ followLists, setFollowLists ] = useState('');
-    const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong, fetchListById } = useList(token);
+    const { lists, userLists, addSong, setUserLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong, fetchListById } = useList(token);
     const { followers, followersCount, followedLists, followL, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
     const [searchTermSong, setSearchTermSong] = useState("");
     const [songResults, setSongResults] = useState([]);
     const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } = useFavorites(token);
     const { getUserById } = useUser(token);
     const [creatorNames, setCreatorNames] = useState({});
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalData, setModalData] = useState({ type: '', data: null });
+    const ratingProps = useRatings(token);
+    const favoriteProps = useFavorites(token);
+    const [selectedList, setSelectedList] = useState(null);
+    const [infoModalOpen, setInfoModalOpen] = useState(false);
     const [favoriteCounts, setFavoriteCounts] = useState({
         artists: {},
         albums: {},
@@ -199,6 +209,9 @@ function ListPage() {
           await removeSong(listId, musicbrainzId);
           alert('Canción eliminada correctamente de la lista');
           if (!user || !user.userId) return;
+          setSelectedListSongs(prevSongs =>
+      prevSongs.filter(song => song.musicbrainzId !== musicbrainzId)
+    );
           await fetchListsByUser(user.userId);
         } catch (err) {
           alert('Error al eliminar la canción de la lista');
@@ -224,6 +237,54 @@ function ListPage() {
         }
       };
 
+      const closeDetail = () => {
+        setInfoModalOpen(false);
+      };
+
+      const favoritePropsFallback = {
+        favoriteCounts: {},
+        isFavorite: () => false,
+        handleFavoriteToggle: () => {},
+        setFavoriteCounts: () => {},
+        getFavoriteCount: () => 0,
+        addFavorite: () => {},
+        removeFavorite: () => {},
+      };
+
+      const updateFavoriteCount = async (id) => {
+      try {
+        const count = await favoriteProps.getFavoriteCount(id);
+        setFavoriteCounts(prev => ({ ...prev, [id]: count }));
+      } catch (err) {
+        console.error("Error updating favorite count", err);
+      }
+    };
+    const handleFavoriteToggle = async (id, type, item) => {
+      if (favoriteProps.isFavorite(id)) {
+        await favoriteProps.removeFavorite(id);
+        setFavoriteCounts(prev => ({
+          ...prev,
+          [id]: Math.max((prev[id] || 1) - 1, 0)
+        }));
+      } else {
+        await favoriteProps.addFavorite(
+          id,
+          type,
+          item?.title || item?.name || "",
+          item?.artist || item?.artistName || "",
+          item?.coverUrl || "",
+          item?.releaseDate || "",
+          item?.duration || ""
+        );
+        setFavoriteCounts(prev => ({
+          ...prev,
+          [id]: (prev[id] || 0) + 1
+        }));
+      }
+    };
+
+
+
  return (
   <Box sx={{ display: 'flex', flexDirection: 'column', width: "100vw", minHeight:'100vh' }}>
     <Menu2 /> 
@@ -243,35 +304,40 @@ function ListPage() {
                 <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
                   <CardContent>
                     <Typography
-                      variant="h5"
-                      sx={{ mb: 1, cursor: 'pointer' }}
-                      onClick={() => {
-                        setSelectedListSongs(l.songs);
-                        setSelectedListId(l._id); // <-- Añade esto
-                        setOpenSongsModal(true);
-                      }}
-                    >
-                      {l.name}
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                       <Typography variant="body2" color="text.secondary">
-                        {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
+                        variant="h6"
+                        sx={{ mb: 1, cursor: 'pointer' }}
+                        onClick={() => {
+                          if (Array.isArray(l.songs)) {
+                            setSelectedListSongs(l.songs);
+                            setSelectedListId(l._id);
+                            setOpenSongsModal(true);
+                          } else {
+                            alert(t('Esta lista no tiene canciones para mostrar.'));
+                          }
+                        }}
+                      >
+                        {l.name}
                       </Typography>
+                      <Divider/>
+                   {l.name !== "Favoritos" && (
+                    <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
                       <Button
                         variant="outlined"
                         color="warning"
                         size="small"
-                       onClick={() => {
-                          setSelectedListSongs(l.songs);
-                          setSelectedListId(l._id);
-                          setOpenSongsModal(true);
-                        }}
-                        sx={{ ml: 2 }}
+                        onClick={() => handleOpenListModal(l)}
                       >
                         {t('edit')}
                       </Button>
-                      <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}</Button>
+                      <Button
+                        onClick={() => handleDeleteList(l._id)}
+                        color="error"
+                        variant="contained"
+                      >
+                        {t('delete')}
+                      </Button>
                     </Box>
+                  )}
                 </CardContent>
                </Card>
                 );
@@ -288,21 +354,15 @@ function ListPage() {
                 <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
                 <CardContent>
                   <Typography
-                    variant="h5"
-                    sx={{ mb: 1, cursor: 'pointer', textDecoration: 'underline' }}
-                    onClick={async () => {
-                      let songs = l.songs;
-                      // Si las canciones no tienen título, haz fetch de la lista completa
-                      if (!songs.length || !songs[0].title) {
-                        songs = await fetchListWithSongs(l._id);
-                      }
-                      setSelectedListSongs(songs);
-                      setSelectedListId(l._id);
-                      setOpenSongsModal(true);
-                    }}
-                  >
-                    {l.name}
-                  </Typography>
+                      variant="h6"
+                      sx={{ mb: 1, cursor: 'pointer', textDecoration: 'underline' }}
+                      onClick={() => {
+                        setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
+                        setInfoModalOpen(true);
+                      }}
+                      >
+                      {l.name}
+                    </Typography>
                   <Divider sx={{ my: 1 }} />              
                   <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
@@ -315,53 +375,7 @@ function ListPage() {
               );
             })}
           </Box>
-        </Box>
-                
-                
-            {searchResults.length > 0 && (
-              <Box sx={{ p: 4, display: 'flex', width: '95vw',justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                <Typography variant="h6" sx={{ mt: 2 }}>{t('searchResults')}</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center' }}>
-                  <Card sx={{ width: '48%', height: '300px'}}>
-                  <CardContent>
-                      <Typography variant="h5" gutterBottom>{t('showList')}</Typography>
-                      <TextField
-                          fullWidth
-                          label={t('searchListName')}
-                          value={searchListName}
-                          onChange={e => setSearchListName(e.target.value)}
-                          margin="normal"
-                      />
-                      <Button variant="contained" onClick={handleSearchListByName} sx={{ mt: 2 }}>
-                          {t('searchListButton')}
-                      </Button>
-                  </CardContent>  
-                </Card>  
-                  {searchResults.map(l => (
-                    <Card key={l._id} sx={{ width: '45%', height: '300px' }}>
-                      <CardContent>
-                        <Typography variant="h6" sx={{ mb: 1 }}>{l.name}</Typography>
-                        <Divider sx={{ my: 1 }} />
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                          {t('Canciones')}: {l.songs.join(', ')}
-                        </Typography>
-                        <Box sx={{  display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography variant="body2" color="text.secondary">
-                            {t('Creador de la lista')}: {l.creator.name || t('unknown')}
-                          </Typography>
-                          {followedLists.some(followed => followed._id === l._id) ? (
-                            <Typography color="success.main">{t('following')}</Typography>
-                          ) : (
-                            <Button onClick={() => handlefollowList(l._id)} color="error">{t('follow')}</Button>
-                          )}
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  ))}
-
-                </Box>
-              </Box>
-              )}
+        </Box>      
               <Box sx={{ p: 4, display: 'flex', width: '95vw', flexDirection: 'column'}}>
                 <Typography variant="h6" sx={{ mb: 2 }}>{t('allLists')}</Typography>              
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
@@ -372,17 +386,11 @@ function ListPage() {
                         <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
                           <CardContent>
                             <Typography
-                              variant="h5"
+                              variant="h6"
                               sx={{ mb: 1, cursor: 'pointer', textDecoration: 'underline' }}
-                              onClick={async () => {
-                                let songs = l.songs;
-                                // Si las canciones no tienen título, haz fetch de la lista completa
-                                if (!songs.length || !songs[0].title) {
-                                  songs = await fetchListWithSongs(l._id);
-                                }
-                                setSelectedListSongs(songs);
-                                setSelectedListId(l._id);
-                                setOpenSongsModal(true);
+                              onClick={() => {
+                                setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
+                                setInfoModalOpen(true);
                               }}
                             >
                               {l.name}
@@ -448,17 +456,18 @@ function ListPage() {
                       <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         {song.title} - {song.artistName}
                         {/* Solo muestra el botón X si la lista es del usuario */}
-                        {userLists.some(list => list._id === selectedListId) && (
+                      {userLists.some(list => list._id === selectedListId) &&
+                        userLists.find(list => list._id === selectedListId)?.name !== "Favoritos" && (
                           <Button
                             size="small"
                             color="error"
-                            variant="contained"
+                          
                             sx={{ ml: 1 }}
                             onClick={() => handleDeleteSongList(selectedListId, song.musicbrainzId)}
                           >
                             X
                           </Button>
-                        )}
+                      )}
                       </li>
                     ))}
                   </ul>
@@ -467,6 +476,19 @@ function ListPage() {
                   <Button onClick={() => setOpenSongsModal(false)} color="primary">{t('close') || 'Cerrar'}</Button>
                 </DialogActions>
               </Dialog>
+              <InfoModal
+                open={infoModalOpen}
+                onClose={closeDetail}
+                type={modalData.type}
+                data={modalData.data}
+                ratingProps={ratingProps}
+                favoriteProps={{
+                  ...favoriteProps,
+                  favoriteCounts,
+                  setFavoriteCounts,
+                  handleFavoriteToggle,
+                }}
+              />
             </Box>
 
             );
