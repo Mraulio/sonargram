@@ -95,7 +95,7 @@ const ItemRow = ({
       </Typography>
 
       <RatingDisplay
-        mbid={item.id}
+        mbid={item.id || item.musicbrainzId}
         type={type}
         getItemStats={ratingProps.getItemStats}
         getRatingFor={ratingProps.getRatingFor}

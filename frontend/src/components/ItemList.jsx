@@ -41,7 +41,6 @@ const ItemList = ({
 
   const handleAddClick = (song) => {
     setSelectedSong(song);
-    console.log('Selected song:', song);
     setMessage("");
     setModalOpen(true);
   };
