@@ -12,6 +12,8 @@ import Timeline from '../components/Timeline'
 import MyLists from '../components/MyLists'
 import FooterBar from '../components/Footer'
 import { useNavigate } from 'react-router-dom';
+import useFavorites from '../hooks/useFavorites';
+import useList from '../hooks/useList';
 
 const MenuBox= styled(Box)`
  margin-left: 15px;
@@ -39,6 +41,15 @@ function Dashboard() {
   const { users, fetchAllUsers, getCurrentUser } = useUser(token);
   const [searches, setSearches] = useState([]);
    
+
+  // Estados centrales para favoritos y listas
+  const favoriteProps = useFavorites(token);
+  const listProps = useList(token);
+
+  const [favoriteCounts, setFavoriteCounts] = useState({});
+  const [userLists, setUserLists] = useState([]);
+
+
   useEffect(() => {
     fetchAllUsers(token);
     handleCurrentUser();
@@ -50,6 +61,26 @@ function Dashboard() {
       setUserUsername(user.name);
     } catch (err) {
       setError(err.message || 'Error fetching users');
+    }
+  };
+  // Refrescar listas del usuario y actualizar estado
+  const refreshLists = async (userId = user?.userId) => {
+    if (!userId) return;
+    try {
+      const lists = await listProps.fetchListsByUser(userId);
+      setUserLists(lists || []);
+    } catch (err) {
+      console.error("Error fetching user lists", err);
+    }
+  };
+
+  // Función para actualizar el contador de favoritos de un id dado
+  const updateFavoriteCount = async (id) => {
+    try {
+      const count = await favoriteProps.getFavoriteCount(id);
+      setFavoriteCounts(prev => ({ ...prev, [id]: count }));
+    } catch (err) {
+      console.error("Error updating favorite count", err);
     }
   };
 
@@ -97,12 +128,18 @@ function Dashboard() {
             {t('welcome')} {userUsername}!!    
           </Typography>
           
-          <MyLists/>
-        </Box>
+<MyLists
+            userLists={userLists}
+            refreshLists={refreshLists}
+            favoriteProps={{ ...favoriteProps, favoriteCounts, updateFavoriteCount }}
+          />        </Box>
         <Box sx={{ display: 'flex', flexDirection:'column'}}>  
           <Box>
-            <Timeline/>
-              
+<Timeline
+            favoriteProps={{ ...favoriteProps, favoriteCounts, updateFavoriteCount }}
+            userLists={userLists}
+            refreshLists={refreshLists}
+          />              
           </Box>
         </Box>     
         <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', width:'40%' }}>    
