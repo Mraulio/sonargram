@@ -119,8 +119,8 @@ const ItemRow = ({
         </IconButton>
       )}
 
-      <IconButton
-        onClick={() => onToggleFavorite(item.id, type)}
+      <IconButton 
+        onClick={() => onToggleFavorite(item.id || item.musicbrainzId, type, item)}
         color={isFavorite(item.id) ? "error" : "default"}
         size="small"
       >
