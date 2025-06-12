@@ -90,6 +90,7 @@ const Timeline = () => {
               favoriteProps={{
                 ...favoriteProps,
                 favoriteCounts,
+                setFavoriteCounts,
                 handleFavoriteToggle,
               }}
             />
