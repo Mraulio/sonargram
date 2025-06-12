@@ -25,6 +25,7 @@ const ItemList = ({
   isFavorite,
   onToggleFavorite,
 }) => {
+  console.log('ITEMs', items);
   const { token, user } = useContext(UserContext);
   const { fetchListsByUser, userLists, addSong, loading } = useList(token);
 
@@ -80,7 +81,7 @@ const ItemList = ({
     <>
       <ul style={{ paddingLeft: 0, listStyle: "none", maxHeight: "30vh", overflowY: "auto" }}>
         {items.map((item) => (
-          <li key={item.id}>
+          <li key={item.id || item.musicbrainzId}>
             <ItemRow
               item={item}
               type={type}

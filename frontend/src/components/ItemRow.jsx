@@ -54,7 +54,7 @@ const ItemRow = ({
       )}
 
       <span
-        onClick={onClickItem ? () => onClickItem(item.id) : undefined}
+        onClick={onClickItem ? () => onClickItem(item.id || item.musicbrainzId) : undefined}
         style={{
           color: highlightColor || "black",
           textDecoration: onClickItem ? "underline" : "none",
@@ -121,15 +121,15 @@ const ItemRow = ({
 
       <IconButton 
         onClick={() => onToggleFavorite(item.id || item.musicbrainzId, type, item)}
-        color={isFavorite(item.id) ? "error" : "default"}
+        color={isFavorite(item.id || item.musicbrainzId) ? "error" : "default"}
         size="small"
       >
         <FontAwesomeIcon
-          icon={isFavorite(item.id) ? solidHeart : regularHeart}
+          icon={isFavorite(item.id || item.musicbrainzId) ? solidHeart : regularHeart}
         />
       </IconButton>
       <Typography variant="body2" sx={{ ml: 1, minWidth: 25 }}>
-        {favoriteCounts[item.id] || 0}
+        {favoriteCounts[item.id || item.musicbrainzId] || 0}
       </Typography>
     </div>
   );
