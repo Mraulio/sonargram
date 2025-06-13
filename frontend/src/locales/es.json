@@ -32,8 +32,11 @@
     "discoversongs": "Descubrir listas de reproducción creadas por otros usuarios",
     "connect": "Conectar con otros amantes de la música",
     "begintoexplore": "¡Empieza a explorar y encuentra tu nuevo sonido favorito!",
-     "login": "Iniciar Sesión",
-     "enter": "Entrar",
-     "donthaveanaccount?": "¿No tienes cuenta?",
-     "registerhere": "Regístrate aquí"
+    "login": "Iniciar Sesión",
+    "enter": "Entrar",
+    "donthaveanaccount?": "¿No tienes cuenta?",
+    "registerhere": "Regístrate aquí",
+    "searchBar": "Buscar artistas, álbumes, canciones, usuarios o listas",
+    "lists": "Listas",
+    "community": "Comunidad"
   }  

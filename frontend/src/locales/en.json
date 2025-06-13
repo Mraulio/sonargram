@@ -35,6 +35,11 @@
     "login": "Login",
     "enter": "Enter",
     "donthaveanaccount?": "Don't have an account?",
-    "registerhere": "Sign up here"
+    "registerhere": "Sign up here",
+    "searchBar": "Search for artists, albums, songs, users, or playlists",
+    "lists": "Lists",
+    "community": "Community",
+    "lists": "Listas",
+    "community": "Comunidad"
   }
   
