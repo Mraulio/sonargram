@@ -1,29 +1,67 @@
-import { Typography, Box, Link } from '@mui/material';
+import { Typography, Box, Link, styled } from '@mui/material';
 import Login  from '../components/Login'
 import SonargramIntro from '../components/SonargramIntro';
+import { useTranslation } from 'react-i18next';
 
-//backgroundImage: `url(assets/images/imagen.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+const IndexBox= styled(Box)`
+  display: flex;
+  flex-direction: row;
+  justify-content:center;
+  gap: 50px;
+
+  @media (max-width: 960px) {
+    flex-direction: column;
+  }
+  @media (max-width: 600px) {
+   
+  }
+`;
+
+const AnimationBox= styled(Box)`
+  @media (max-width: 960px) {
+    display:none;
+  }
+`;
+const LogoBox= styled(Box)`
+  display: none; 
+  justify-content:center; 
+  align-items:center; 
+  gap:10px;
+
+  @media (max-width: 960px) {
+    display:flex;
+  }
+  @media (max-width: 600px) {
+    width: 30px;
+  }
+`;
+
+
 function IndexPage() {  
-
+  const { t } = useTranslation();  // Hook para obtener las traducciones
   return (
-  
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100%',  gap: 10 }}>
-      <SonargramIntro/>
-      <Box sx={{ display:'flex', flexDirection: 'row', gap: 10 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', gap: 5,  }}>
-      
-      <Typography variant='h4' fontWeight={600}> ¡Bienvenido a SonarGram!</Typography>
-      <Typography variant='h6'>Explora un mundo de música al alcance de tus dedos. Aquí puedes:</Typography>
-      <Typography variant='h6'>🔍 Buscar tus canciones, artistas y álbumes favoritos</Typography>
-          <Typography variant='h6'>🎶 Descubrir listas de reproducción creadas por otros usuarios</Typography>
-          <Typography variant='h6'>👥 Conectar con otros amantes de la música</Typography>
-          <Typography variant='h6'>¡Empieza a explorar y encuentra tu nuevo sonido favorito!</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'start' }}>
-      <Login/> {/* Logica para registrarse */ }
-       <Typography align="center" sx={{marginTop: '1.2rem'}}>¿No tienes cuenta? <Link  href="/register" sx={{color: 'white', textDecoration: 'none'}}>Regístrate aquí</Link></Typography>
-      </Box>
-      </Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', width: '100%',  gap: 10 }}>
+      <AnimationBox>
+        <SonargramIntro/>
+      </AnimationBox>
+      <LogoBox>
+        <img src="/assets/images/logo.svg" style={{width: '150px', height: '150px' }}/>
+        <Typography sx={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '2rem'}}>Sonargram</Typography>
+      </LogoBox>
+      <IndexBox>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'start', gap: 3, margin: 5  }}>  
+          <Typography variant='h4' fontWeight={600}>{t('welcometosonargram')}</Typography>
+          <Typography sx={{ fontSize: '1.1rem' }}>{t('exploreaworld')}</Typography>
+          <Typography sx={{ fontSize: '1.1rem' }}>{t('searchsongs')}</Typography>
+          <Typography sx={{ fontSize: '1.1rem' }}>{t('discoversongs')}</Typography>
+          <Typography sx={{ fontSize: '1.1rem' }}> {t('connect')}</Typography>
+          <Typography sx={{ fontSize: '1.3rem' }}>{t('begintoexplore')}</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
+          <Login/> {/* Logica para registrarse */ }
+          <Typography align="center" sx={{marginTop: '1.2rem'}}>{t('donthaveanaccount?')} <Link  href="/register" sx={{color: '#d63b1f', textDecoration: 'none', fontWeight:'600'}}>{t('registerhere')}</Link></Typography>
+        </Box>
+      </IndexBox>
     </Box>
    
 

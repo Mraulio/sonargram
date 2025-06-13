@@ -5,7 +5,7 @@
     "changeTheme": "Cambiar a modo {{mode}}",
     "light": "claro",
     "dark": "oscuro",
-    "createUser": "👤 Crear usuario",
+    "createUser": "Crear usuario",
     "name": "Nombre",
     "username": "Nombre de usuario (único)",
     "email": "Correo electrónico",
@@ -25,5 +25,15 @@
     "editUserButton": "Editar usuario",
     "deleteUserButton": "Borrar cuenta",
     "confirmDeleteUser": "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.",
-    "userDeleted": "Usuario eliminado con éxito"
+    "userDeleted": "Usuario eliminado con éxito",
+    "welcometosonargram": "¡Te damos la bienvenida a SonarGram!",
+    "exploreaworld": "Explora un mundo de música al alcance de tus dedos. Aquí puedes:",
+    "searchsongs": "Buscar tus canciones, artistas y álbumes favoritos",
+    "discoversongs": "Descubrir listas de reproducción creadas por otros usuarios",
+    "connect": "Conectar con otros amantes de la música",
+    "begintoexplore": "¡Empieza a explorar y encuentra tu nuevo sonido favorito!",
+     "login": "Iniciar Sesión",
+     "enter": "Entrar",
+     "donthaveanaccount?": "¿No tienes cuenta?",
+     "registerhere": "Regístrate aquí"
   }  
