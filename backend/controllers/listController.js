@@ -93,7 +93,7 @@ const getListsByUser = async (req, res) => {
     // 4. Lista virtual de favoritos (solo canciones)
     const listaFavoritos = {
       _id: `favorites-${userId}`,
-      name: 'Favoritos',
+      name: 'Favoritos ❤️',
       creator: userId,
       isFavoriteList: true,
       songs: enrichedFavorites
@@ -121,7 +121,7 @@ const getListsByUser = async (req, res) => {
 
     const listaValoraciones = {
       _id: `ratings-${userId}`,
-      name: 'Canciones Valoradas',
+      name: 'Mis votaciones ⭐',
       creator: userId,
       isRatingList: true,
       songs: enrichedRatings
