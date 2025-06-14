@@ -50,13 +50,26 @@
     "ratedWith": "rated with",
     "createdList": "created list",
     "followedList": "followed list",
+    "followedlists": "Followed lists",
     "followedUser": "followed user",
     "addedSong": "added song",
     "toList": "to list",
     "artist": "Artist",
     "album": "Album",
-    "song": "Song"
-
-
+    "song": "Song",
+    "following": "Already following",
+    "allLists": "All Lists",
+    "createListGoFill": "List created. Search for songs to add!",
+    "creatorOfList": "Creator of the list",
+    "errorFetchingListsByUser": "Error fetching lists by user:",
+    "errorCreatingList": "Error Creating List",
+    "listUpdated": "List Updated",
+    "editListName": "Edit the list name",
+    "noSongs": "No songs",
+    "close": "Close",
+    "songs": "Songs",
+    "list": "List",
+    "detail": "Detail"
+    
   }
   

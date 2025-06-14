@@ -118,7 +118,7 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                       sx={{
                         fontWeight: "bold",
                         cursor: "pointer",
-                        color: "primary.main",
+                        color: "#d63b1f",
                       }}
                     >
                       {related.items[0].single}
@@ -132,7 +132,7 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                       sx={{
                         fontWeight: "bold",
                         cursor: "pointer",
-                        color: "primary.main",
+                        color: "#d63b1f",
                       }}
                     >
                       {related.items[1].single}
