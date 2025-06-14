@@ -3,6 +3,7 @@ const MBIDCache = require('../models/MBIDCache');
 const { deleteFollowersByList } = require('./listFollowerController');
 const logActivity = require('../utils/logActivity');
 const favoriteService = require('../services/favoriteService');
+const Rating = require('../models/Rating'); // Asegúrate de importar esto arriba
 
 // Función de utilidad para enriquecer las canciones de una lista
 const enrichListSongs = async (list) => {
@@ -98,8 +99,36 @@ const getListsByUser = async (req, res) => {
       songs: enrichedFavorites
     };
 
+
+    // 5. Lista virtual de valoraciones (solo canciones)
+    const userSongRatings = await Rating.find({ userId, type: 'song' }).sort({ rating: -1, createdAt: -1 });
+
+    const enrichedRatings = await Promise.all(
+      userSongRatings.map(async (rating) => {
+        const cache = await MBIDCache.findOne({ mbid: rating.mbid });
+        return {
+          musicbrainzId: rating.mbid,
+          rating: rating.rating,
+          ratedAt: rating.createdAt,
+          title: cache?.title || null,
+          artistName: cache?.artistName || null,
+          coverUrl: cache?.coverUrl || null,
+          releaseDate: cache?.releaseDate || null,
+          duration: cache?.duration || null,
+        };
+      })
+    );
+
+    const listaValoraciones = {
+      _id: `ratings-${userId}`,
+      name: 'Canciones Valoradas',
+      creator: userId,
+      isRatingList: true,
+      songs: enrichedRatings
+    };
+
     // 5. Combinar y responder
-    const resultado = [listaFavoritos, ...enrichedLists];
+    const resultado = [listaFavoritos, listaValoraciones, ...enrichedLists];
     res.status(200).json(resultado);
   } catch (err) {
     res.status(400).json({ error: err.message });
