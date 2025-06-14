@@ -41,7 +41,6 @@ const CustomMenu = styled(Box)`
   `;
 
 const CustomLink = styled(Link)`
-  color: #3e4a4c;
   text-decoration: none;
   display: flex;
   justify-content: center;
@@ -55,10 +54,10 @@ const MenuLogo = styled(Link)`
   align-items: center;
   cursor: pointer;
   text-decoration: none;
-  color: black;
   gap: 10px;
   margin-top: 10px;
   margin-bottom: 10px;
+
 
   & img{
     width: 120px;
@@ -74,31 +73,32 @@ const MenuLogo = styled(Link)`
     }
   }
 `;
-const CustomTextField = styled(TextField)({
+const CustomTextField = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
-    
     '& fieldset': {
       border: 'none',
-      borderBottom: '2px solid #3e4a4c', // solo borde abajo, cambia el color si quieres
+      borderBottom: `2px solid `, // color del borde
       borderRadius: 0,
     },
     '&:hover fieldset': {
-      border: 'none',
-      borderBottom: '2px solid #3e4a4c',
+      borderBottom: `2px solid`, // hover
     },
     '&.Mui-focused fieldset': {
-      border: 'none',
-      borderBottom: '2px solid #3e4a4c',
+      borderBottom: `2px solid`, // foco
     },
+    color: theme.palette.text.primary,
+  },
+  '& input': {
+    color: theme.palette.text.primary, // texto introducido
   },
   '& label': {
-    color: '#3e4a4c',
+    color: theme.palette.text.primary, // etiqueta
   },
   '& label.Mui-focused': {
-    color: '#3e4a4c',
+    color: theme.palette.primary.main, // etiqueta con foco
   },
   width: '450px',
-});
+}));
 
 function Menu2() {
   const { t } = useTranslation();
@@ -146,24 +146,24 @@ function Menu2() {
     <CustomMenu>
         <MenuLogo href="/dashboard" >
           <img src='assets/images/logo.svg' alt="Logo" />
-          <Typography sx={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '2rem'}}>Sonargram</Typography>
+          <Typography sx={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '2rem', color: theme.palette.text.primary}}>Sonargram</Typography>
         </MenuLogo>
         <Box sx={{ display: 'flex', gap: 1, width:'60vw', justifyContent:'start', alignItems: 'center', gap:3 }}>
           <Box sx= {{ display: 'flex', justifyContent:'center', alignItems:'center', width: '500px' }}>
             <CustomTextField
-
                 label={t('searchBar')}
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)} // <-- agrega esto
                 onKeyDown={e => e.key === "Enter" && handleSearchClick()}
                 margin="normal"
+                
               />
-            <Button onClick={handleSearchClick}><FontAwesomeIcon style={{fontSize: 24, color: '#3e4a4c'}} icon={faMagnifyingGlass} /></Button>
+            <Button onClick={handleSearchClick}><FontAwesomeIcon style={{fontSize: 24, color: '#3e4a4c', color: theme.palette.text.primary}} icon={faMagnifyingGlass} /></Button>
           </Box>
-            <CustomLink href="/lists" underline="hover"><span>{t('lists')}</span></CustomLink>
-             <CustomLink href="/community" underline="hover" >{t('community')}</CustomLink>
+            <CustomLink sx={{ color: theme.palette.text.primary }} href="/lists" underline="hover"><span>{t('lists')}</span></CustomLink>
+             <CustomLink sx={{ color: theme.palette.text.primary }} href="/community" underline="hover" >{t('community')}</CustomLink>
             
-            {role === 'admin' && <Link sx={{color: 'red'}} href="/admin" underline="hover">Admin</Link>}
+            {role === 'admin' && <Link sx={{ color: theme.palette.text.primary }} href="/admin" underline="hover">Admin</Link>}
             {/* Avatar con onClick para abrir el modal */}
             <Avatar
               sx={{width: '80px', height: '80px', cursor: 'pointer', marginTop:'5px', marginBottom:'5px'}}
@@ -176,7 +176,7 @@ function Menu2() {
               onClick={() => navigate('/profile')}
              
             />
-            <Button  onClick={logout} sx={{ color: 'gray', borderColor: 'gray', width: '30px', fontSize: '0.5rem' }}>{t('logout')}</Button>
+            <Button  onClick={logout} sx={{ color: 'gray', color: theme.palette.text.primary, width: '30px', fontSize: '0.5rem' }}>{t('logout')}</Button>
         </Box> 
           
       {/* Modal para editar usuario */}

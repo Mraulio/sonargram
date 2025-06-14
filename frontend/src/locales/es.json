@@ -38,5 +38,22 @@
     "registerhere": "Regístrate aquí",
     "searchBar": "Buscar artistas, álbumes, canciones, usuarios o listas",
     "lists": "Listas",
-    "community": "Comunidad"
+    "community": "Comunidad",
+    "yourLists": "Tus Listas",
+    "listfollowed": "Listas Seguidas",
+    "unfollow": "Dejar de Seguir",
+    "delete": "Borrar",
+    "edit": "Editar",
+    "noactivity": "No hay actividades recientes.",
+    "timeline": "¿Qué hay de nuevo?",
+    "markasfavorite": "marcó como favorito",
+    "ratedWith": "calificó con",
+    "createdList": "creó la lista",
+    "followedList": "seguió la lista",
+    "followedUser": "siguió al usuario",
+    "addedSong": "añadió la canción",
+    "toList": "a la lista",
+    "artist": "Artista",
+    "album": "Álbum",
+    "song": "Canción"
   }  

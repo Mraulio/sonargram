@@ -39,7 +39,24 @@
     "searchBar": "Search for artists, albums, songs, users, or playlists",
     "lists": "Lists",
     "community": "Community",
-    "lists": "Listas",
-    "community": "Comunidad"
+    "yourLists": "Your Lists",
+    "listfollowed": "Followed Lists",
+    "unfollow": "UnFollow",
+    "delete": "Delete",
+    "edit": "Edit",
+    "noactivity": "No Recent Activities",
+    "timeline": "What's new?",
+    "markasfavorite": "marked as favorite",
+    "ratedWith": "rated with",
+    "createdList": "created list",
+    "followedList": "followed list",
+    "followedUser": "followed user",
+    "addedSong": "added song",
+    "toList": "to list",
+    "artist": "Artist",
+    "album": "Album",
+    "song": "Song"
+
+
   }
   
