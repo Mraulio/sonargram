@@ -1,0 +1,56 @@
+import { useEffect, useState, useContext } from 'react';
+import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import { UserContext } from '../context/UserContext';
+import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, Link } from '@mui/material';
+import useAuth from '../hooks/useAuth';  // Importamos el hook useAuth
+
+function Login() {
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const { loginHandler, loading, error } = useAuth();  // Usamos el hook de auth
+
+  const loginUserHandler = async () => {
+    await loginHandler(loginEmail, loginPassword);  // Solo llamamos al loginHandler del hook
+    // La redirección se maneja automáticamente en App según el token
+  };
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <Card sx={{ width: '400px', height: '290px' }}>
+        <CardContent>
+          <Typography variant="h5" component="div" gutterBottom>
+            Login
+          </Typography>
+          <TextField
+            label="Email"
+            type="email"
+            fullWidth
+            margin="normal"
+            value={loginEmail}
+            onChange={(e) => setLoginEmail(e.target.value)}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={loginPassword}
+            onChange={(e) => setLoginPassword(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={loginUserHandler}  // Usamos el handler aquí
+            sx={{ marginTop: '1rem' }}
+          >
+            Login
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default Login;

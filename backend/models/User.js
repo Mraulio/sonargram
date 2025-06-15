@@ -2,11 +2,35 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  createdLists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'List' }],
-  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+  name: { 
+    type: String, 
+    required: [true, 'Name is required'] 
+  },
+  email: { 
+    type: String, 
+    required: [true, 'Email is required'], 
+    unique: true, 
+    match: [/\S+@\S+\.\S+/, 'Please use a valid email address']
+  },
+  username: { 
+    type: String, 
+    required: [true, 'Username is required'], 
+    unique: true 
+  },
+  password: { 
+    type: String, 
+    required: [true, 'Password is required']
+  },
+  role: { 
+    type: String, 
+    enum: ['user', 'admin'], 
+    default: 'user' 
+  },
+  bio: { type: String, default: 'Sonargram user!' },
+  profilePic: { type: String, default: null },
+  status: { type: String, default: 'active' }, // Ej: 'active', 'suspended', 'deleted'
+}, {
+  timestamps: true  // Habilitar la opción para timestamps
 });
 
 // Hash password before saving the user

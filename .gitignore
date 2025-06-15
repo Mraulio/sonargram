@@ -11,3 +11,8 @@ node_modules/
 .DS_Store
 Thumbs.db
 
+# uploads manteniendo carpeta
+/backend/uploads/*
+!/backend/uploads/.gitkeep
+
+*.package-lock.json
