@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import useUser from '../hooks/useUser';
 import Menu from '../components/Menu';
+import baseUrl from '../config.js';
 
 function UserEdit() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -216,7 +217,7 @@ return (
       <img
         src={
           currentUser && currentUser.profilePic
-            ? `http://localhost:5000/uploads/${currentUser.profilePic}`
+            ? `${baseUrl}/uploads/${currentUser.profilePic}`
             : '/assets/images/profilepic_default.png'
         }
         alt="Profile Pic"

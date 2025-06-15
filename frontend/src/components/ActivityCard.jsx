@@ -23,6 +23,7 @@ import {
   getRelatedContent,
 } from "../utils/activityHelpers";
 import { useNavigate } from "react-router-dom";
+import baseUrl from "../config.js";
 
 const iconMap = {
   favorite: faHeart,
@@ -75,7 +76,7 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                 alt={user?.username}
                 src={
                   user?.profilePic
-                    ? `http://localhost:5000/uploads/${user.profilePic}`
+                    ? `${baseUrl}/uploads/${user.profilePic}`
                     : "/assets/images/profilepic_default.png"
                 }
                 sx={{ width: 48, height: 48 }}
