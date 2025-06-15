@@ -7,6 +7,7 @@ import Menu2 from '../components/Menu2';
 import Followers from '../components/Followers';
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
+import baseUrl from '../config.js';
 
 
 function CommunityPage() {
@@ -136,7 +137,7 @@ function CommunityPage() {
                     {searches.map(user => (
                       <Card key={user._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }} >
                         <Avatar
-                          src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/default-avatar.png'}
+                          src={user.profilePic ? `${baseUrl}/uploads/${user.profilePic}` : '/default-avatar.png'}
                           alt={user.name}
                           sx={{ width: 56, height: 56, mr: 2 }}
                         />
@@ -175,7 +176,7 @@ function CommunityPage() {
                         f.followed ? (
                             <Card key={f.follower._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }}>
                                <Avatar
-                                  src={f.followed.profilePic ? `http://localhost:5000/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
+                                  src={f.followed.profilePic ? `${baseUrl}/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
                                   alt={f.followed.name}
                                   sx={{ width: 56, height: 56, mr: 2 }}
                                 />
@@ -206,7 +207,7 @@ function CommunityPage() {
                         <Avatar
                             src={
                             f.follower.profilePic
-                                ? `http://localhost:5000/uploads/${f.follower.profilePic}`
+                                ? `${baseUrl}/uploads/${f.follower.profilePic}`
                                 : '/default-avatar.png'
                             }
                             alt={f.follower.name}

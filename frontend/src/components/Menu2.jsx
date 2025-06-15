@@ -12,6 +12,7 @@ import { styled } from '@mui/material/styles';
 import i18n from '../i18n';
 import logo from '../logo.png' // Asegúrate de tener una imagen de logo
 import { useNavigate } from 'react-router-dom';
+import baseUrl from '../config.js';
 
 const CustomMenu = styled(Box)`
   display: flex;
@@ -149,7 +150,7 @@ function Menu2() {
               sx={{width: '100px', height: '100px', cursor: 'pointer'}}
               src={
                 currentUser && currentUser.profilePic
-                  ? `http://localhost:5000/uploads/${currentUser.profilePic}`
+                  ? `${baseUrl}/uploads/${currentUser.profilePic}`
                   : '/assets/images/profilepic_default.png'
               }
               alt="imagen perfil"

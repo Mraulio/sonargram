@@ -6,6 +6,7 @@ import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormCon
 import { ThemeContext } from '../context/ThemeContext';
 import apiClient from '../api/internal/apiClient';
 import useUser from '../hooks/useUser';
+import baseUrl from '../config.js';
 
 
 function Menu() {
@@ -38,7 +39,7 @@ function Menu() {
         {role === 'admin' && <Link href="/admin" underline="hover" sx={{ display: 'block', mb: 1, color: 'red' }}>Admin</Link>}
         <Link href="/profile" underline="hover" sx={{ display: 'block', mb: 1, color: 'white' }}><img  src={
               currentUser && currentUser.profilePic
-                ? `http://localhost:5000/uploads/${currentUser.profilePic}`
+                ? `${baseUrl}/uploads/${currentUser.profilePic}`
                 : '/assets/images/profilepic_default.png'
             } alt="imagen perfil" style={{ width: 100, height: 100, borderRadius: '50%' }}/></Link>
         <Button variant="outlined" onClick={logout} sx={{ mt: 1, color: 'white', borderColor: 'white' }}>{t('logout')}</Button>

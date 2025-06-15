@@ -6,6 +6,7 @@ import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider,
 import useFollow from '../hooks/useFollow';
 import useUser from '../hooks/useUser';
 import Menu from '../components/Menu';
+import baseUrl from '../config.js';
 
 
 function FollowerPage() {
@@ -78,7 +79,7 @@ function FollowerPage() {
                         <Avatar
                             src={
                             f.follower.profilePic
-                                ? `http://localhost:5000/uploads/${f.follower.profilePic}`
+                                ? `${baseUrl}/uploads/${f.follower.profilePic}`
                                 : '/default-avatar.png'
                             }
                             alt={f.follower.name}

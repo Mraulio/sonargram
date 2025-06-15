@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Menu2 from '../components/Menu2'
 import { Link } from 'react-router-dom'; // Asegúrate de importar Link
+import baseUrl from "../config.js";
 
 const CustomTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
@@ -751,7 +752,7 @@ const handleSearchUser = async (term = searchTerm) => {
               {searches.map(user => (
                 <Card key={user._id} sx={{ width: 400, display: 'flex', alignItems: 'center', p: 2, mb: 2 }}>
                   <Avatar
-                    src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png'}
+                    src={user.profilePic ? `${baseUrl}/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png'}
                     alt={user.name}
                     sx={{ width: 100, height: 100, mr: 2 }}
                   />

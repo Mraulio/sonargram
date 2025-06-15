@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Avatar, Box, Typography, Card, CardContent, Button } from '@mui/material';
 import useFollow from '../hooks/useFollow';
 import { useNavigate } from 'react-router-dom';
+import baseUrl from '../config.js';
 
 function OtherFollowers({ userId: propUserId }) {
     const { t } = useTranslation();
@@ -55,7 +56,7 @@ function OtherFollowers({ userId: propUserId }) {
                         f.followed ? (
                             <Card key={f.followed._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }}>
                                 <Avatar
-                                    src={f.followed.profilePic ? `http://localhost:5000/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
+                                    src={f.followed.profilePic ? `${baseUrl}/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
                                     alt={f.followed.name}
                                     sx={{ width: 56, height: 56, mr: 2 }}
                                 />
@@ -95,7 +96,7 @@ function OtherFollowers({ userId: propUserId }) {
                                 <Avatar
                                     src={
                                         f.follower.profilePic
-                                            ? `http://localhost:5000/uploads/${f.follower.profilePic}`
+                                            ? `${baseUrl}/uploads/${f.follower.profilePic}`
                                             : '/default-avatar.png'
                                     }
                                     alt={f.follower.name}

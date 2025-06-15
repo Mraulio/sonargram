@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import baseUrl from '../config.js';
 
 const CustomTextField = styled(TextField)`
 border:none;
@@ -626,7 +627,7 @@ function Search() {
                     <Divider />
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar
-                      src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/default-avatar.png'}
+                      src={user.profilePic ? `${baseUrl}/uploads/${user.profilePic}` : '/default-avatar.png'}
                        alt={user.name}
                        sx={{ width: 56, height: 56, mr: 2 }}
                     />
