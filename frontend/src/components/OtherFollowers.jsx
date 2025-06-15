@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Avatar, Box, Typography, Card, CardContent, Button, styled } from '@mui/material';
 import useFollow from '../hooks/useFollow';
 import { useNavigate } from 'react-router-dom';
+import baseUrl from '../config.js';
 
 const FollowBox = styled(Box)`
     display: flex;
@@ -88,7 +89,7 @@ function OtherFollowers({ userId: propUserId }) {
 
     return (
         <FollowBox >
-            {/* USUARIOS SEGUIDOS */}
+
             <FollowBoxContent>
                 <Typography variant="h4" sx={{ mb: 2 }}>{t('usersfollowed')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
@@ -96,7 +97,7 @@ function OtherFollowers({ userId: propUserId }) {
                         f.followed ? (
                             <FollowCard key={f.followed._id}>
                                 <Avatar
-                                    src={f.followed.profilePic ? `http://localhost:5000/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
+                                    src={f.followed.profilePic ? `${baseUrl}/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
                                     alt={f.followed.name}
                                     sx={{ width: 60, height: 60, mr: 2 }}
                                 />
@@ -146,7 +147,11 @@ function OtherFollowers({ userId: propUserId }) {
                         f.follower ? (
                             <FollowCard key={f.follower._id} >
                                 <Avatar
-                                    src={f.follower.profilePic ? `http://localhost:5000/uploads/${f.follower.profilePic}` : '/default-avatar.png'}
+                                    src={
+                                        f.follower.profilePic
+                                            ? `${baseUrl}/uploads/${f.follower.profilePic}`
+                                            : '/default-avatar.png'
+                                    }
                                     alt={f.follower.name}
                                     sx={{ width: 60, height: 60, mr: 2 }}
                                 />

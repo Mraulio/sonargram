@@ -5,47 +5,7 @@ import { Avatar, Box, Typography, Card, CardContent, Button, Divider, styled} fr
 import useFollow from '../hooks/useFollow';
 import useUser from '../hooks/useUser';
 import { useNavigate } from 'react-router-dom';
-const FollowBox = styled(Box)`
-    display: flex;
-    flex-wrap: wrap; 
-    justify-content: center; 
-    gap: 2;
-    width: 100%;
-
-    @media (max-width: 960px) {
-    flex-direction: column;
-    flex-wrap: nowrap;
-    align-items: center;
-    width: 100vw;
-  }
-
-    `;
-const FollowBoxContent = styled(Box)`
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    margin-top: 10px; 
-    width: 45%; 
-    height: 40vh;
-    overflow-y: auto;
-    
-    @media (max-width: 960px) {
-    width: 95%
-    }
-
-`;
-
-const FollowCard = styled(Card)`
-    width: 650px; 
-    padding: 15px; 
-    display: flex; 
-    align-items: center;
-
-    @media (max-width: 960px) {
-    width: 95%
-    }
-`;
-
+import baseUrl from '../config.js';
 function Followers({ userId: propUserId }) {
     const { t } = useTranslation();
     const { token, user } = useContext(UserContext);
@@ -99,7 +59,7 @@ function Followers({ userId: propUserId }) {
                         f.followed ? (
                             <FollowCard key={f.followed._id} >
                                 <Avatar
-                                    src={f.followed.profilePic ? `http://localhost:5000/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
+                                    src={f.followed.profilePic ? `${baseUrl}/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
                                     alt={f.followed.name}
                                     sx={{ width: 60, height: 60, mr: 2 }}
                                 />
@@ -146,7 +106,7 @@ function Followers({ userId: propUserId }) {
                                 <Avatar
                                     src={
                                         f.follower.profilePic
-                                            ? `http://localhost:5000/uploads/${f.follower.profilePic}`
+                                            ? `${baseUrl}/uploads/${f.follower.profilePic}`
                                             : '/default-avatar.png'
                                     }
                                     alt={f.follower.name}

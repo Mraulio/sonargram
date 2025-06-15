@@ -7,8 +7,7 @@ import OtherFollowers from '../components/OtherFollowers';
 import useUser from '../hooks/useUser';
 import Menu2 from '../components/Menu2';
 import OtherLists from '../components/OtherLists'
-const userCard= styled(Card)`
-`;
+import baseUrl from '../config.js';
 function UserResult() {
   const { t } = useTranslation();
   const { id } = useParams(); // <-- id del usuario en la URL
@@ -16,7 +15,7 @@ function UserResult() {
   const { token, user } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
   const { getUserById } = useUser(token);
-
+  console.log('base urlssss:', baseUrl);
  useEffect(() => {
   const fetchUser = async () => {
     setLoading(true);
@@ -62,7 +61,7 @@ function UserResult() {
             <Avatar
                 src={
                 userResult.profilePic
-                    ? `http://localhost:5000/uploads/${userResult.profilePic}`
+                    ? `${baseUrl}/uploads/${userResult.profilePic}`
                     : '/assets/images/profilepic_default.png'
                 }
                 alt="Profile Pic"

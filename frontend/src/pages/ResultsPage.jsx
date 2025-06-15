@@ -19,9 +19,13 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Menu2 from '../components/Menu2'
 import { Link } from 'react-router-dom'; // Asegúrate de importar Link
+<<<<<<< HEAD
 import InfoModal from '../components/InfoModal';
 
 
+=======
+import baseUrl from "../config.js";
+>>>>>>> develop
 
 const CustomTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
@@ -920,6 +924,7 @@ const handleSearchUser = async (term = searchTerm) => {
             )}
             <FollowBoxContent>
               {searches.map(user => (
+<<<<<<< HEAD
                 
                   <FollowCard key={user._id} >
                     <Avatar
@@ -965,6 +970,32 @@ const handleSearchUser = async (term = searchTerm) => {
                     </CardContent>
                   </FollowCard>
                 
+=======
+                <Card key={user._id} sx={{ width: 400, display: 'flex', alignItems: 'center', p: 2, mb: 2 }}>
+                  <Avatar
+                    src={user.profilePic ? `${baseUrl}/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png'}
+                    alt={user.name}
+                    sx={{ width: 100, height: 100, mr: 2 }}
+                  />
+                  <CardContent sx={{ flex: 1 }}>
+                    <Typography
+                      variant="h6"
+                      component={Link}
+                      to={`/userresult/${user._id}`}
+                      sx={{
+                        color: 'primary.main',
+                        textDecoration: 'underline',
+                        cursor: 'pointer',
+                        '&:hover': { color: 'secondary.main' }
+                      }}
+                    >
+                      {user.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">{user.email}</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>
+                  </CardContent>
+                </Card>
+>>>>>>> develop
               ))}
               </FollowBoxContent>
               
