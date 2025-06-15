@@ -6,8 +6,10 @@ import ActivityCard from "./ActivityCard";
 import { Typography, Box } from "@mui/material";
 import useRatings from "../hooks/useRatings";
 import useFavorites from "../hooks/useFavorites";
+import { useTranslation } from 'react-i18next';
 
 const Timeline = () => {
+  const { t } = useTranslation();  // Hook para obtener las traducciones
   const { token } = useContext(UserContext);
   const { activities, loading, error, fetchTimeline } = useActivity(token);
 
@@ -76,11 +78,11 @@ const Timeline = () => {
   return (
     <Box>
       {activities.length === 0 ? (
-        <Typography>No hay actividades recientes.</Typography>
+        <Typography variant="h4">{t('noactivities')}</Typography>
       ) : (
         <>
-          <Typography variant="h5" gutterBottom>
-            Timeline
+          <Typography variant="h4" gutterBottom>
+            {t('timeline')}
           </Typography>
           {activities.map((activity) => (
             <ActivityCard

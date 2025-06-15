@@ -1,13 +1,53 @@
 import { useEffect, useContext } from 'react';
 import { UserContext } from '../context/UserContext';
 import { useTranslation } from 'react-i18next';
-import { Avatar, Box, Typography, Card, CardContent, Button } from '@mui/material';
+import { Avatar, Box, Typography, Card, CardContent, Button, styled } from '@mui/material';
 import useFollow from '../hooks/useFollow';
 import { useNavigate } from 'react-router-dom';
 
+const FollowBox = styled(Box)`
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: center; 
+    gap: 2;
+    width: 100%;
+
+    @media (max-width: 960px) {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100vw;
+  }
+
+    `;
+const FollowBoxContent = styled(Box)`
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    margin-top: 10px; 
+    width: 45%; 
+    height: 40vh;
+    overflow-y: auto;
+    
+    @media (max-width: 960px) {
+    width: 95%
+    }
+
+`;
+
+const FollowCard = styled(Card)`
+    width: 650px; 
+    padding: 15px; 
+    display: flex; 
+    align-items: center;
+
+    @media (max-width: 960px) {
+    width: 95%
+    }
+`;
 function OtherFollowers({ userId: propUserId }) {
     const { t } = useTranslation();
-    const { token } = useContext(UserContext);
+    const { token, user } = useContext(UserContext); // Asegúrate de que `user` contiene el usuario logueado
     const { followers, fetchFollowers, following, fetchFollowing, follow, unfollow } = useFollow(token);
     const navigate = useNavigate();
 
@@ -39,7 +79,7 @@ function OtherFollowers({ userId: propUserId }) {
             }
             alert(t('userFollowed'));
         } catch (err) {
-            console.error('Error following user:', err);
+            console.error(t('errorFollowingUser'), err);
             alert(t('errorFollowingUser'));
         }
     };
@@ -47,17 +87,18 @@ function OtherFollowers({ userId: propUserId }) {
     const isFollowing = (id) => following.some(f => f.followed && f.followed._id === id);
 
     return (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'column', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2, width: '45%' }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollowed')}</Typography>
+        <FollowBox >
+            {/* USUARIOS SEGUIDOS */}
+            <FollowBoxContent>
+                <Typography variant="h4" sx={{ mb: 2 }}>{t('usersfollowed')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
                     {following.map(f => (
                         f.followed ? (
-                            <Card key={f.followed._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }}>
+                            <FollowCard key={f.followed._id}>
                                 <Avatar
                                     src={f.followed.profilePic ? `http://localhost:5000/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
                                     alt={f.followed.name}
-                                    sx={{ width: 56, height: 56, mr: 2 }}
+                                    sx={{ width: 60, height: 60, mr: 2 }}
                                 />
                                 <CardContent>
                                     <Typography
@@ -70,36 +111,43 @@ function OtherFollowers({ userId: propUserId }) {
                                     <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.createdAt).toLocaleDateString()}</Typography>
                                     <Typography variant="body2" color="text.secondary">{t('bio')}: {f.followed.bio}</Typography>
                                 </CardContent>
-                                {/* Botón solo si es tu propio perfil */}
-                                {!propUserId && (
-                                    <Button
-                                        variant="outlined"
-                                        color="error"
-                                        onClick={() => handleUnfollow(f.followed._id)}
-                                    >
-                                        {t('unfollow')}
-                                    </Button>
+
+                                {!propUserId && f.followed._id !== user.userId && (
+                                    isFollowing(f.followed._id) ? (
+                                        <Button
+                                            variant="contained"
+                                            color="error"
+                                            onClick={() => handleUnfollow(f.followed._id)}
+                                        >
+                                            {t('unfollow')}
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            sx={{ backgroundColor: '#d63b1f', color: 'white' }}
+                                            variant="contained"
+                                            onClick={() => handleFollow(f.followed._id)}
+                                        >
+                                            {t('follow')}
+                                        </Button>
+                                    )
                                 )}
-                            </Card>
+                            </FollowCard>
                         ) : null
                     ))}
                 </Box>
-            </Box>
+            </FollowBoxContent>
 
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'column', alignItems: 'center', gap: 2, width: '45%' }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollowers')}</Typography>
+            {/* USUARIOS QUE SIGUEN AL PERFIL */}
+            <FollowBoxContent >
+                <Typography variant="h4" sx={{ mb: 2 }}>{t('usersfollowers')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
                     {followers.map(f => (
                         f.follower ? (
-                            <Card key={f.follower._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }}>
+                            <FollowCard key={f.follower._id} >
                                 <Avatar
-                                    src={
-                                        f.follower.profilePic
-                                            ? `http://localhost:5000/uploads/${f.follower.profilePic}`
-                                            : '/default-avatar.png'
-                                    }
+                                    src={f.follower.profilePic ? `http://localhost:5000/uploads/${f.follower.profilePic}` : '/default-avatar.png'}
                                     alt={f.follower.name}
-                                    sx={{ width: 56, height: 56, mr: 2 }}
+                                    sx={{ width: 60, height: 60, mr: 2 }}
                                 />
                                 <CardContent sx={{ flexGrow: 1 }}>
                                     <Typography
@@ -112,7 +160,7 @@ function OtherFollowers({ userId: propUserId }) {
                                     <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.createdAt).toLocaleDateString()}</Typography>
                                     <Typography variant="body2" color="text.secondary">{t('bio')}: {f.follower.bio}</Typography>
                                 </CardContent>
-                                {!propUserId && (
+                                {!propUserId && f.follower._id !== user.userId && (
                                     isFollowing(f.follower._id) ? (
                                         <Button
                                             variant="outlined"
@@ -130,12 +178,12 @@ function OtherFollowers({ userId: propUserId }) {
                                         </Button>
                                     )
                                 )}
-                            </Card>
+                            </FollowCard>
                         ) : null
                     ))}
                 </Box>
-            </Box>
-        </Box>
+            </FollowBoxContent>
+        </FollowBox>
     );
 }
 

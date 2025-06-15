@@ -104,26 +104,6 @@ function MyLists() {
         }, [lists, searchListName, user, t]);
 
 
-     const handleCreateList = async () => {
-        try {
-          const songArray = songs
-            .split(',')
-            .map(s => s.trim())
-            .filter(s => s !== '')
-            .map(id => ({ musicbrainzId: id }));
-
-          await createNewList({ name: listName, songs: songArray });
-          if (!user || !user.userId) return;
-          fetchListsByUser(user.userId); // Actualiza la lista de listas
-
-          alert(t('createListGoFill'));
-          setListName('');
-          setSongs('');
-        } catch (err) {
-          alert('Error creating list');
-          console.error(err);
-        }
-      };
 
             
       const handleDeleteList = async (listId) => {
@@ -261,7 +241,7 @@ const handleFavoriteToggle = async (id, type, item) => {
 };
 return (
   <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', gap: 3 }}>
-    <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
+    <Typography variant="h4" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
     {userLists.map(l => {
       handleGetCreatorName(l.creator);
@@ -272,7 +252,9 @@ return (
           sx={{ mb: 1, cursor: 'pointer' }}
           onClick={() => {
             setSelectedListSongs(l.songs);
-            setSelectedListId(l._id); // <-- nuevo estado
+            setSelectedListId(l._id);
+            setListName(l.name);
+            setEditingList(l); // guardar la lista completa, ya que contiene el nombre
             setOpenSongsModal(true);
           }}
         >
@@ -305,7 +287,7 @@ return (
       );
     })}
     </ul>
-    <Typography variant="h6" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
+    <Typography variant="h4" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
         {followedLists.map(l => {
           handleGetCreatorName(l.creator);
@@ -346,16 +328,17 @@ return (
         <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {song.title} - {song.artistName}
           {/* Solo muestra el botón si la lista es tuya */}
-          {userLists.some(list => list._id === selectedListId) && (
-            <Button
-              size="small"
-              color="error"
-              variant="contained"
-              sx={{ ml: 1 }}
-              onClick={() => handleDeleteSongList(selectedListId, song.musicbrainzId)}
-            >
-              X
-            </Button>
+          {userLists.some(list => list._id === selectedListId) &&
+            editingList?.name !== "Favoritos" && (
+              <Button
+                size="small"
+                color="error"
+                variant="contained"
+                sx={{ ml: 1 }}
+                onClick={() => handleDeleteSongList(selectedListId, song.musicbrainzId)}
+              >
+                X
+              </Button>
           )}
         </li>
       ))}
@@ -370,7 +353,9 @@ return (
 
     {/* Modal para renombrar la lista */}
     <Dialog open={open} onClose={handleCloseListModal}>
-      <DialogTitle>{t('editList')}</DialogTitle>
+      <DialogTitle>
+        {t('songs')} - {listName}
+      </DialogTitle>
       <DialogContent>
         <TextField
           fullWidth

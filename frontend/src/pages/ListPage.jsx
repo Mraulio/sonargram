@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions, styled } from '@mui/material';
 import Menu2 from '../components/Menu2';
 import SearchBar from '../components/Search';
 import useList from '../hooks/useList';
@@ -14,7 +14,56 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import InfoModal from '../components/InfoModal';
 import useRatings from '../hooks/useRatings';
 
+const ListCard= styled(Card)`
+  width: 45vw;
+  height: 200px; 
+  display: flex;  
+  align-items: center;
+  @media (max-width: 960px) {
+    width:95%;
+  }
+`;
 
+const ListCardContent= styled(CardContent)`
+  display: flex; 
+  flex-direction: column;
+  justify-content:center;
+  width:100%;
+`;
+
+const ButtonBox= styled(Box)`
+  width:100%;
+  display: flex;
+  justify-content:end;
+  gap: 15px;
+ padding: 10px 20px 0 0;
+`;
+const CustomTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      border: 'none',
+      borderBottom: `2px solid `, // color del borde
+      borderRadius: 0,
+    },
+    '&:hover fieldset': {
+      borderBottom: `2px solid`, // hover
+    },
+    '&.Mui-focused fieldset': {
+      borderBottom: `2px solid`, // foco
+    },
+    color: theme.palette.text.primary,
+  },
+  '& input': {
+    color: theme.palette.text.primary, // texto introducido
+  },
+  '& label': {
+    color: theme.palette.text.primary, // etiqueta
+  },
+  '& label.Mui-focused': {
+    color: theme.palette.primary.main, // etiqueta con foco
+  },
+  width: '450px',
+}));
 
 function ListPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -62,7 +111,7 @@ function ListPage() {
             await fetchListsByUser(userId);
             await fetchFollowedLists(userId);
           } catch (err) {
-            console.error('Error fetching lists by user:', err);
+            console.error(t('errorFetchingListsByUser'), err);
             alert(t('errorFetchingListsByUser'));
           }
         };
@@ -75,30 +124,7 @@ function ListPage() {
           }
         }, [token]);
 
-        
 
-        const handleSearchListByName = useCallback(async () => {
-          setLoading(true);
-          setError(null);
-          try {
-            // Usa el user del contexto directamente
-            if (!user || !user.userId) {
-              alert(t('errorFetchingUserId'));
-              return;
-            }
-            const filteredLists = lists.filter(list =>
-              list.name.toLowerCase().includes(searchListName.toLowerCase()) &&
-              list.creator._id !== user.userId // Filtra las listas que no son del usuario actual
-            );
-
-            setSearchResults(filteredLists);
-            console.log('Filtered lists (excluding user-owned):', filteredLists);
-          } catch (err) {
-            setError(err.message || 'Error fetching lists');
-          } finally {
-            setLoading(false);
-          }
-        }, [lists, searchListName, user, t]);
 
 
        const handleCreateList = async () => {
@@ -117,7 +143,7 @@ function ListPage() {
           setListName('');
           setSongs('');
         } catch (err) {
-          alert('Error creating list');
+          alert(t('errorCreatingList'));
           console.error(err);
         }
       };
@@ -286,23 +312,23 @@ function ListPage() {
 
 
  return (
-  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100vw", minHeight:'100vh' }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100vw", minHeight:'100vh', alignItems:'center' }}>
     <Menu2 /> 
-        <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
+        <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4, flexWrap:'wrap' }}>
+          <Typography variant="h4" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
-              <Card sx={{ width: '48%', height: '200px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-                <CardContent sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+              <ListCard>
+                <ListCardContent sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', width:'100%' }}>
                   <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
-                  <TextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
-                  <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>{ t('createListButton')}</Button>
-                </CardContent>
-              </Card>   
+                  <CustomTextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
+                  <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2, backgroundColor: '#d63b1f'  }}>{ t('createListButton')}</Button>
+                </ListCardContent>
+              </ListCard>   
               {userLists.map(l => {
               handleGetCreatorName(l.creator);
               return (
-                <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
-                  <CardContent>
+                <ListCard key={l._id}>
+                  <ListCardContent>
                     <Typography
                         variant="h6"
                         sx={{ mb: 1, cursor: 'pointer' }}
@@ -319,10 +345,29 @@ function ListPage() {
                         {l.name}
                       </Typography>
                       <Divider/>
-                   {l.name !== "Favoritos" && (
-                    <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('numberSongs')}: {l.songs.length} {t('songs')}
+                      </Typography>
+                      {l.isFavoriteList !== true && l.isRatingList !== true && (
+                        <>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('creatorOfList')}: {creatorNames[l.creator] || l.creator || t('unknown')}
+                      </Typography>
+                      
+                      <Typography variant="body2" color="text.secondary">
+                         {t('dateofcreation')}: {l.createdAt.slice(0, 10)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('lastupdate')}: {l.updatedAt.slice(0, 10)}
+                      </Typography>
+                      </>
+                      )}
+                      
+
+                   {l.isFavoriteList !== true && l.isRatingList !== true && (
+                    <ButtonBox>
                       <Button
-                        variant="outlined"
+                        variant="contained"
                         color="warning"
                         size="small"
                         onClick={() => handleOpenListModal(l)}
@@ -336,26 +381,26 @@ function ListPage() {
                       >
                         {t('delete')}
                       </Button>
-                    </Box>
+                    </ButtonBox>
                   )}
-                </CardContent>
-               </Card>
+                </ListCardContent>
+               </ListCard>
                 );
               })}
             </Box>
         </Box>            
                 
         <Box sx={{  display: 'flex',  flexDirection: 'column', p: 4 }}>
-          <Typography variant="h6">{t('followLists')}</Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
+          <Typography variant="h4">{t('listfollowed')}</Typography>
+          <Box sx={{ display: 'flex', gap: 2, width: '95vw', flexWrap: 'wrap' }}>
             {followedLists.map(l => {
               handleGetCreatorName(l.creator);
               return (
-                <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
-                <CardContent>
+                <ListCard key={l._id}>
+                <ListCardContent>
                   <Typography
-                      variant="h6"
-                      sx={{ mb: 1, cursor: 'pointer', textDecoration: 'underline' }}
+                      variant="h5"
+                      sx={{ mb: 1, cursor: 'pointer' }}
                       onClick={() => {
                         setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
                         setInfoModalOpen(true);
@@ -363,133 +408,160 @@ function ListPage() {
                       >
                       {l.name}
                     </Typography>
-                  <Divider sx={{ my: 1 }} />              
-                  <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
+                  <Divider sx={{ my: 1 }} />  
+                  <Typography variant="body2" color="text.secondary">
+                        {t('numberSongs')}: {l.songs.length} {t('songs')}
+                      </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                      {t('creatorOfList')}: {creatorNames[l.creator] || l.creator || t('unknown')}
                     </Typography>
-                    <Button onClick={() => (handleUnfollowList(l._id))} color="error">{t('unfollow')}</Button>
-                  </Box>
-                </CardContent>
-               </Card>
+                    <Typography variant="body2" color="text.secondary">
+                         {t('dateofcreation')}: {l.createdAt.slice(0, 10)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('lastupdate')}: {l.updatedAt.slice(0, 10)}
+                      </Typography>  
+                             
+                  
+                    <ButtonBox>
+                      <Button onClick={() => (handleUnfollowList(l._id))} variant= "contained" color="error">{t('unfollow')}</Button>
+                    </ButtonBox>
+               
+                </ListCardContent>
+               </ListCard>
               );
             })}
           </Box>
-        </Box>      
-              <Box sx={{ p: 4, display: 'flex', width: '95vw', flexDirection: 'column'}}>
-                <Typography variant="h6" sx={{ mb: 2 }}>{t('allLists')}</Typography>              
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
-                  {lists && lists.length > 0 ? (
-                    lists
-                      .filter(l => l.creator && user && l.creator._id !== user.userId) // <-- Filtra las listas que no son tuyas
-                      .map(l => (
-                        <Card key={l._id} sx={{ width: '48%', height: '200px', display: 'flex', flexDirection: 'column', justifyContent:'center' }}>
-                          <CardContent>
-                            <Typography
-                              variant="h6"
-                              sx={{ mb: 1, cursor: 'pointer', textDecoration: 'underline' }}
-                              onClick={() => {
-                                setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
-                                setInfoModalOpen(true);
-                              }}
-                            >
-                              {l.name}
-                            </Typography>
-                            <Divider sx={{ my: 1 }} />
-                            <Typography variant="body2" color="text.secondary">
-                              {t('Creador de la lista')}: {l.creator?.name || t('unknown')}
-                            </Typography>
-                            <Box sx={{ mt: 2 }}>
-                              {followedLists.some(followed => followed._id === l._id) ? (
-                                <Typography color="success.main">{t('following')}</Typography>
-                              ) : (
-                                <Button onClick={() => handlefollowList(l._id)} color="error">{t('follow')}</Button>
-                              )}
-                            </Box>
-                          </CardContent>
-                        </Card>
-                      ))
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">{t('noLists')}</Typography>
-                  )}
-                </Box>
-              </Box>
-            {/* Modal para renombrar la lista */}
-              <Dialog open={open} onClose={handleCloseListModal}>
-                <DialogTitle>{t('editList')}</DialogTitle>
-                <DialogContent>
-                  <TextField
-                    fullWidth
-                    label={t('editListName')}
-                    value={editListName}
-                    onChange={(e) => setEditListName(e.target.value)}
-                    margin="normal"
-                  />
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleSaveListChanges} variant="contained" color="primary">
-                    {t('save')}
-                  </Button>
-                  <Button onClick={handleCloseListModal} color="secondary">
-                    {t('cancel')}
-                  </Button>
-                </DialogActions>
-              </Dialog>
+        </Box>     
 
-              <Dialog open={openSongsModal} onClose={() => setOpenSongsModal(false)}>
-                <DialogTitle>
-                  {t('songs')} - {
-                    // Busca la lista seleccionada en todas las listas disponibles
-                    (() => {
-                      const all = [...userLists, ...followedLists, ...lists];
-                      const found = all.find(l => l._id === selectedListId);
-                      return found ? found.name : '';
-                    })()
-                  }
-                </DialogTitle>
-                <DialogContent>
-                  <ul>
-                    {selectedListSongs.length === 0 && (
-                      <Typography variant="body2" color="text.secondary">{t('noSongs')}</Typography>
-                    )}
-                    {selectedListSongs.map((song, index) => (
-                      <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        {song.title} - {song.artistName}
-                        {/* Solo muestra el botón X si la lista es del usuario */}
-                      {userLists.some(list => list._id === selectedListId) &&
-                        userLists.find(list => list._id === selectedListId)?.name !== "Favoritos" && (
-                          <Button
-                            size="small"
-                            color="error"
+        <Box sx={{ display: 'flex',  flexDirection: 'column', p: 4}}>
+          <Typography variant="h4" sx={{ mb: 2 }}>{t('allLists')}</Typography>              
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
+            {lists && lists.length > 0 ? (
+              lists
+                .filter(l => l.creator && user && l.creator._id !== user.userId) // <-- Filtra las listas que no son tuyas
+                .map(l => (
+                  <ListCard key={l._id}>
+                    <ListCardContent>
+                      <Typography
+                        variant="h5"
+                        sx={{ mb: 1, cursor: 'pointer' }}
+                        onClick={() => {
+                          setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
+                          setInfoModalOpen(true);
+                        }}
+                      >
+                        {l.name}
+                      </Typography>
+                      <Divider sx={{ my: 1 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {t('numberSongs')}: {l.songs.length} {t('songs')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('creatorOfList')}: {l.creator?.name || t('unknown')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                         {t('dateofcreation')}: {l.createdAt.slice(0, 10)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('lastupdate')}: {l.updatedAt.slice(0, 10)}
+                      </Typography>
+                      <Box sx={{ mt: 2 }}>
+                        {followedLists.some(followed => followed._id === l._id) ? (
+                          <ButtonBox>
+                            <Typography color="success.main">{t('following')}</Typography>
+                          </ButtonBox>
                           
-                            sx={{ ml: 1 }}
-                            onClick={() => handleDeleteSongList(selectedListId, song.musicbrainzId)}
-                          >
-                            X
-                          </Button>
-                      )}
-                      </li>
-                    ))}
-                  </ul>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setOpenSongsModal(false)} color="primary">{t('close') || 'Cerrar'}</Button>
-                </DialogActions>
-              </Dialog>
-              <InfoModal
-                open={infoModalOpen}
-                onClose={closeDetail}
-                type={modalData.type}
-                data={modalData.data}
-                ratingProps={ratingProps}
-                favoriteProps={{
-                  ...favoriteProps,
-                  favoriteCounts,
-                  setFavoriteCounts,
-                  handleFavoriteToggle,
-                }}
-              />
-            </Box>
+                        ) : (
+                          <ButtonBox>
+                            <Button onClick={() => handlefollowList(l._id)} sx={{backgroundColor: '#d63b1f', color: 'white'}}>{t('follow')}</Button>
+                          </ButtonBox>
+                        )}
+                      </Box>
+                    </ListCardContent>
+                  </ListCard>
+                ))
+            ) : (
+              <Typography variant="body2" color="text.secondary">{t('noLists')}</Typography>
+            )}
+          </Box>
+        </Box>
+      {/* Modal para renombrar la lista */}
+        <Dialog open={open} onClose={handleCloseListModal}>
+          <DialogTitle>{t('editList')}</DialogTitle>
+          <DialogContent>
+            <TextField
+              fullWidth
+              label={t('editListName')}
+              value={editListName}
+              onChange={(e) => setEditListName(e.target.value)}
+              margin="normal"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleSaveListChanges} variant="contained" color="primary">
+              {t('save')}
+            </Button>
+            <Button onClick={handleCloseListModal} color="secondary">
+              {t('cancel')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={openSongsModal} onClose={() => setOpenSongsModal(false)}>
+          <DialogTitle>
+            {t('songs')} - {
+              // Busca la lista seleccionada en todas las listas disponibles
+              (() => {
+                const all = [...userLists, ...followedLists, ...lists];
+                const found = all.find(l => l._id === selectedListId);
+                return found ? found.name : '';
+              })()
+            }
+          </DialogTitle>
+          <DialogContent>
+            <ul>
+              {selectedListSongs.length === 0 && (
+                <Typography variant="body2" color="text.secondary">{t('noSongs')}</Typography>
+              )}
+              {selectedListSongs.map((song, index) => (
+                <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {song.title} - {song.artistName}
+                  {/* Solo muestra el botón X si la lista es del usuario */}
+                {userLists.some(list => list._id === selectedListId) &&
+                  userLists.find(list => list._id === selectedListId)?.name !== "Favoritos" && (
+                    <Button
+                      size="small"
+                      color="error"
+                    
+                      sx={{ ml: 1 }}
+                      onClick={() => handleDeleteSongList(selectedListId, song.musicbrainzId)}
+                    >
+                      X
+                    </Button>
+                )}
+                </li>
+              ))}
+            </ul>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenSongsModal(false)} color="primary">{t('close')}</Button>
+          </DialogActions>
+        </Dialog>
+        <InfoModal
+          open={infoModalOpen}
+          onClose={closeDetail}
+          type={modalData.type}
+          data={modalData.data}
+          ratingProps={ratingProps}
+          favoriteProps={{
+            ...favoriteProps,
+            favoriteCounts,
+            setFavoriteCounts,
+            handleFavoriteToggle,
+          }}
+        />
+      </Box>
 
             );
           }             
