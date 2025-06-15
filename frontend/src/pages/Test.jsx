@@ -32,6 +32,7 @@ import TopRatingsList from "../components/TopRatingsList";
 import TopFavoritosList from "../components/TopFavoritosList";
 import TopFollowedLists from "../components/TopFollowedLists";
 import Timeline from "../components/Timeline";
+import baseUrl from "../config.js";
 
 function Test() {
   const { t } = useTranslation();
@@ -87,7 +88,7 @@ function Test() {
         setCurrentUser(user);
         setProfilePic(
           user && user.profilePic
-            ? `http://localhost:5000/uploads/${user.profilePic}`
+            ? `${baseUrl}/uploads/${user.profilePic}`
             : "/assets/images/profilepic_default.png"
         );
       } catch (err) {
@@ -101,7 +102,7 @@ function Test() {
   useEffect(() => {
     setProfilePic(
       currentUser && currentUser.profilePic
-        ? `http://localhost:5000/uploads/${currentUser.profilePic}`
+        ? `${baseUrl}/uploads/${currentUser.profilePic}`
         : "/assets/images/profilepic_default.png"
     );
   }, [currentUser]);
@@ -666,7 +667,7 @@ function Test() {
           <img
             src={
               selectedUser.profilePic
-                ? `http://localhost:5000/uploads/${selectedUser.profilePic}`
+                ? `${baseUrl}/uploads/${selectedUser.profilePic}`
                 : "/assets/images/profilepic_default.png"
             }
             alt="Profile Pic"

@@ -5,6 +5,7 @@ import { Avatar, Box, Typography, Card, CardContent, Button, Divider, styled} fr
 import useFollow from '../hooks/useFollow';
 import useUser from '../hooks/useUser';
 import { useNavigate } from 'react-router-dom';
+import baseUrl from '../config.js';
 const FollowBox = styled(Box)`
     display: flex;
     flex-wrap: wrap; 
@@ -99,7 +100,7 @@ function Followers({ userId: propUserId }) {
                         f.followed ? (
                             <FollowCard key={f.followed._id} >
                                 <Avatar
-                                    src={f.followed.profilePic ? `http://localhost:5000/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
+                                    src={f.followed.profilePic ? `${baseUrl}/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
                                     alt={f.followed.name}
                                     sx={{ width: 60, height: 60, mr: 2 }}
                                 />
@@ -146,7 +147,7 @@ function Followers({ userId: propUserId }) {
                                 <Avatar
                                     src={
                                         f.follower.profilePic
-                                            ? `http://localhost:5000/uploads/${f.follower.profilePic}`
+                                            ? `${baseUrl}/uploads/${f.follower.profilePic}`
                                             : '/default-avatar.png'
                                     }
                                     alt={f.follower.name}

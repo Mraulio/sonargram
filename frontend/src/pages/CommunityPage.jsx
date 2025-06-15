@@ -6,6 +6,8 @@ import Menu2 from '../components/Menu2';
 import Followers from '../components/Followers';
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
+import baseUrl from '../config.js';
+
 import TopRatingsList from '../components/TopRatingsList';
 import TopFavoritosList from '../components/TopFavoritosList'
 
@@ -111,6 +113,134 @@ function CommunityPage() {
 
       <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0, gap: 2, minHeight:'100vh' }}>
         <Menu2 />
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '90vw' }}>
+          <Box>
+            <Typography variant="h5">{t('findUsers')}</Typography>
+              <TextField
+                fullWidth
+                label={t('userName')}
+                onChange={e => setUserUsername(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    handleSearchUser();
+                  }
+                }}
+                margin="normal"/>
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 2, mt: 2,}}>
+              <Typography variant="h6">{t('searchResults')}</Typography>
+                {loading ? (
+                  <Typography>{t('loading')}</Typography>
+                ) : error ? (
+                  <Typography color="error">{error}</Typography>
+                ) : searches.length > 0 ? (
+                  <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2}}>
+                    {searches.map(user => (
+                      <Card key={user._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }} >
+                        <Avatar
+                          src={user.profilePic ? `${baseUrl}/uploads/${user.profilePic}` : '/default-avatar.png'}
+                          alt={user.name}
+                          sx={{ width: 56, height: 56, mr: 2 }}
+                        />
+                        <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                        <Typography sx={{fontWeight: '400', fontSize: '28px' }}>{user.name}</Typography>
+                        <Typography>@{user.username}</Typography>
+                        </Box>
+                        {isFollowing(user._id) ? (
+                          <Typography sx={{ ml: 2, color: 'green', display: 'inline-block' }}>
+                            {t('following')}
+                          </Typography>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleFollow(user._id)}
+                            sx={{ ml: 2 }}
+                          >
+                            {t('follow')}
+                          </Button>
+                        )}
+                      </Card>
+                    ))}
+                  </Box>
+                ) : (
+                <Typography>{t('noResults')}</Typography>
+              )}
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'column', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2, width: '45%' }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollowed')}</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                    {following.map(f => (
+                        f.followed ? (
+                            <Card key={f.follower._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }}>
+                               <Avatar
+                                  src={f.followed.profilePic ? `${baseUrl}/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
+                                  alt={f.followed.name}
+                                  sx={{ width: 56, height: 56, mr: 2 }}
+                                />
+                                <CardContent>
+                                    <Typography variant="h6" sx={{ mb: 1 }}>{f.followed.name}</Typography>
+                                    <Typography variant="body2" color="text.secondary">{t('since')}: {f.createdAt}</Typography>
+                                    <Typography variant="body2" color="text.secondary">{t('bio')}: {f.followed.bio}</Typography>
+                                </CardContent>
+                                <Button
+                                variant="outlined"
+                                color="error"
+                                onClick={() => handleUnfollow(f.followed._id)}
+                                >
+                                t{'Unfollow'}
+                              </Button>
+                            </Card>
+                        ) : null
+                    ))}
+                </Box>
+            </Box>
+
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'column', alignItems:'center', gap: 2, width: '45%' }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollowers')}</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                    {followers.map(f => (
+                        f.follower ? (
+                        <Card key={f.follower._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }}>
+                        <Avatar
+                            src={
+                            f.follower.profilePic
+                                ? `${baseUrl}/uploads/${f.follower.profilePic}`
+                                : '/default-avatar.png'
+                            }
+                            alt={f.follower.name}
+                            sx={{ width: 56, height: 56, mr: 2 }}
+                        />
+                        <CardContent sx={{ flexGrow: 1 }}>
+                            <Typography variant="h6" sx={{ mb: 1 }}>{f.follower.name}</Typography>
+                            <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.createdAt).toLocaleDateString()}</Typography>
+                            <Typography variant="body2" color="text.secondary">{t('bio')}: {f.follower.bio}</Typography>
+                        </CardContent>
+                        {isFollowing(f.follower._id) ? (
+                            <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={() => handleUnfollow(f.follower._id)}
+                            >
+                            Unfollow
+                            </Button>
+                        ) : (
+                            <Button
+                            variant="contained"
+                            onClick={() => handleFollow(f.follower._id)}
+                            >
+                            Follow
+                            </Button>
+                        )}
+                        </Card>
+                    ) : null
+                    ))}
+                </Box>
+            </Box>
+        </Box>
         <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', alignItems: 'center', width: '100%' }}>    
           <TopRatingsList limit={5} title={t('topRated')} />        
           <TopFavoritosList limit={5} title={t('topLiked')}/>        

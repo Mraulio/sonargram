@@ -16,7 +16,7 @@
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.4",
-    "framer-motion": "^12.17.0",
+    "framer-motion": "^12.18.1",
     "i18next": "^24.2.3",
     "i18next-browser-languagedetector": "^8.0.4",
     "jwt-decode": "^4.0.0",
@@ -32,7 +32,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "serve": "serve -s build"
   },
   "eslintConfig": {
     "extends": [
@@ -51,5 +52,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
   }
 }

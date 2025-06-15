@@ -6,6 +6,7 @@ import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider,
 import useFollow from '../hooks/useFollow';
 import useUser from '../hooks/useUser';
 import Menu from '../components/Menu';
+import baseUrl from '../config.js';
 
 
 function FollowedPage() {
@@ -61,7 +62,7 @@ function FollowedPage() {
                         f.followed ? (
                             <Card key={f.followed._id} sx={{ width: '500px', p: 2 }}>
                                <Avatar
-                                  src={f.followed.profilePic ? `http://localhost:5000/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
+                                  src={f.followed.profilePic ? `${baseUrl}/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
                                   alt={f.followed.name}
                                   sx={{ width: 56, height: 56, mr: 2 }}
                                 />

@@ -7,6 +7,7 @@ import Followers from '../components/Followers';
 import useUser from '../hooks/useUser';
 import Menu2 from '../components/Menu2';
 import TopRatingsUser from '../components/TopRatingsUser'
+import baseUrl from '../config.js';
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
@@ -247,7 +248,7 @@ function UserPage() {
           <img
             src={
               currentUser && currentUser.profilePic
-                ? `http://localhost:5000/uploads/${currentUser.profilePic}`
+                ? `${baseUrl}/uploads/${currentUser.profilePic}`
                 : '/assets/images/profilepic_default.png'
             }
             alt="Profile Pic"
@@ -327,7 +328,7 @@ function UserPage() {
               <img
                 src={
                   selectedUser.profilePic
-                    ? `http://localhost:5000/uploads/${selectedUser.profilePic}`
+                    ? `${baseUrl}/uploads/${selectedUser.profilePic}`
                     : '/assets/images/profilepic_default.png'  // Accede directamente a la carpeta public
                 }
                 alt="Profile Pic"

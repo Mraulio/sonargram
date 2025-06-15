@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Menu2 from '../components/Menu2'
 import { Link } from 'react-router-dom'; // Asegúrate de importar Link
+import baseUrl from "../config.js";
 import InfoModal from '../components/InfoModal';
 
 
@@ -948,7 +949,6 @@ const handleSearchUser = async (term = searchTerm) => {
                           <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>
                         </Box>
                       
-                      {/* Botón Follow/Following */}
                       {isFollowing(user._id) ? (
                         <Typography color="success.main">{t('following')}</Typography>
                       ) : (
