@@ -53,15 +53,16 @@ const ItemRow = ({
         />
       )}
 
-      <span
-        onClick={onClickItem ? () => onClickItem(item.id || item.musicbrainzId) : undefined}
-        style={{
-          color: highlightColor || "black",
-          textDecoration: onClickItem ? "underline" : "none",
-          flexGrow: 1,
-          cursor: onClickItem ? "pointer" : "default",
-        }}
-      >
+       <Typography
+            onClick={onClickItem ? () => onClickItem(item.id) : undefined}
+            sx={{
+              color: "text.primary",
+              textDecoration: onClickItem ? "underline" : "none",
+              flexGrow: 1,
+              fontWeight: "bold", // negrita
+              cursor: onClickItem ? "pointer" : "default",
+            }}
+          >
         {type === "album"
           ? `${item.title}${
               item.artist
@@ -81,7 +82,7 @@ const ItemRow = ({
                 : ""
             }`
           : item.name || item.title}
-      </span>
+      </Typography>
 
       <Typography
         variant="body2"

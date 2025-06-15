@@ -1,10 +1,51 @@
 import { useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Avatar, Box, Typography, Card, CardContent, Button, Divider} from '@mui/material';
+import { Avatar, Box, Typography, Card, CardContent, Button, Divider, styled} from '@mui/material';
 import useFollow from '../hooks/useFollow';
 import useUser from '../hooks/useUser';
 import { useNavigate } from 'react-router-dom';
+import baseUrl from '../config.js';
+const FollowBox = styled(Box)`
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: center; 
+    gap: 2;
+    width: 100%;
+
+    @media (max-width: 960px) {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100vw;
+  }
+
+    `;
+const FollowBoxContent = styled(Box)`
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    margin-top: 10px; 
+    width: 45%; 
+    height: 40vh;
+    overflow-y: auto;
+    
+    @media (max-width: 960px) {
+    width: 95%
+    }
+
+`;
+
+const FollowCard = styled(Card)`
+    width: 650px; 
+    padding: 15px; 
+    display: flex; 
+    align-items: center;
+
+    @media (max-width: 960px) {
+    width: 95%
+    }
+`;
 
 function Followers({ userId: propUserId }) {
     const { t } = useTranslation();
@@ -51,15 +92,15 @@ function Followers({ userId: propUserId }) {
     const isFollowing = (id) => following.some(f => f.followed && f.followed._id === id);
 
     return (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
-            <Box sx={{ display: 'flex',  flexDirection: 'column', gap: 2,  alignItems: 'center', mt: 2, width: '45%', height: '40vh', overflowY: 'auto' }}>
+        <FollowBox>
+            <FollowBoxContent> 
                 <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollowed')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
                     {following.map(f => (
                         f.followed ? (
-                            <Card key={f.followed._id} sx={{ width: '650px', p: 2, display: 'flex', alignItems: 'center' }}>
+                            <FollowCard key={f.followed._id} >
                                 <Avatar
-                                    src={f.followed.profilePic ? `http://localhost:5000/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
+                                    src={f.followed.profilePic ? `${baseUrl}/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
                                     alt={f.followed.name}
                                     sx={{ width: 60, height: 60, mr: 2 }}
                                 />
@@ -74,7 +115,8 @@ function Followers({ userId: propUserId }) {
                                     <Divider/>
                                     <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent:'space-between' }}>
                                         <Box>
-                                            <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.createdAt).toLocaleDateString()}</Typography>
+                                            <Typography variant="body2" color="text.secondary">email: {f.followed.email}</Typography>
+                                            <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.followed.createdAt).toLocaleDateString()}</Typography>
                                             <Typography variant="body2" color="text.secondary">{t('bio')}: {f.followed.bio}</Typography>
                                         </Box>
                                 {!propUserId && (
@@ -82,28 +124,30 @@ function Followers({ userId: propUserId }) {
                                         variant="contained"
                                         color="error"
                                         onClick={() => handleUnfollow(f.followed._id)}
+                                     
                                     >
                                         {t('unfollow')}
+                                        
                                     </Button>
                                 )}
                                     </Box>
                                 </CardContent>
-                            </Card>
+                            </FollowCard>
                         ) : null
                     ))}
                 </Box>
-            </Box>
+            </FollowBoxContent>
 
-            <Box sx={{  display: 'flex',  flexDirection: 'column', gap: 2,  alignItems: 'center', mt: 2, width: '45%', height: '40vh', overflowY: 'auto'  }}>
+            <FollowBoxContent >
                 <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollowers')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
                     {followers.map(f => (
                         f.follower ? (
-                            <Card key={f.follower._id} sx={{ width: '650px', p: 2, display: 'flex', alignItems: 'center' }}>
+                            <FollowCard key={f.follower._id} >
                                 <Avatar
                                     src={
                                         f.follower.profilePic
-                                            ? `http://localhost:5000/uploads/${f.follower.profilePic}`
+                                            ? `${baseUrl}/uploads/${f.follower.profilePic}`
                                             : '/default-avatar.png'
                                     }
                                     alt={f.follower.name}
@@ -120,7 +164,8 @@ function Followers({ userId: propUserId }) {
                                     <Divider/>
                                     <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent:'space-between' }}>
                                         <Box>
-                                            <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.createdAt).toLocaleDateString()}</Typography>
+                                            <Typography variant="body2" color="text.secondary">email: {f.follower.email}</Typography>
+                                            <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.follower.createdAt).toLocaleDateString()}</Typography>
                                             <Typography variant="body2" color="text.secondary">{t('bio')}: {f.follower.bio}</Typography>
                                         </Box>
                                 
@@ -130,6 +175,7 @@ function Followers({ userId: propUserId }) {
                                             variant="contained"
                                             color="error"
                                             onClick={() => handleUnfollow(f.follower._id)}
+                                            
                                         >
                                             {t('unfollow')}
                                         </Button>
@@ -145,12 +191,12 @@ function Followers({ userId: propUserId }) {
                                 )}
                                         </Box>
                                 </CardContent>
-                            </Card>
+                            </FollowCard>
                         ) : null
                     ))}
                 </Box>
-            </Box>
-        </Box>
+            </FollowBoxContent>
+        </FollowBox>
     );
 }
 

@@ -95,7 +95,26 @@
     "userLists": "Listas del usuario",
     "dateofcreation": "Fecha de creación",
     "lastupdate": "Última actualización",
-    "numberSongs": "Número de canciones"
+    "numberSongs": "Número de canciones",
+    "artistsFound": "Artistas encontrados",
+    "albumFound": "Álbum encontrado",
+    "artistsAlbumFound": "Álbum del artista encontrado",
+    "albumSongsFound": "Canciones del álbum encontradas",
+    "songsFound": "Canciones encontradas",
+    "foundLists": "Listas encontradas",
+    "foundUsers": "Usuarios encontrados",
+    "listUnfollowed": "Lista dejada de seguir",
+    "topRated": "Mejor Valorados por la comunidad",
+    "errorFetchingTopRatings": "Error cargando ratings más altos",
+    "errorFetchingTopFavorites": "Error al buscar los favoritos más valorados",
+    "averageRating": "Rating promedio",
+    "votesNumber": "Número de votos",
+    "bestRated": "Mejor Valorados",
+    "mostLiked": "Más gustados",
+    "count": "Cantidad de Me Gusta",
+    "Albums": "Álbumes",
+    "Artists": "Artistas",
+    "topLiked": "Más Gustados de la comunidad"
 
     
   }  
