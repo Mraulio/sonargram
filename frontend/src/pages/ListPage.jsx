@@ -36,7 +36,7 @@ const ButtonBox= styled(Box)`
   display: flex;
   justify-content:end;
   gap: 15px;
- padding: 10px 20px 0 0;
+  padding: 10px 20px 0 0;
 `;
 const CustomTextField = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {

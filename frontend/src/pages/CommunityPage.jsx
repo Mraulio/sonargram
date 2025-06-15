@@ -109,11 +109,11 @@ function CommunityPage() {
 
   return (
 
-      <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap:'wrap', padding: 0, gap: 2, justifyContent: 'center', alignItems: 'center', width: '100vw', minHeight:'100vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0, gap: 2, minHeight:'100vh' }}>
         <Menu2 />
-        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center' }}>    
-          <TopRatingsList limit={5} title="Top 5 por Rating" />        
-          <TopFavoritosList limit={5}/>        
+        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', alignItems: 'center', width: '100%' }}>    
+          <TopRatingsList limit={5} title={t('topRated')} />        
+          <TopFavoritosList limit={5} title={t('topLiked')}/>        
       </Box> 
       </Box>
 
