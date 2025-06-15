@@ -38,7 +38,32 @@ const ButtonBox= styled(Box)`
   gap: 15px;
  padding: 10px 20px 0 0;
 `;
-
+const CustomTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      border: 'none',
+      borderBottom: `2px solid `, // color del borde
+      borderRadius: 0,
+    },
+    '&:hover fieldset': {
+      borderBottom: `2px solid`, // hover
+    },
+    '&.Mui-focused fieldset': {
+      borderBottom: `2px solid`, // foco
+    },
+    color: theme.palette.text.primary,
+  },
+  '& input': {
+    color: theme.palette.text.primary, // texto introducido
+  },
+  '& label': {
+    color: theme.palette.text.primary, // etiqueta
+  },
+  '& label.Mui-focused': {
+    color: theme.palette.primary.main, // etiqueta con foco
+  },
+  width: '450px',
+}));
 
 function ListPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -295,7 +320,7 @@ function ListPage() {
               <ListCard>
                 <ListCardContent sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', width:'100%' }}>
                   <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
-                  <TextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
+                  <CustomTextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
                   <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2, backgroundColor: '#d63b1f'  }}>{ t('createListButton')}</Button>
                 </ListCardContent>
               </ListCard>   
@@ -320,11 +345,15 @@ function ListPage() {
                         {l.name}
                       </Typography>
                       <Divider/>
-                      {l.isFavoriteList !== true && (
+                      <Typography variant="body2" color="text.secondary">
+                        {t('numberSongs')}: {l.songs.length} {t('songs')}
+                      </Typography>
+                      {l.isFavoriteList !== true && l.isRatingList !== true && (
                         <>
                       <Typography variant="body2" color="text.secondary">
-                        {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
+                        {t('creatorOfList')}: {creatorNames[l.creator] || l.creator || t('unknown')}
                       </Typography>
+                      
                       <Typography variant="body2" color="text.secondary">
                          {t('dateofcreation')}: {l.createdAt.slice(0, 10)}
                       </Typography>
@@ -332,10 +361,10 @@ function ListPage() {
                         {t('lastupdate')}: {l.updatedAt.slice(0, 10)}
                       </Typography>
                       </>
-                        )}
+                      )}
                       
 
-                   {l.isFavoriteList !== true && (
+                   {l.isFavoriteList !== true && l.isRatingList !== true && (
                     <ButtonBox>
                       <Button
                         variant="contained"
@@ -381,14 +410,18 @@ function ListPage() {
                     </Typography>
                   <Divider sx={{ my: 1 }} />  
                   <Typography variant="body2" color="text.secondary">
-                      {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
+                        {t('numberSongs')}: {l.songs.length} {t('songs')}
+                      </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                      {t('creatorOfList')}: {creatorNames[l.creator] || l.creator || t('unknown')}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                          {t('dateofcreation')}: {l.createdAt.slice(0, 10)}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         {t('lastupdate')}: {l.updatedAt.slice(0, 10)}
-                      </Typography>            
+                      </Typography>  
+                             
                   
                     <ButtonBox>
                       <Button onClick={() => (handleUnfollowList(l._id))} variant= "contained" color="error">{t('unfollow')}</Button>
@@ -421,6 +454,9 @@ function ListPage() {
                         {l.name}
                       </Typography>
                       <Divider sx={{ my: 1 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {t('numberSongs')}: {l.songs.length} {t('songs')}
+                      </Typography>
                       <Typography variant="body2" color="text.secondary">
                         {t('creatorOfList')}: {l.creator?.name || t('unknown')}
                       </Typography>

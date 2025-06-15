@@ -69,7 +69,35 @@
     "close": "Close",
     "songs": "Songs",
     "list": "List",
-    "detail": "Detail"
+    "detail": "Detail",
+    "dataUser": "User profile data",
+    "deleteProfilePic": "Delete profile pic",
+    "userUpdated": "User updated",
+    "errorDeleteProfilePic": "Failed to delete profile picture",
+    "errorUpdateProfilePic": "Failed to update profile picture",
+    "errorUpdateUser": "Error updating user",
+    "errorUpdatingUserFields": "Error updating user fields",
+    "errorAccessDenied": "Access denied",
+    "errorUserNotFound": "User not found",
+    "errorUpdatingUser": "Error updating user",
+    "errorDeletingUser": "Error deleting user",
+    "errorFetchingCurrentUser": "Error fetching current user",
+    "usersfollowed": "Followed",
+    "usersfollowers": "Followers",
+    "since": "Since",
+    "bio": "Biography",
+    "userFollowed": "User Followed",
+    "errorFetchingFollowers": "Error fetching followers",
+    "errorFollowingUser": "Error following user",
+    "publicProfile": "User profile",
+    "userName": "Username",
+    "createDate": "Creation date",
+    "userLists": "User Lists",
+    "dateofcreation": "Date of Creation",
+    "lastupdate": "Last update",
+    "numberSongs": "Number of Songs"
+
+
     
   }
   

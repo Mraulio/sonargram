@@ -70,5 +70,32 @@
     "close": "Cerrar",
     "songs": "Canciones",
     "list": "Lista",
-    "detail": "Detalle"
+    "detail": "Detalle",
+    "deleteProfilePic": "Borrar foto de perfil",
+    "userUpdated": "Usuario actualizado",
+    "errorDeleteProfilePic": "Error al eliminar foto de perfil",
+    "errorUpdateProfilePic": "Error al actualizar imagen",
+    "errorUpdateUser": "Error al actualizar usuario",
+    "errorUpdatingUserFields": "Error al actualizar los campos del usuario",
+    "errorAccessDenied": "Acceso denegado",
+    "errorUserNotFound": "Usuario no encontrado",
+    "errorUpdatingUser": "Error al actualizar usuario",
+    "errorDeletingUser": "Error al borrar usuario",
+    "errorFetchingCurrentUser": "Error al buscar usuario actual",
+    "since": "Desde",
+    "bio": "Biografía",
+    "userFollowed": "Usuario seguido",
+    "errorFetchingFollowers": "Error al buscar seguidores",
+    "errorFollowingUser": "Error al seguir usuario",
+    "usersfollowed": "Seguidos",
+    "usersfollowers": "Seguidores",
+    "publicProfile": "Perfil de usuario",
+    "userName": "Nombre de usuario",
+    "createDate": "Fecha de creación",
+    "userLists": "Listas del usuario",
+    "dateofcreation": "Fecha de creación",
+    "lastupdate": "Última actualización",
+    "numberSongs": "Número de canciones"
+
+    
   }  
