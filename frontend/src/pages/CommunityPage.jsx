@@ -115,6 +115,8 @@ function CommunityPage() {
         <Menu2 />
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '90vw' }}>
           <Box>
+            <TopRatingsList limit={5} title={t('topRated')} />        
+          <TopFavoritosList limit={5} title={t('topLiked')}/>  
             <Typography variant="h5">{t('findUsers')}</Typography>
               <TextField
                 fullWidth
@@ -138,7 +140,7 @@ function CommunityPage() {
                     {searches.map(user => (
                       <Card key={user._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }} >
                         <Avatar
-                          src={user.profilePic ? `${baseUrl}/uploads/${user.profilePic}` : '/default-avatar.png'}
+                          src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/default-avatar.png'}
                           alt={user.name}
                           sx={{ width: 56, height: 56, mr: 2 }}
                         />
@@ -177,7 +179,7 @@ function CommunityPage() {
                         f.followed ? (
                             <Card key={f.follower._id} sx={{ width: '500px', p: 2, display: 'flex', alignItems: 'center' }}>
                                <Avatar
-                                  src={f.followed.profilePic ? `${baseUrl}/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
+                                  src={f.followed.profilePic ? `http://localhost:5000/uploads/${f.followed.profilePic}` : '/default-avatar.png'}
                                   alt={f.followed.name}
                                   sx={{ width: 56, height: 56, mr: 2 }}
                                 />
@@ -208,7 +210,7 @@ function CommunityPage() {
                         <Avatar
                             src={
                             f.follower.profilePic
-                                ? `${baseUrl}/uploads/${f.follower.profilePic}`
+                                ? `http://localhost:5000/uploads/${f.follower.profilePic}`
                                 : '/default-avatar.png'
                             }
                             alt={f.follower.name}

@@ -89,7 +89,7 @@ function OtherFollowers({ userId: propUserId }) {
 
     return (
         <FollowBox >
-            {/* USUARIOS SEGUIDOS */}
+
             <FollowBoxContent>
                 <Typography variant="h4" sx={{ mb: 2 }}>{t('usersfollowed')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
@@ -152,7 +152,6 @@ function OtherFollowers({ userId: propUserId }) {
                                             ? `${baseUrl}/uploads/${f.follower.profilePic}`
                                             : '/default-avatar.png'
                                     }
-                                    src={f.follower.profilePic ? `http://localhost:5000/uploads/${f.follower.profilePic}` : '/default-avatar.png'}
                                     alt={f.follower.name}
                                     sx={{ width: 60, height: 60, mr: 2 }}
                                 />
