@@ -228,7 +228,7 @@ function UserPage() {
  return (
   <Box style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center' }}>
     <Menu2 />
-    <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh'}}>
+    <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100vw'}}>
       <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', width: '600px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
         <Typography variant="h4" gutterBottom>
           {t('dataUser')}

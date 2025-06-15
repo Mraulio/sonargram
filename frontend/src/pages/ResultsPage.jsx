@@ -49,6 +49,73 @@ const CustomTextField = styled(TextField)({
   width: '20vw',
 });
 
+const ListCard= styled(Card)`
+  width: 45vw;
+  height: 200px; 
+  display: flex;  
+  align-items: center;
+  @media (max-width: 960px) {
+    width:95%;
+  }
+`;
+
+const ListCardContent= styled(CardContent)`
+  display: flex; 
+  flex-direction: column;
+  justify-content:center;
+  width:100%;
+`;
+
+const FollowBox = styled(Box)`
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: center; 
+    gap: 2;
+    width: 100%;
+
+    @media (max-width: 960px) {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100vw;
+  }
+
+    `;
+
+  const FollowBoxContent = styled(Box)`
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    margin-top: 10px; 
+    width: 45%; 
+    height: 40vh;
+    overflow-y: auto;
+    
+    @media (max-width: 960px) {
+    width: 95%
+    }
+
+`;
+const FollowCard = styled(Card)`
+    width: 650px; 
+    padding: 15px; 
+    display: flex; 
+   
+    align-items: center;
+
+    @media (max-width: 960px) {
+    width: 95%
+    }
+`;
+
+const ButtonBox= styled(Box)`
+  width:100%;
+  display: flex;
+  justify-content:end;
+  gap: 15px;
+  padding: 10px 20px 0 0;
+`;
+
 function ResultsPage() {
   const { token, user } = useContext(UserContext);
   console.log("USER CONTEXT:", user.userId);
@@ -415,12 +482,14 @@ function ResultsPage() {
               }}
             />
           )}
-          <span
+          <Typography
             onClick={onClickItem ? () => onClickItem(item.id) : undefined}
-            style={{
-              color: highlightColor || "black",
+            sx={{
+              color: "text.primary",
               textDecoration: onClickItem ? "underline" : "none",
               flexGrow: 1,
+              fontWeight: "bold", // negrita
+              cursor: onClickItem ? "pointer" : "default",
             }}
           >
             {type === "album" && item.title
@@ -430,7 +499,7 @@ function ResultsPage() {
                   item.artist ? " — " + item.artist : ""
                 }`
               : item.name || item.title}
-          </span>
+          </Typography>
           <Typography
             variant="body2"
             sx={{ mr: 3, minWidth: 60, textAlign: "right" }}
@@ -677,7 +746,7 @@ const handleSearchUser = async (term = searchTerm) => {
           {artistResults.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Artistas encontrados</Typography>
+              <Typography variant="h4">{t('artistsFound')}</Typography>
               {renderItemList(
                 artistResults,
                 "artist",
@@ -690,7 +759,7 @@ const handleSearchUser = async (term = searchTerm) => {
           {selectedArtistAlbums.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Álbumes del artista</Typography>
+              <Typography variant="h5">{t('artistsAlbumFound')}</Typography>
               {renderItemList(
                 selectedArtistAlbums,
                 "album",
@@ -703,7 +772,7 @@ const handleSearchUser = async (term = searchTerm) => {
           {selectedAlbumSongsFromArtist.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Canciones del álbum</Typography>
+              <Typography variant="h5">{t('albumSongsFound')}</Typography>
               {renderItemList(selectedAlbumSongsFromArtist, "song", null, null)}
             </>
           )}
@@ -723,7 +792,7 @@ const handleSearchUser = async (term = searchTerm) => {
           {albumResults.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Álbumes encontrados</Typography>
+              <Typography variant="h4">{t('albumFound')}</Typography>
               {renderItemList(
                 albumResults,
                 "album",
@@ -736,7 +805,7 @@ const handleSearchUser = async (term = searchTerm) => {
           {selectedAlbumSongs.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Canciones del álbum</Typography>
+              <Typography variant="h5">{t('albumSongsFound')}</Typography>
               {renderItemList(selectedAlbumSongs, "song", null, null)}
             </>
           )}
@@ -757,7 +826,7 @@ const handleSearchUser = async (term = searchTerm) => {
           {songResults.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">Canciones encontradas</Typography>
+              <Typography variant="h4">{t('songsFound')}</Typography>
               {renderItemList(songResults, "song", null, null)}
             </>
           )}
@@ -796,8 +865,8 @@ const handleSearchUser = async (term = searchTerm) => {
                 {t('foundLists')}
               </Typography>)}
             {searchResults.map(l => (
-              <Card key={l._id} sx={{ width: "45%", mb: 2 }}>
-                <CardContent>
+              <ListCard key={l._id} >
+                <ListCardContent>
                   <Typography
                     variant="h6"
                     sx={{ mb: 1, cursor: 'pointer' }}
@@ -809,69 +878,97 @@ const handleSearchUser = async (term = searchTerm) => {
                     {l.name}
                   </Typography>
                   <Divider/>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                
                     <Typography variant="body2" color="text.secondary">
                       {t('creator')}: {l.creator.name || t('unknown')}
                     </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        {t('numberSongs')}: {l.songs.length} {t('songs')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('creatorOfList')}: {l.creator?.name || t('unknown')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                         {t('dateofcreation')}: {l.createdAt.slice(0, 10)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('lastupdate')}: {l.updatedAt.slice(0, 10)}
+                      </Typography>
+                      
+                      <Box sx={{ mt: 2 }}>
                     {followedLists.some(followed => String(followed._id) === String(l._id)) ? (
-                      <Typography color="success.main">{t('following')}</Typography>
+                      <ButtonBox>
+                        <Typography color="success.main">{t('following')}</Typography>
+                      </ButtonBox>
                     ) : (
-                      <Button onClick={() => handlefollowList(l._id)} color="error">
+                      <ButtonBox>
+                      <Button onClick={() => handlefollowList(l._id)} sx={{backgroundColor: '#d63b1f', color: 'white'}}>
                         {t('follow')}
                       </Button>
+                      </ButtonBox>
                     )}
                   </Box>
-                </CardContent>
-              </Card>
+                </ListCardContent>
+              </ListCard>
             ))}
             </Box>
             {/* COLUMNA Usuarios */}
-            <Box sx={{ display: "flex", flexDirection:'column', gap: 2}} >
               {searches.length > 0 && (
               <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
                 {t('foundUsers')}
               </Typography>
             )}
+            <FollowBoxContent>
               {searches.map(user => (
-                <Card key={user._id} sx={{ width: '45%', display: 'flex', alignItems: 'center', p: 2, mb: 2 }}>
-                  <Avatar
-                    src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png'}
-                    alt={user.name}
-                    sx={{ width: 100, height: 100, mr: 2 }}
-                  />
-                  <CardContent sx={{ flex: 1 }}>
-                    <Typography
-                      variant="h6"
-                      component={Link}
-                      to={`/userresult/${user._id}`}
-                      sx={{
-                        color: 'primary.main',
-                        textDecoration: 'underline',
-                        cursor: 'pointer',
-                        '&:hover': { color: 'secondary.main' }
-                      }}
-                    >
-                      {user.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">{user.email}</Typography>
-                    <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>
-                    {/* Botón Follow/Following */}
-                    {isFollowing(user._id) ? (
-                      <Typography color="success.main">{t('following')}</Typography>
-                    ) : (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleFollow(user._id)}
-                        sx={{ mt: 1 }}
+                
+                  <FollowCard key={user._id} >
+                    <Avatar
+                      src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png'}
+                      alt={user.name}
+                      sx={{ width: 100, height: 100, mr: 2 }}
+                    />
+                  <CardContent sx={{ width: '100%' }}>
+                      <Typography
+                        variant="h5"
+                        component={Link}
+                        to={`/userresult/${user._id}`}
+                        sx={{
+                          color: 'text.primary',
+                          textDecoration: 'none',
+                          cursor: 'pointer',
+                        }}
                       >
-                        {t('follow')}
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
+                        {user.name}
+                      </Typography>
+                      <Divider/>
+                      <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent:'space-between'}}>
+                        <Box >
+                          <Typography variant="body2" color="text.secondary">email: {user.email}</Typography>
+                          <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(user.createdAt).toLocaleDateString()}</Typography>
+                          <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>
+                        </Box>
+                      
+                      {/* Botón Follow/Following */}
+                      {isFollowing(user._id) ? (
+                        <Typography color="success.main">{t('following')}</Typography>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleFollow(user._id)}
+                          sx={{ mt: 1 }}
+                        >
+                          {t('follow')}
+                        </Button>
+                      )}
+                      </Box>
+                    </CardContent>
+                  </FollowCard>
+                
               ))}
-            </Box>
+              </FollowBoxContent>
+              
+          
       </Box>
       <Dialog open={openSongsModal} onClose={() => setOpenSongsModal(false)}>
         <DialogTitle>{t('songs')}</DialogTitle>

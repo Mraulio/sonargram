@@ -95,7 +95,15 @@
     "userLists": "Listas del usuario",
     "dateofcreation": "Fecha de creación",
     "lastupdate": "Última actualización",
-    "numberSongs": "Número de canciones"
+    "numberSongs": "Número de canciones",
+    "artistsFound": "Artistas encontrados",
+    "albumFound": "Álbum encontrado",
+    "artistsAlbumFound": "Álbum del artista encontrado",
+    "albumSongsFound": "Canciones del álbum encontradas",
+    "songsFound": "Canciones encontradas",
+    "foundLists": "Listas encontradas",
+    "foundUsers": "Usuarios encontrados",
+    "listUnfollowed": "Lista dejada de seguir"
 
     
   }  

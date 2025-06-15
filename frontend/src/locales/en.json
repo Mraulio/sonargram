@@ -95,7 +95,14 @@
     "userLists": "User Lists",
     "dateofcreation": "Date of Creation",
     "lastupdate": "Last update",
-    "numberSongs": "Number of Songs"
+    "numberSongs": "Number of Songs",
+    "artistsFound": "Artists Found",
+    "albumFound": "Album Found",
+    "artistsAlbumFound": "Artist's Album Found",
+    "albumSongsFound": "Album Songs Found",
+    "songsFound": "Songs Found",
+    "foundLists": "Found Lists",
+    "foundUsers": "Found Users"
 
 
     

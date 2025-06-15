@@ -108,6 +108,7 @@ function OtherFollowers({ userId: propUserId }) {
                                     >
                                         {f.followed.name}
                                     </Typography>
+                                    <Typography variant="body2" color="text.secondary">email: {f.followed.email}</Typography>
                                     <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.createdAt).toLocaleDateString()}</Typography>
                                     <Typography variant="body2" color="text.secondary">{t('bio')}: {f.followed.bio}</Typography>
                                 </CardContent>
