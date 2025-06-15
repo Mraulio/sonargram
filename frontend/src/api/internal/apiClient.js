@@ -2,9 +2,9 @@ import axios from 'axios';
 
 const createApiClient = (token) => {
   const apiClient = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000/api',
   });
-
+  
   // Interceptor para incluir el token en cada solicitud
   apiClient.interceptors.request.use(
     config => {
