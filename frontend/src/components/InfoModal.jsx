@@ -11,6 +11,7 @@ import ItemRow from './ItemRow';
 import ItemList from './ItemList';
 import useList from '../hooks/useList';
 import { UserContext } from "../context/UserContext";
+import { useTranslation } from 'react-i18next';
 
 const style = {
   position: 'absolute',
@@ -24,6 +25,7 @@ const style = {
 const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) => {
   const [listItems, setListItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();  // Hook para obtener las traducciones
 
   const { fetchListById } = useList();
   const { token, user } = useContext(UserContext);
@@ -132,7 +134,7 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
       <Modal open={open} onClose={onClose}>
         <Paper sx={style}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">Detalle {type}</Typography>
+            <Typography variant="h6">{t('detail')} {t(type)}</Typography>
             <IconButton size="small" onClick={onClose}>
               <FontAwesomeIcon icon={faTimes} />
             </IconButton>
@@ -156,7 +158,7 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
           {type === 'list' && (
             <>
               <Typography variant="subtitle1" gutterBottom>
-                Lista: {data.name}
+                {t('list')}: {data.name}
               </Typography>
               {loading ? (
                 <CircularProgress />

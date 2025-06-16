@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect, useRef } from 'react';
-import { TextField, Button, Typography, Card, CardContent, Box, Divider, ButtonBase, Modal } from '@mui/material';
+import { TextField, Button, Typography, Card, CardContent, Box, Divider, ButtonBase, Modal, styled } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,33 @@ import useUser from '../hooks/useUser';
 import Menu2 from '../components/Menu2';
 import TopRatingsUser from '../components/TopRatingsUser'
 import baseUrl from '../config.js';
+
+const CustomTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      border: 'none',
+      borderBottom: `2px solid `, // color del borde
+      borderRadius: 0,
+    },
+    '&:hover fieldset': {
+      borderBottom: `2px solid`, // hover
+    },
+    '&.Mui-focused fieldset': {
+      borderBottom: `2px solid`, // foco
+    },
+    color: theme.palette.text.primary,
+  },
+  '& input': {
+    color: theme.palette.text.primary, // texto introducido
+  },
+  '& label': {
+    color: theme.palette.text.primary, // etiqueta
+  },
+  '& label.Mui-focused': {
+    color: theme.palette.primary.main, // etiqueta con foco
+  },
+  width: '450px',
+}));
 
 function UserPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -51,7 +78,7 @@ function UserPage() {
                 setUserBio(user.bio); // Asignamos la biografía al estado
               }
             } catch (err) {
-              console.error('Error fetching current user:', err);
+              console.error(t('errorFetchingCurrentUser'), err);
             }
           };
       
@@ -64,7 +91,7 @@ function UserPage() {
               const user = await getCurrentUser();
               setCurrentUser(user);
             } catch (err) {
-              console.error("Error fetching current user", err);
+              console.error(t('errorFetchingCurrentUser'), err);
             }
           };
       
@@ -80,7 +107,7 @@ function UserPage() {
             logout(); // Cerrar sesión después de eliminar el usuario
           } catch (err) {
             alert(t('errorDeletingUser')); // Mensaje de error
-            console.error('Error deleting user:', err);
+            console.error(t('errorDeletingUser'), err);
           }
         };
 
@@ -96,7 +123,7 @@ function UserPage() {
             alert(t('userUpdated')); // Mensaje de éxito
        
           } catch (err) {
-            console.error('Error updating user:', err);
+            console.error(t('errorUpdateUser'), err);
         
             // Manejo de errores basado en la respuesta del backend
             if (err.response && err.response.status === 400) {
@@ -174,8 +201,8 @@ function UserPage() {
 
       setOpenProfilePicModal(false); // Cerrar el modal
     } catch (err) {
-      console.error("Error updating profile picture", err);
-      alert("Error al actualizar imagen");
+      console.error(t('errorUpdateProfilePic'), err);
+      alert(t('errorUpdateProfilePic'));
     }
   };
 
@@ -189,7 +216,7 @@ function UserPage() {
         const resp = await deleteProfilePic();
         setCurrentUser({...currentUser, profilePic: resp.updatedUser.profilePic});
       } catch (err) {
-        alert("Error al eliminar foto de perfil");
+        alert(t('errorDeleteProfilePic'));
         console.error(err);
       } 
   };
@@ -202,9 +229,9 @@ function UserPage() {
  return (
   <Box style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center' }}>
     <Menu2 />
-    <Box sx={{ display: 'flex', flexDirection:'column', height: '100vh', alignItems:'center'}}>
-      <Box sx={{ display: 'flex', flexDirection:'column', width: '50vw', marginBottom: '50px'}}>
-        <Typography variant="h5" gutterBottom>
+    <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100vw'}}>
+      <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', width: '600px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
+        <Typography variant="h4" gutterBottom>
           {t('dataUser')}
         </Typography>
     
@@ -236,29 +263,32 @@ function UserPage() {
           onChange={handleImageChange}
         />
         <br />
-        <Button variant="outlined" color="error" onClick={handleDeleteProfilePic} sx={{ mt: 2, width:'200px' }}>
+        <Button variant="outlined" color="error" onClick={handleDeleteProfilePic} sx={{ mt: 2 }}>
         {t('deleteProfilePic')}
         </Button>
-        <TextField
+        <CustomTextField
+          fullWidth
           label={t('name')}
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
           margin="normal"
         />
-        <TextField
+        <CustomTextField
+          fullWidth
           label={t('bio')} // Etiqueta traducida para la biografía
           value={userBio} // Estado para la biografía
           onChange={(e) => setUserBio(e.target.value)} // Actualiza el estado de la biografía
           margin="normal"/>
-        <Box sx={{ display: 'flex', justifyContent:'space-around'}}>
+        <Box sx={{ display: 'flex', justifyContent:'space-around', width:'100%'}}>
           <Button
             variant="contained"
+            color= "warning"
             onClick={() =>
               handleEditUser(userId, {
                 name: userName,
               })
             }
-            sx={{ mt: 2, width: '200px' }}
+            sx={{ mt: 2 }}
           >
             {t('editUserButton')}
           </Button>
@@ -266,14 +296,13 @@ function UserPage() {
             variant="contained"
             color="error"
             onClick={() => handleDeleteUser(userId)}
-            sx={{ mt: 2, width: '200px' }}
+            sx={{ mt: 2,  }}
           >
             {t('deleteUserButton')}
           </Button>
         </Box>  
-        </Box>
-      <Followers/>
-      <TopRatingsUser />
+        </Card>
+        <Followers/>
     {selectedUser && (
           <Modal
             open={openModal}

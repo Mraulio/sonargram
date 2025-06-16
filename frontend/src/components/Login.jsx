@@ -6,6 +6,7 @@ import { Box, Typography, Card, CardContent, Button, TextField, Divider, FormCon
 import useAuth from '../hooks/useAuth';  // Importamos el hook useAuth
 
 function Login() {
+  const { t } = useTranslation();  // Hook para obtener las traducciones
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const { loginHandler, loading, error } = useAuth();  // Usamos el hook de auth
@@ -20,7 +21,7 @@ function Login() {
       <Card sx={{ width: '400px', height: '290px' }}>
         <CardContent>
           <Typography variant="h5" component="div" gutterBottom>
-            Login
+            {t('login')}
           </Typography>
           <TextField
             label="Email"
@@ -31,7 +32,7 @@ function Login() {
             onChange={(e) => setLoginEmail(e.target.value)}
           />
           <TextField
-            label="Password"
+            label={t('password')}
             type="password"
             fullWidth
             margin="normal"
@@ -40,12 +41,18 @@ function Login() {
           />
           <Button
             variant="contained"
-            color="primary"
             fullWidth
             onClick={loginUserHandler}  // Usamos el handler aquí
-            sx={{ marginTop: '1rem' }}
+            sx={{
+              marginTop: '1rem',
+              backgroundColor: '#fb4925',
+              '&:hover': {
+                backgroundColor: '#d63b1f', // un tono más oscuro opcional para el hover
+              },
+              color:'white'
+            }}
           >
-            Login
+            {t('enter')}
           </Button>
         </CardContent>
       </Card>

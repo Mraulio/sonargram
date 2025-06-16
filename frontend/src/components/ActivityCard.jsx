@@ -25,6 +25,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import baseUrl from "../config.js";
 
+import { useTranslation } from 'react-i18next';
 const iconMap = {
   favorite: faHeart,
   rate: faStar,
@@ -48,6 +49,7 @@ const iconColors = {
 };
 
 const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
+  const { t } = useTranslation();  // Hook para obtener las traducciones
   const { user, action, createdAt } = activity;
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState({ type: null, data: null });
@@ -60,7 +62,7 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
   const navigate = useNavigate();
   const icon = iconMap[action];
   const iconColor = iconColors[action] || "#666";
-  const related = getRelatedContent(action, activity);
+  const related = getRelatedContent(action, activity, t);
 
   return (
     <>
@@ -102,12 +104,12 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                   sx={{
                     fontWeight: "bold",
                     cursor: "pointer",
-                    color: "primary.main",
+                    color: "#d63b1f",
                   }}
                 >
                   {user?.username || "Alguien"}
                 </Box>{" "}
-                {getActionDescription(action, activity)}{" "}
+                {getActionDescription(action, activity, t)}{" "}
                 {related && related.type === "compound" ? (
                   <>
                     <Box
@@ -118,12 +120,12 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                       sx={{
                         fontWeight: "bold",
                         cursor: "pointer",
-                        color: "primary.main",
+                        color: "#d63b1f",
                       }}
                     >
                       {related.items[0].single}
                     </Box>{" "}
-                    a la lista{" "}
+                    {t('toList')}{" "}
                     <Box
                       component="span"
                       onClick={() =>
@@ -132,7 +134,7 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                       sx={{
                         fontWeight: "bold",
                         cursor: "pointer",
-                        color: "primary.main",
+                        color: "#d63b1f",
                       }}
                     >
                       {related.items[1].single}
@@ -155,7 +157,7 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                     sx={{
                       fontWeight: "bold",
                       cursor: "pointer",
-                      color: "primary.main",
+                      color: '#d63b1f',
                     }}
                   >
                     {related.single}
