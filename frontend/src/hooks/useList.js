@@ -13,6 +13,7 @@ export default function useList(token) {
     setError(null);
     try {
       const data = await listaApi.getAllLists(token);
+       console.log('Valor de lists:', data); // <-- AQUÍ
       setLists(data);
     } catch (err) {
       setError(err.message || 'Error fetching all lists');
@@ -27,6 +28,7 @@ export default function useList(token) {
     setError(null);
     try {
       const data = await listaApi.getListsByUser(userId, token);
+       console.log('Valor de userLists:', data); // <-- AQUÍ
       setUserLists(data);
     } catch (err) {
       setError(err.message || 'Error fetching user lists');
@@ -121,6 +123,7 @@ export default function useList(token) {
     userLists,
     loading,
     error,
+    setUserLists,
     fetchAllLists,
     fetchListsByUser,
     createNewList,

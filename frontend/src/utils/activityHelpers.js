@@ -6,26 +6,27 @@
  * @param {object} activity - Objeto completo de la actividad.
  * @returns {string}
  */
-export function getActionDescription(action, activity) {
+
+export function getActionDescription(action, activity, t) {
   switch (action) {
     case 'favorite':
-      return 'marcó como favorito';
+      return t('markasfavorite');
     case 'rate':
-      return `calificó con nota ${activity.rating}`;
+      return `${t('ratedWith')} ${activity.rating}`;
     case 'createList':
-      return 'creó la lista';
+      return t('createdList');
     case 'addListSong':
-      return 'agregó la canción';
+      return t('addedSong');
     case 'followList':
-      return 'siguió la lista';
+      return t('followedList');
     case 'followUser':
-      return 'siguió al usuario';
+      return t('followedUser');
     case 'comment':
-      return 'comentó';
+      return t('commented');
     case 'recommendComment':
-      return 'recomendó un comentario';
+      return t('recommendedComment');
     default:
-      return 'hizo una actividad';
+      return t('didSomething');
   }
 }
 
@@ -35,9 +36,10 @@ export function getActionDescription(action, activity) {
  * @param {object} activity
  * @returns {{ single: string, type: string, data?: any } | null}
  */
-export function getRelatedContent(action, activity) {
+export function getRelatedContent(action, activity, t) {
   const { mbidData, activityRef, list } = activity;
   const targetType = activity.targetType;
+  
 
   if (action === 'addListSong') {
     const songTitle =
@@ -65,15 +67,15 @@ export function getRelatedContent(action, activity) {
   }
 
   if (['song', 'album', 'artist'].includes(targetType) && mbidData) {
-    const label =
-      targetType === 'song'
-        ? `Canción: ${mbidData.title || 'Desconocida'}`
-        : targetType === 'album'
-          ? `Álbum: ${mbidData.title || 'Desconocida'}`
-          : `Artista: ${mbidData.title || 'Desconocida'}`;
-    const data = { ...mbidData, id: mbidData.mbid };
-    return { single: label, type: targetType, data };
-  }
+  const label =
+    targetType === 'song'
+      ? `${t('song')}: ${mbidData.title || t('unknown')}`
+      : targetType === 'album'
+        ? `${t('album')}: ${mbidData.title || t('unknown')}`
+        : `${t('artist')}: ${mbidData.title || t('unknown')}`;
+  const data = { ...mbidData, id: mbidData.mbid };
+  return { single: label, type: targetType, data };
+}
 
   switch (action) {
     case 'createList':

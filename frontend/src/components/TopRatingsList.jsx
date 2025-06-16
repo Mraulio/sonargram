@@ -1,10 +1,33 @@
 // components/TopRatingsList.jsx
 import { useEffect, useState, useContext } from "react";
-import { Box, Typography, Divider, Card, CardContent } from "@mui/material";
+import { Box, Typography, Divider, Card, CardContent, Accordion, AccordionSummary, AccordionDetails, styled } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../context/UserContext";
 import { getTopRatingsByType } from "../api/internal/ratingApi";
+import { useTranslation } from 'react-i18next';
+
+const AccordionBox = styled(Box)`
+  display: flex; 
+  justify-content: space-around; 
+  width: 100%;
+
+  @media (max-width: 920px) {
+    flex-direction: column; 
+    gap: 20px;
+  }
+
+`;
+
+const CustomAccordion = styled(Accordion)`
+  width: 30%;
+  @media (max-width: 920px) {
+    width: 100%; 
+  }
+`;
 
 function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
+  const { t } = useTranslation();  // Hook para obtener las traducciones
   const { token } = useContext(UserContext);
   const [topRatings, setTopRatings] = useState({
     artist: [],
@@ -27,7 +50,7 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
 
         setTopRatings(formattedData);
       } catch (error) {
-        console.error("Error cargando ratings más altos", error);
+        console.error(t('errorFetchingTopRatings'), error);
       } finally {
         setLoading(false);
       }
@@ -39,11 +62,11 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
   function getItemName(item, type) {
     switch (type) {
       case "artist":
-        return item.title || item.data?.name || "Sin nombre";
+        return t(item.title) || t(item.data?.name) || "Sin nombre";
       case "album":
-        return item.title || item.data?.title || item.data?.name || "Sin nombre";
+        return t(item.title) || t(item.data?.title) || item.data?.name || "Sin nombre";
       case "song":
-        return item.title || item.data?.title || "Sin nombre";
+        return t(item.title) || t(item.data?.title) || "Sin nombre";
       default:
         return item.name || "Sin nombre";
     }
@@ -53,49 +76,52 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
     return <Typography>Cargando ratings más altos...</Typography>;
   }
 
-  return (
-     <Box sx={{ width: "100%" }}>
-      <Typography variant="h5" mb={2}>
+   return (
+    <Box sx={{ width: "100vw", display: "flex", flexDirection: "column", alignItems: "center", p: 2 }}>
+      <Typography variant="h4" mb={2}>
         {title}
       </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'start', gap: 1, flexWrap: 'wrap' }}>
+      <AccordionBox>
+
       {["artist", "album", "song"].map((type) => (
-        <Box key={type} mb={4} sx={{ width: "30%", display: 'flex' }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" mb={1} textTransform="capitalize">
-                {type === "song" ? "Canciones" : `${type}s`} mejor valoradas
-              </Typography>
-              <Divider />
-              {topRatings[type].length === 0 && (
-                <Typography mt={1}>No hay datos disponibles.</Typography>
-              )}
-              {topRatings[type].map((item) => (
-                <Box
-                  key={item.mbid || item._id}
-                  mt={1}
-                  p={1}
-                  borderRadius={1}
-                  bgcolor="#f5f5f5"
-                >
-                  <Typography>{getItemName(item, type)}</Typography>
-                  <Typography variant="caption" color="textSecondary">
-                    Rating promedio: {item.average?.toFixed(2) ?? "N/A"}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="textSecondary"
-                    display="block"
-                  >
-                    Cantidad de votos: {item.count ?? 0}
-                  </Typography>
-                </Box>
-              ))}
-            </CardContent>
-          </Card>
-        </Box>
+        <CustomAccordion key={type}>
+          <AccordionSummary expandIcon={<FontAwesomeIcon icon={faCaretDown} />} sx={{ backgroundColor: '#d63b1f', color: 'white', borderRadius: 2 }}>
+            <Typography variant="h5" textTransform="capitalize">
+              {type === "song" ? t("songs") : `${type}s`} {t("bestRated")}
+            </Typography>
+          </AccordionSummary>
+
+          <AccordionDetails>
+            <Card sx={{ width: "100%" }}>
+              <CardContent>
+                {topRatings[type].length === 0 ? (
+                  <Typography>{t("noDataAvailable")}</Typography>
+                ) : (
+                  topRatings[type].map((item) => (
+                    <Box
+                      key={item.mbid || item._id}
+                      mt={1}
+                      p={1}
+                      borderRadius={1}
+                      bgcolor="background.default"
+                    >
+                      <Typography fontWeight="bold">{getItemName(item, type)}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {t("averageRating")}: {item.average?.toFixed(2) ?? "N/A"}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        {t("votesNumber")}: {item.count ?? 0}
+                      </Typography>
+                      <Divider sx={{ mt: 1 }} />
+                    </Box>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </AccordionDetails>
+        </CustomAccordion>
       ))}
-    </Box>
+      </AccordionBox>
     </Box>
   );
 }

@@ -34,12 +34,12 @@ function RegisterPage() {
           setUserPassword('');
 
            // Iniciar sesión automáticamente con el usuario recién creado
-    const token = await loginUser(userEmail, userPassword); // Llamamos a la función loginUser
-    const decodedToken = jwtDecode(token); // Decodificamos el token
-    login(token, decodedToken.role, decodedToken); // Guardamos el token y los datos en el contexto
+          const token = await loginUser(userEmail, userPassword); // Llamamos a la función loginUser
+          const decodedToken = jwtDecode(token); // Decodificamos el token
+          login(token, decodedToken.role, decodedToken); // Guardamos el token y los datos en el contexto
 
-    // Redirigir al usuario a la página principal o dashboard
-    navigate('/dashboard');
+          // Redirigir al usuario a la página principal o dashboard
+          navigate('/dashboard');
         } catch (err) {
           alert('Error creating user');
           console.error(err);
@@ -47,58 +47,48 @@ function RegisterPage() {
       };
 
   return (
-    <Box sx={{ 
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center', // Centra el contenido verticalmente
-      backgroundImage: 'url("../assets/images/imagen.jpg")',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center', // Centra la imagen
-      height: '100vh', // Ocupa toda la altura de la pantalla
-      width: '100vw', // Ocupa todo el ancho de la pantalla
-  }}>
-
-<Card sx={{ mb: 4 }}>
-          <CardContent>
-            <Typography variant="h5" gutterBottom>{t('createUser')}</Typography>
-            <TextField
-              fullWidth
-              label={t('name')}
-              value={userName}
-              onChange={e => setUserName(e.target.value)}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label={t('username')}
-              value={userUsername}
-              onChange={e => setUserUsername(e.target.value)}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label={t('email')}
-              value={userEmail}
-              onChange={e => setUserEmail(e.target.value)}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              type="password"
-              label={t('password')}
-              value={userPassword}
-              onChange={e => setUserPassword(e.target.value)}
-              margin="normal"
-            />
-            <Button variant="contained" onClick={createUser} sx={{ mt: 2 }}>
-              {t('createUserButton')}
-            </Button>
-            
-          </CardContent>
-        </Card>
-        <Link to="/" style={{ textDecoration: 'none', color: 'blue' }}>Volver</Link> 
-     
+    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100vw' }}>
+      
+      <Card sx={{ display:'flex', flexDirection: 'column', justifyContent:'center', alignItems:'center', width: '400px', height: "660px", gap: 1.5 }}>
+        <Box sx={{ display: 'flex', justifyContent:'center', alignItems:'center', gap:1}}>
+          <img src="/assets/images/logo.svg" style={{width: '100px', height: '100px' }}/>
+          <Typography sx={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '1.5rem',}}>Sonargram</Typography>
+        </Box>
+        <Typography variant="subtitle1" gutterBottom>{t('createUser')}</Typography>
+        <TextField
+          sx={{ width:'300px'}}
+          label={t('name')}
+          value={userName}
+          onChange={e => setUserName(e.target.value)}
+          margin="normal"
+        />
+        <TextField
+          sx={{ width:'300px'}}
+          label={t('username')}
+          value={userUsername}
+          onChange={e => setUserUsername(e.target.value)}
+          margin="normal"
+        />
+        <TextField
+          sx={{ width:'300px'}}
+          label={t('email')}
+          value={userEmail}
+          onChange={e => setUserEmail(e.target.value)}
+          margin="normal"
+        />
+        <TextField
+          sx={{ width:'300px'}}
+          type="password"
+          label={t('password')}
+          value={userPassword}
+          onChange={e => setUserPassword(e.target.value)}
+          margin="normal"
+        />
+        <Button variant="contained" onClick={createUser} sx={{ mt: 2, width:'300px', backgroundColor: '#d63b1f'}}>
+          {t('createUserButton')}
+        </Button>
+        <Link to="/" style={{ textDecoration: 'none'}}>Volver</Link> 
+     </Card>
   </Box>
   );
 }

@@ -31,6 +31,53 @@ const MenuBox= styled(Box)`
 
 `;
 
+const ListsBox= styled(Box)`
+width: 25vw; 
+min-height: 100vh;
+padding-left:2px; 
+border-right: 1px solid;
+
+@media (max-width: 960px) {
+    width: 100vw;
+    border-right: 0px;
+    display:flex;
+    justify-content:center;
+    min-height:0vh;
+  }
+`;
+
+const TimeLineBox= styled(Box)`
+display: flex; 
+flex-direction:column; 
+width: 69vw; 
+height: 100vh; 
+overflow-y: auto;
+margin-top: 15px;
+@media (max-width: 960px) {
+    width: 95vw;
+    justify-content:start;
+    align-items:center;
+    overflow-y: auto;
+  }
+
+`;
+
+const DashBoardBox= styled(Box)`
+ display: flex;
+ margin-right: 15px; 
+ align-items:center; 
+ width:100vw; 
+ gap:15px;
+
+@media (max-width: 960px) {
+  width: 100vw;
+  flex-direction: column;
+  justify-content:start;
+  align-items:start;
+  }
+
+`;
+
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const [userUsername, setUserUsername] = useState('');
@@ -121,33 +168,22 @@ function Dashboard() {
   return (
     <Box sx={{width:'100vw', display: 'flex', flexDirection:'column'}}>
       <Menu2/>
-      <Box sx={{ display: 'flex', justifyContent:'space-between', mr: 5, alignItems:'start', width:'100%', gap: 5 }}>
-        <Box sx={{width:'20%', height: '100vh', paddingLeft:2, borderRight: '2px solid' }}>
-
-          <Typography variant="h6" fontWeight={600}>
-            {t('welcome')} {userUsername}!!    
-          </Typography>
-          
-<MyLists
-            userLists={userLists}
-            refreshLists={refreshLists}
-            favoriteProps={{ ...favoriteProps, favoriteCounts, updateFavoriteCount }}
-          />        </Box>
-        <Box sx={{ display: 'flex', flexDirection:'column'}}>  
-          <Box>
-<Timeline
-            favoriteProps={{ ...favoriteProps, favoriteCounts, updateFavoriteCount }}
-            userLists={userLists}
-            refreshLists={refreshLists}
-          />              
-          </Box>
-        </Box>     
-        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', width:'40%' }}>    
-          <TopRatingsList limit={5} title="Top 5 por Rating" />        
-          <TopFavoritosList limit={5}/>        
-      </Box>  
-      </Box>
-   
+      <DashBoardBox>
+        <ListsBox>
+            <MyLists
+              userLists={userLists}
+              refreshLists={refreshLists}
+              favoriteProps={{ ...favoriteProps, favoriteCounts, updateFavoriteCount }}
+            />        
+          </ListsBox>
+          <TimeLineBox>  
+            <Timeline
+              favoriteProps={{ ...favoriteProps, favoriteCounts, updateFavoriteCount }}
+              userLists={userLists}
+              refreshLists={refreshLists}
+            />              
+          </TimeLineBox>        
+      </DashBoardBox>
     </Box>
   );
 }

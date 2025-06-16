@@ -1,8 +1,25 @@
 import { useEffect, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, Card, CardContent, Divider, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Box, Typography, Card, CardContent, Divider, Dialog, DialogTitle, DialogContent, DialogActions, Button, styled } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import useList from '../hooks/useList';
+
+const ListCard= styled(Card)`
+  width: 45vw;
+  height: 200px; 
+  display: flex;  
+  align-items: center;
+  @media (max-width: 960px) {
+    width:95%;
+  }
+`;
+
+const ListCardContent= styled(CardContent)`
+  display: flex; 
+  flex-direction: column;
+  justify-content:center;
+  width:100%;
+`;
 
 function OtherLists({ userId }) {
   const { t } = useTranslation();
@@ -37,13 +54,14 @@ function OtherLists({ userId }) {
   }
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>{t('userLists')}</Typography>
+    <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4, flexWrap:'wrap', alignItems:'center' }}>
+      <Typography variant="h4" sx={{ mb: 2 }}>{t('userLists')}</Typography>
+       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
       {userLists.map(list => (
-        <Card key={list._id} sx={{ mb: 2, p: 2 }}>
-          <CardContent>
+        <ListCard key={list._id} >
+          <ListCardContent>
             <Typography
-              variant="h6"
+              variant="h5"
               sx={{ cursor: 'pointer' }}
               onClick={() => {
                 setSelectedListSongs(list.songs || []);
@@ -53,17 +71,19 @@ function OtherLists({ userId }) {
             >
               {list.name}
             </Typography>
+            <Divider sx={{ width:'100%'}}/>
             <Typography variant="body2" color="text.secondary">
               {t('songs')}: {list.songs.length}
             </Typography>
+           
             <Typography variant="body2" color="text.secondary">
-              {t('Creador de la lista')}: {list.creator?.name || t('unknown')}
+              {t('creatorOfList')}: {list.creator?.name || t('unknown')}
             </Typography>
-          </CardContent>
+          </ListCardContent>
           <Divider sx={{ my: 1 }} />
-        </Card>
+        </ListCard>
       ))}
-
+      </Box>
       {/* Modal para mostrar canciones de la lista */}
       <Dialog open={openSongsModal} onClose={() => setOpenSongsModal(false)}>
         <DialogTitle>{selectedListName} - {t('songs')}</DialogTitle>
