@@ -74,7 +74,7 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
         selectedSong.releaseDate,
         selectedSong.duration
       );
-      setMessage("Canción añadida correctamente.");
+      setMessage("Canción añadida correctamesdsdnte.");
     } catch (err) {
       setMessage("Error al añadir la canción.");
     } finally {

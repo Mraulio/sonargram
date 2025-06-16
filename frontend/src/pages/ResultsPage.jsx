@@ -21,6 +21,7 @@ import Menu2 from '../components/Menu2'
 import { Link } from 'react-router-dom'; // Asegúrate de importar Link
 import baseUrl from "../config.js";
 import InfoModal from '../components/InfoModal';
+import { showToast } from "../utils/toast.js";
 
 
 
@@ -619,10 +620,10 @@ const handleOpenListModal = async (song) => {
   try {
     console.log('SELECTED SONG')
     await addSong(selectedListId, selectedSong.id, selectedSong.title, selectedSong.artist, selectedSong.coverUrl, selectedSong.releaseDate, selectedSong.duration);
-    alert('Canción añadida correctamente');
+    showToast('Canción añadida correctamente', 'success');
     setOpen(false); // Cierra el modal si quieres
   } catch (err) {
-    alert('Error al añadir la canción');
+    showToast('Error al añadir la canción', 'error');
     console.error(err);
   }
 };

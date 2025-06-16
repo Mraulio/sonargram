@@ -190,7 +190,7 @@ function MyLists() {
       const handleDeleteSongList = async (listId, musicbrainzId) => {
         try {
           await removeSong(listId, musicbrainzId);
-          alert('Canción eliminada correctamente de la lista');
+          alert('Canción eliminada correctamenteXSDSD de la lista');
           if (!user || !user.userId) return;
           await fetchListsByUser(user.userId);
         } catch (err) {
