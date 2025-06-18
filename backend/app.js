@@ -9,6 +9,15 @@ const path = require('path');
 dotenv.config();
 const app = express();
 
+const allowedOrigins = [
+  'https://sonargram.onrender.com', // dominio del frontend
+  'http://localhost:3000'           // para desarrollo local
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(cors());
 
 app.use(express.json());
