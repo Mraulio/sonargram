@@ -3,10 +3,10 @@ const router = express.Router();
 const listController = require('../controllers/listController');
 const { requireAuth } = require('../middleware/auth');
 
-// Crear nueva lista (autenticado)
+// Crear nueva lista
 router.post('/', requireAuth, listController.createList);
 
-// Obtener todas las listas (público o como prefieras)
+// Obtener todas las listas
 router.get('/', requireAuth, listController.getLists);
 
 // Obtener listas de un usuario específico
@@ -16,19 +16,19 @@ router.get('/user/:userId', requireAuth, listController.getListsByUser);
 router.get('/most-followed', requireAuth, listController.getMostFollowedLists);
 
 // Obtener lista por su id
-router.get('/:listId', listController.getListById);
+router.get('/:listId', requireAuth, listController.getListById);
 
 
-// Añadir canción a una lista (autenticado)
+// Añadir canción a una lista
 router.post('/:listId/songs', requireAuth, listController.addSongToList);
 
-// Eliminar canción de una lista (autenticado)
+// Eliminar canción de una lista
 router.delete('/:listId/songs/:musicbrainzId', requireAuth, listController.removeSongFromList);
 
-// Modificar el nombre de la lista (autenticado)
+// Modificar el nombre de la lista
 router.put('/:listId/name', requireAuth, listController.updateListName);
 
-// Eliminar lista (autenticado)
+// Eliminar lista
 router.delete('/:listId', requireAuth, listController.deleteList);
 
 module.exports = router;
