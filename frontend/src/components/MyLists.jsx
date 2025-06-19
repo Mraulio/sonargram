@@ -1,9 +1,8 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import Menu2 from '../components/Menu2';
-import SearchBar from '../components/Search';
+import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions, styled } from '@mui/material';
+import Menu2 from './Menu';
 import useList from '../hooks/useList';
 import useUser from '../hooks/useUser';
 import useFavorites from '../hooks/useFavorites';
@@ -14,6 +13,18 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import InfoModal from '../components/InfoModal';
 import useRatings from '../hooks/useRatings';
 
+const MyListsBox = styled(Box)`
+  display: flex; 
+  flex-direction: column; 
+  justify-content: start; 
+  align-items: center; 
+  gap: 3; 
+  margin-left: 5px;
+
+  @media (max-width: 960px) {
+    width: 90%;
+  }
+`;
 
 function MyLists() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -240,13 +251,13 @@ const handleFavoriteToggle = async (id, type, item) => {
   }
 };
 return (
-  <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', gap: 3 }}>
+  <MyListsBox >
     <Typography variant="h4" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
     {userLists.map(l => {
       handleGetCreatorName(l.creator);
       return (
-    <li key={l._id}>
+    <li key={l._id} style={{ minHeight: '80px'}}>
         <Typography
           variant="h6"
           sx={{ mb: 1, cursor: 'pointer' }}
@@ -261,23 +272,25 @@ return (
           {l.name}
         </Typography>
         
-        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', m:3 }}>
           
-          {l.name !== "Favoritos" && (
+          {l.isFavoriteList !== true && l.isRatingList !== true && (
           <>
           <Typography variant="body2" color="text.secondary">
             {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
           </Typography>
             <Button
-              variant="outlined"
+             
               color="warning"
-              size="small"
+              sx={{ fontSize: '0.7rem' }}
               onClick={() => handleOpenListModal(l)}
-              sx={{ ml: 2 }}
             >
               {t('edit')}
             </Button>
-            <Button onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
+            <Button 
+          
+              sx={{ fontSize: '0.7rem' }}
+              onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
             </Button>
           </>
         )}
@@ -307,7 +320,9 @@ return (
                 <Typography variant="body2" color="text.secondary">
                   {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
                 </Typography>
-                <Button onClick={() => handleUnfollowList(l._id)} color="error">
+                <Button 
+                  sx={{ fontSize: '0.6rem' }}
+                  onClick={() => handleUnfollowList(l._id)} color="error">
                   {t('unfollow')}
                 </Button>
                 <Divider />
@@ -387,7 +402,7 @@ return (
         handleFavoriteToggle,
       }}
     />
-  </Box>
+  </MyListsBox>
 );
           }
 export default MyLists;

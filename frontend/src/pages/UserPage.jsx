@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Followers from '../components/Followers';
 import useUser from '../hooks/useUser';
-import Menu2 from '../components/Menu2';
+import Menu from '../components/Menu';
 import TopRatingsUser from '../components/TopRatingsUser'
 import baseUrl from '../config.js';
 
@@ -33,7 +33,7 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   '& label.Mui-focused': {
     color: theme.palette.primary.main, // etiqueta con foco
   },
-  width: '450px',
+  width: '100%',
 }));
 
 function UserPage() {
@@ -227,11 +227,11 @@ function UserPage() {
 
 
  return (
-  <Box style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center' }}>
-    <Menu2 />
-    <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100vw'}}>
-      <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', width: '600px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
-        <Typography variant="h4" gutterBottom>
+  <Box style={{ width: '100%',display: 'flex', flexDirection: 'column' }}>
+    <Menu />
+    <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100%'}}>
+      <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', width: '400px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
+        <Typography variant="h5" gutterBottom>
           {t('dataUser')}
         </Typography>
     
@@ -240,8 +240,8 @@ function UserPage() {
           sx={{
             borderRadius: '50%',
             overflow: 'hidden',
-            width: 200,
-            height: 200,
+            width: 150,
+            height: 150,
             display: 'inline-block',
           }}
         >
@@ -288,7 +288,7 @@ function UserPage() {
                 name: userName,
               })
             }
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, width: '40%', fontSize: '0.6rem' }}
           >
             {t('editUserButton')}
           </Button>
@@ -296,7 +296,7 @@ function UserPage() {
             variant="contained"
             color="error"
             onClick={() => handleDeleteUser(userId)}
-            sx={{ mt: 2,  }}
+            sx={{ mt: 2, width: '40%', fontSize: '0.6rem' }}
           >
             {t('deleteUserButton')}
           </Button>

@@ -17,7 +17,6 @@ import useFollow from '../hooks/useFollow';
 import useListFollowers from '../hooks/useListFollowers';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import Menu2 from '../components/Menu2'
 import { Link } from 'react-router-dom'; // Asegúrate de importar Link
 import baseUrl from "../config.js";
 import InfoModal from '../components/InfoModal';
@@ -722,7 +721,7 @@ const handleSearchUser = async (term = searchTerm) => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Menu2/>
+        <Menu/>
       <Box
         sx={{
           display: "flex",
@@ -863,14 +862,14 @@ const handleSearchUser = async (term = searchTerm) => {
         {/* COLUMNA LISTAS */}
           <Box sx={{ display: "flex", flexDirection:'column', gap: 2 }}>
             {searchResults.length > 0 && (
-              <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+              <Typography variant="h4" sx={{ mt: 2, mb: 1 }}>
                 {t('foundLists')}
               </Typography>)}
             {searchResults.map(l => (
               <ListCard key={l._id} >
                 <ListCardContent>
                   <Typography
-                    variant="h6"
+                    variant="h5"
                     sx={{ mb: 1, cursor: 'pointer' }}
                     onClick={() => {
                       setModalData({ type: 'list', data: l });
@@ -916,7 +915,7 @@ const handleSearchUser = async (term = searchTerm) => {
             </Box>
             {/* COLUMNA Usuarios */}
               {searches.length > 0 && (
-              <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+              <Typography variant="h4" sx={{ mt: 2, mb: 1 }}>
                 {t('foundUsers')}
               </Typography>
             )}

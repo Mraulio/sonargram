@@ -114,7 +114,9 @@
     "count": "Cantidad de Me Gusta",
     "Albums": "Álbumes",
     "Artists": "Artistas",
-    "topLiked": "Más Gustados de la comunidad"
+    "topLiked": "Más Gustados de la comunidad",
+    "tops": "Tops",
+    "dataUser": "Perfil del usuario"
 
     
   }  

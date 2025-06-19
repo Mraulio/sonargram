@@ -2,7 +2,7 @@ import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, IconButton } from '@mui/material';
-import Menu2 from '../components/Menu2';
+import Menu from '../components/Menu';
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
 import TopRatingsList from "../components/TopRatingsList";
@@ -342,7 +342,7 @@ function Test5() {
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'end', width: "100vw" }}>
-      <Menu2 />
+      <Menu />
       <Box sx={{ width: '95vw', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Search />
         <Box sx={{ display: 'flex', gap: 1 }}>    
