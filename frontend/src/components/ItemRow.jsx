@@ -115,6 +115,8 @@ const ItemRow = ({
         coverUrl={item.coverUrl}
         releaseDate={item.releaseDate}
         duration={item.duration}
+        spotifyUrl={item?.spotifyUrl || item?.externalLinks?.spotifyUrl}
+        youtubeUrl={item?.youtubeUrl || item?.externalLinks?.youtubeUrl}
       />
 
       {type === "song" && (
