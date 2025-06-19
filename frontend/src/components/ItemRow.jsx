@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { useYoutubePlayer } from "../context/YoutubePlayerContext";
 import { Typography, IconButton, Link } from "@mui/material";
 import RatingDisplay from "./RatingDisplay";
@@ -9,7 +8,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { faSpotify, faYoutube } from "@fortawesome/free-brands-svg-icons";
-import FloatingYouTubePlayer from "./FloatingYoutubePlayer";
 
 function formatDuration(ms) {
   if (!ms) return "";
@@ -121,7 +119,8 @@ const ItemRow = ({
 
       {type === "song" && (
         <IconButton
-          onClick={() => onAddClick(item)}
+          onClick={() => {console.log('ITEM PULSADO', item);
+            onAddClick(item)}}
           size="small"
           title="Añadir a lista"
           sx={{ ml: 1 }}

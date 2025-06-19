@@ -57,8 +57,8 @@ const ItemList = ({
 
     const id = selectedSong.id || selectedSong.musicbrainzId;
     const artist = selectedSong.artist || selectedSong.artistName;
-    const spotifyUrl = selectedSong.spotifyUrl || "";
-    const youtubeUrl = selectedSong.youtubeUrl || "";
+    const spotifyUrl = selectedSong.spotifyUrl || selectedSong?.externalLinks?.spotifyUrl || "";
+    const youtubeUrl = selectedSong.youtubeUrl || selectedSong?.externalLinks?.youtubeUrl || "";
 
     try {
       await addSong(
