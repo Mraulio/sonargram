@@ -27,12 +27,12 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();  // Hook para obtener las traducciones
 
-  const { fetchListById } = useList();
   const { token, user } = useContext(UserContext);
   const {
     fetchListsByUser,
     userLists,
     addSong,
+    fetchListById,
     loading: listLoading
   } = useList(token);
 

@@ -177,16 +177,7 @@ const addSongToList = async (req, res) => {
       return res.status(400).json({ message: 'Song already in list' });
     }
 
-    list.songs.push({
-      musicbrainzId,
-      title,
-      artistName,
-      coverUrl,
-      releaseDate,
-      duration,
-      spotifyUrl,
-      youtubeUrl
-    });
+    list.songs.push({musicbrainzId});
 
     await logActivity({
       user: userId,
