@@ -8,6 +8,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { faSpotify, faYoutube } from "@fortawesome/free-brands-svg-icons";
+import { useState } from "react";
+import FloatingSpotifyPlayer from "./FloatingSpotifyPlayer";
 
 function formatDuration(ms) {
   if (!ms) return "";
@@ -30,6 +32,7 @@ const ItemRow = ({
   compact = false,
 }) => {
   const showCover = type === "album" && item.coverUrl;
+const [spotifyPlayerUrl, setSpotifyPlayerUrl] = useState(null);
 
   const { openYoutube } = useYoutubePlayer();
 
@@ -132,19 +135,24 @@ const ItemRow = ({
 
       {/* Icono Spotify */}
       {(item?.externalLinks?.spotifyUrl?.trim() || item?.spotifyUrl?.trim()) && (
-        <IconButton
-          component={Link}
-          href={item?.externalLinks?.spotifyUrl || item?.spotifyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          size="small"
-          title="Escuchar en Spotify"
-          sx={{ ml: 1, color: "#1DB954" }}
-        >
-          <FontAwesomeIcon icon={faSpotify} />
-        </IconButton>
-      )}
-
+  <IconButton
+    onClick={() =>
+      setSpotifyPlayerUrl(item?.externalLinks?.spotifyUrl || item?.spotifyUrl)
+    }
+    size="small"
+    title="Escuchar en Spotify"
+    sx={{ ml: 1, color: "#1DB954" }}
+  >
+    <FontAwesomeIcon icon={faSpotify} />
+  </IconButton>
+)}
+{/* Reproductor flotante */}
+{spotifyPlayerUrl && (
+  <FloatingSpotifyPlayer
+    url={spotifyPlayerUrl}
+    onClose={() => setSpotifyPlayerUrl(null)}
+  />
+)}
       {/* YouTube Icon */}
       {(item?.externalLinks?.youtubeUrl?.trim() || item?.youtubeUrl?.trim()) && (
         <IconButton
