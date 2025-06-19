@@ -152,7 +152,16 @@ const getListById = async (req, res) => {
 // Añadir canción a la lista
 const addSongToList = async (req, res) => {
   const { listId } = req.params;
-  const { musicbrainzId, title, artistName, coverUrl, releaseDate, duration } = req.body;
+  const {
+    musicbrainzId,
+    title,
+    artistName,
+    coverUrl,
+    releaseDate,
+    duration,
+    spotifyUrl = "",
+    youtubeUrl = ""
+  } = req.body;
   const { userId, role } = req.user;
 
   try {
@@ -168,7 +177,16 @@ const addSongToList = async (req, res) => {
       return res.status(400).json({ message: 'Song already in list' });
     }
 
-    list.songs.push({ musicbrainzId });
+    list.songs.push({
+      musicbrainzId,
+      title,
+      artistName,
+      coverUrl,
+      releaseDate,
+      duration,
+      spotifyUrl,
+      youtubeUrl
+    });
 
     await logActivity({
       user: userId,
@@ -182,6 +200,8 @@ const addSongToList = async (req, res) => {
         coverUrl,
         releaseDate,
         duration,
+        spotifyUrl,
+        youtubeUrl
       }
     });
 
@@ -192,6 +212,7 @@ const addSongToList = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Eliminar canción de la lista
 const removeSongFromList = async (req, res) => {

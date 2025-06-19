@@ -124,15 +124,16 @@ const ItemRow = ({
           title="Añadir a lista"
           sx={{ ml: 1 }}
         >
-          <FontAwesomeIcon icon={faPlus} />
+          <FontAwesomeIcon icon={faPlus} style={{ color: '#d63b1f' }} />
         </IconButton>
       )}
 
+
       {/* Icono Spotify */}
-      {(item?.externalLinks?.spotifyUrl || item.spotifyUrl) && (
+      {(item?.externalLinks?.spotifyUrl?.trim() || item?.spotifyUrl?.trim()) && (
         <IconButton
           component={Link}
-          href={item?.externalLinks?.spotifyUrl}
+          href={item?.externalLinks?.spotifyUrl || item?.spotifyUrl}
           target="_blank"
           rel="noopener noreferrer"
           size="small"
@@ -144,7 +145,7 @@ const ItemRow = ({
       )}
 
       {/* YouTube Icon */}
-      {(item?.externalLinks?.youtubeUrl || item.youtubeUrl) && (
+      {(item?.externalLinks?.youtubeUrl?.trim() || item?.youtubeUrl?.trim()) && (
         <IconButton
           onClick={handleYouTubeClick}
           size="small"

@@ -13,7 +13,7 @@ export default function useList(token) {
     setError(null);
     try {
       const data = await listaApi.getAllLists(token);
-       console.log('Valor de lists:', data); // <-- AQUÍ
+      console.log('Valor de lists:', data); // <-- AQUÍ
       setLists(data);
     } catch (err) {
       setError(err.message || 'Error fetching all lists');
@@ -28,7 +28,7 @@ export default function useList(token) {
     setError(null);
     try {
       const data = await listaApi.getListsByUser(userId, token);
-       console.log('Valor de userLists:', data); // <-- AQUÍ
+      console.log('Valor de userLists:', data); // <-- AQUÍ
       setUserLists(data);
     } catch (err) {
       setError(err.message || 'Error fetching user lists');
@@ -74,14 +74,36 @@ export default function useList(token) {
   };
 
   // Añadir canción a una lista
-  const addSong = async (listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration) => {
+  const addSong = async (
+    listId,
+    musicbrainzId,
+    title,
+    artistName,
+    coverUrl,
+    releaseDate,
+    duration,
+    spotifyUrl = "",     
+    youtubeUrl = ""
+  ) => {
     try {
-      return await listaApi.addSongToList(listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration, token);
+      return await listaApi.addSongToList(
+        listId,
+        musicbrainzId,
+        title,
+        artistName,
+        coverUrl,
+        releaseDate,
+        duration,
+        spotifyUrl,    
+        youtubeUrl,
+        token
+      );
     } catch (err) {
       setError(err.message);
       throw err;
     }
   };
+
 
   // Eliminar canción de una lista
   const removeSong = async (listId, musicbrainzId) => {
@@ -101,7 +123,7 @@ export default function useList(token) {
       setError(err.message);
       return null;
     }
-    
+
   };
 
   const fetchMostFollowedLists = useCallback(async (limit = 10) => {

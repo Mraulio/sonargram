@@ -31,7 +31,7 @@ export const searchAlbums = async (albumName, token) => {
         return {
           id: rg.id,
           title: rg.title || "Título desconocido",
-          artist: rg["artist-credit"]?.[0]?.name || "Artista desconocido",
+          artist: rg["artist-credit"]?.[0]?.name || null,
           coverUrl,
           releaseDate,
         };
@@ -65,8 +65,8 @@ export const searchSongs = async (songName, token) => {
         return {
           id: rec.id,
           title: rec.title,
-          artist: rec["artist-credit"]?.[0]?.name || "Artista desconocido",
-          album: rec.releases?.[0]?.title || "Álbum desconocido",
+          artist: rec["artist-credit"]?.[0]?.name || null,
+          album: rec.releases?.[0]?.title || null,
           duration: rec.length || null,
           externalLinks, // aquí están los enlaces de Spotify, YouTube, etc.
         };
@@ -95,7 +95,7 @@ export const getAlbumsByArtist = async (artistId, token, limit = 5, offset = 0) 
         return {
           id: album.id,
           title: album.title,
-          artist: album["artist-credit"]?.[0]?.name || "Desconocido",
+          artist: album["artist-credit"]?.[0]?.name || null,
           coverUrl,
           releaseDate: album["first-release-date"] || "",
         };
@@ -142,7 +142,7 @@ export const getSongsByRelease = async (releaseId, token, limit = 15, offset = 0
         return {
           id: rec.id,
           title: rec.title,
-          artist: rec["artist-credit"]?.[0]?.name || "Artista desconocido",
+          artist: rec["artist-credit"]?.[0]?.name || null,
           duration: rec.length || null,
           externalLinks,
         };
