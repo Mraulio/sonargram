@@ -25,7 +25,6 @@ const ItemList = ({
   isFavorite,
   onToggleFavorite,
 }) => {
-  console.log('ITEMs', items);
   const { token, user } = useContext(UserContext);
   const { fetchListsByUser, userLists, addSong, loading } = useList(token);
 
@@ -56,9 +55,11 @@ const ItemList = ({
     if (!selectedSong) return;
     setAdding(true);
 
-      // Mapeo seguro con fallback de nombres alternativos
-  const id = selectedSong.id || selectedSong.musicbrainzId;
-  const artist = selectedSong.artist || selectedSong.artistName;
+    const id = selectedSong.id || selectedSong.musicbrainzId;
+    const artist = selectedSong.artist || selectedSong.artistName;
+    const spotifyUrl = selectedSong.spotifyUrl || selectedSong?.externalLinks?.spotifyUrl || "";
+    const youtubeUrl = selectedSong.youtubeUrl || selectedSong?.externalLinks?.youtubeUrl || "";
+
     try {
       await addSong(
         list._id,
@@ -67,7 +68,9 @@ const ItemList = ({
         artist,
         selectedSong.coverUrl,
         selectedSong.releaseDate,
-        selectedSong.duration
+        selectedSong.duration,
+        spotifyUrl,
+        youtubeUrl
       );
       setMessage("Canción añadida correctamente.");
     } catch (err) {
@@ -76,6 +79,7 @@ const ItemList = ({
       setAdding(false);
     }
   };
+
 
   return (
     <>

@@ -79,7 +79,9 @@ function TestBuscador() {
           item?.artist || item?.artistName || "",
           item?.coverUrl || "",
           item?.releaseDate || "",
-          item?.duration || ""
+          item?.duration || "",
+          item?.externalLinks?.spotifyUrl || "",
+          item?.externalLinks?.youtubeUrl || ""
         );
       }
 
@@ -92,6 +94,7 @@ function TestBuscador() {
       console.error("Error alternando favorito", e);
     }
   };
+
 
   const handleGeneralSearch = async () => {
     try {
