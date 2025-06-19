@@ -15,7 +15,6 @@ const Timeline = () => {
 
   const ratingProps = useRatings(token);
   const favoriteProps = useFavorites(token);
-  //console.log('favorite props TIMELINE', favoriteProps);
 
   const [favoriteCounts, setFavoriteCounts] = useState({});
 
@@ -47,32 +46,32 @@ const Timeline = () => {
 
 
   const handleFavoriteToggle = async (id, type, item) => {
-  try {
-    if (favoriteProps.isFavorite(id)) {
-      await favoriteProps.removeFavorite(id);
-    } else {
-      await favoriteProps.addFavorite(
-        id,
-        type,
-        item?.title || item?.name || "",
-        item?.artist || item?.artistName || "",
-        item?.coverUrl || "",
-        item?.releaseDate || "",
-        item?.duration || "",
-        item?.spotifyUrl || "",   // <-- añadir aquí
-        item?.youtubeUrl || ""    // <-- añadir aquí
-      );
-    }
+    try {
+      if (favoriteProps.isFavorite(id)) {
+        await favoriteProps.removeFavorite(id);
+      } else {
+        await favoriteProps.addFavorite(
+          id,
+          type,
+          item?.title || item?.name || "",
+          item?.artist || item?.artistName || "",
+          item?.coverUrl || "",
+          item?.releaseDate || "",
+          item?.duration || "",
+          item?.spotifyUrl || "",   // <-- añadir aquí
+          item?.youtubeUrl || ""    // <-- añadir aquí
+        );
+      }
 
-    const newCount = await favoriteProps.getFavoriteCount(id);
-    setFavoriteCounts((prev) => ({
-      ...prev,
-      [id]: newCount,
-    }));
-  } catch (e) {
-    console.error("Error alternando favorito", e);
-  }
-};
+      const newCount = await favoriteProps.getFavoriteCount(id);
+      setFavoriteCounts((prev) => ({
+        ...prev,
+        [id]: newCount,
+      }));
+    } catch (e) {
+      console.error("Error alternando favorito", e);
+    }
+  };
 
 
   if (loading) return <Typography>Cargando actividades...</Typography>;

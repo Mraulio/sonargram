@@ -39,13 +39,17 @@ export function getActionDescription(action, activity, t) {
 export function getRelatedContent(action, activity, t) {
   const { mbidData, activityRef, list } = activity;
   const targetType = activity.targetType;
-  
+
 
   if (action === 'addListSong') {
-    const songTitle =
-      mbidData?.title && mbidData?.artistName
-        ? `${mbidData.title} - ${mbidData.artistName}`
-        : null;
+    const title = mbidData?.title;
+    const artist = mbidData?.artistName;
+
+    const songTitle = title
+      ? artist
+        ? `${title} - ${artist}`
+        : title
+      : null;
 
     if (!songTitle || !list?.name) return null;
 
@@ -67,15 +71,15 @@ export function getRelatedContent(action, activity, t) {
   }
 
   if (['song', 'album', 'artist'].includes(targetType) && mbidData) {
-  const label =
-    targetType === 'song'
-      ? `${t('song')}: ${mbidData.title || t('unknown')}`
-      : targetType === 'album'
-        ? `${t('album')}: ${mbidData.title || t('unknown')}`
-        : `${t('artist')}: ${mbidData.title || t('unknown')}`;
-  const data = { ...mbidData, id: mbidData.mbid };
-  return { single: label, type: targetType, data };
-}
+    const label =
+      targetType === 'song'
+        ? `${t('song')}: ${mbidData.title || t('unknown')}`
+        : targetType === 'album'
+          ? `${t('album')}: ${mbidData.title || t('unknown')}`
+          : `${t('artist')}: ${mbidData.title || t('unknown')}`;
+    const data = { ...mbidData, id: mbidData.mbid };
+    return { single: label, type: targetType, data };
+  }
 
   switch (action) {
     case 'createList':
