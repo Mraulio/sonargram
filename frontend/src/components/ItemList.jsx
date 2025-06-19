@@ -25,7 +25,6 @@ const ItemList = ({
   isFavorite,
   onToggleFavorite,
 }) => {
-  console.log('ITEMs', items);
   const { token, user } = useContext(UserContext);
   const { fetchListsByUser, userLists, addSong, loading } = useList(token);
 

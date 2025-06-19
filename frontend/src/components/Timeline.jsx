@@ -47,30 +47,33 @@ const Timeline = () => {
 
 
   const handleFavoriteToggle = async (id, type, item) => {
-    try {
-      if (favoriteProps.isFavorite(id)) {
-        await favoriteProps.removeFavorite(id);
-      } else {
-        await favoriteProps.addFavorite(
-          id,
-          type,
-          item?.title || item?.name || "",
-          item?.artist || item?.artistName || "",
-          item?.coverUrl || "",
-          item?.releaseDate || "",
-          item?.duration || ""
-        );
-      }
-
-      const newCount = await favoriteProps.getFavoriteCount(id);
-      setFavoriteCounts((prev) => ({
-        ...prev,
-        [id]: newCount,
-      }));
-    } catch (e) {
-      console.error("Error alternando favorito", e);
+  try {
+    if (favoriteProps.isFavorite(id)) {
+      await favoriteProps.removeFavorite(id);
+    } else {
+      await favoriteProps.addFavorite(
+        id,
+        type,
+        item?.title || item?.name || "",
+        item?.artist || item?.artistName || "",
+        item?.coverUrl || "",
+        item?.releaseDate || "",
+        item?.duration || "",
+        item?.spotifyUrl || "",   // <-- añadir aquí
+        item?.youtubeUrl || ""    // <-- añadir aquí
+      );
     }
-  };
+
+    const newCount = await favoriteProps.getFavoriteCount(id);
+    setFavoriteCounts((prev) => ({
+      ...prev,
+      [id]: newCount,
+    }));
+  } catch (e) {
+    console.error("Error alternando favorito", e);
+  }
+};
+
 
   if (loading) return <Typography>Cargando actividades...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;

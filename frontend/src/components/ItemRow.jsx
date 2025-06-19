@@ -1,5 +1,6 @@
-import React from "react";
-import { Typography, IconButton } from "@mui/material";
+import React, { useState } from "react";
+import { useYoutubePlayer } from "../context/YoutubePlayerContext";
+import { Typography, IconButton, Link } from "@mui/material";
 import RatingDisplay from "./RatingDisplay";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -7,6 +8,8 @@ import {
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
+import { faSpotify, faYoutube } from "@fortawesome/free-brands-svg-icons";
+import FloatingYouTubePlayer from "./FloatingYoutubePlayer";
 
 function formatDuration(ms) {
   if (!ms) return "";
@@ -29,6 +32,14 @@ const ItemRow = ({
   compact = false,
 }) => {
   const showCover = type === "album" && item.coverUrl;
+
+  const { openYoutube } = useYoutubePlayer();
+
+  const handleYouTubeClick = () => {
+    const url = item?.externalLinks?.youtubeUrl || item.youtubeUrl || null;
+    if (url) openYoutube(url);
+  };
+
   return (
     <div
       style={{
@@ -53,35 +64,32 @@ const ItemRow = ({
         />
       )}
 
-       <Typography
-            onClick={onClickItem ? () => onClickItem(item.id) : undefined}
-            sx={{
-              color: "text.primary",
-              textDecoration: onClickItem ? "underline" : "none",
-              flexGrow: 1,
-              fontWeight: "bold", // negrita
-              cursor: onClickItem ? "pointer" : "default",
-            }}
-          >
+      <Typography
+        onClick={onClickItem ? () => onClickItem(item.id) : undefined}
+        sx={{
+          color: "text.primary",
+          textDecoration: onClickItem ? "underline" : "none",
+          flexGrow: 1,
+          fontWeight: "bold", // negrita
+          cursor: onClickItem ? "pointer" : "default",
+        }}
+      >
         {type === "album"
-          ? `${item.title}${
-              item.artist
-                ? " — " + item.artist
-                : item.artistName
-                ? " — " + item.artistName
-                : ""
-            }`
+          ? `${item.title}${item.artist
+            ? " — " + item.artist
+            : item.artistName
+              ? " — " + item.artistName
+              : ""
+          }`
           : type === "song"
-          ? `${item.title}${
-              item.album || item.albumName
-                ? " — " + (item.album || item.albumName)
-                : ""
-            }${
-              item.artist || item.artistName
-                ? " — " + (item.artist || item.artistName)
-                : ""
+            ? `${item.title}${item.album || item.albumName
+              ? " — " + (item.album || item.albumName)
+              : ""
+            }${item.artist || item.artistName
+              ? " — " + (item.artist || item.artistName)
+              : ""
             }`
-          : item.name || item.title}
+            : item.name || item.title}
       </Typography>
 
       <Typography
@@ -91,8 +99,8 @@ const ItemRow = ({
         {type === "song"
           ? formatDuration(item.duration)
           : type === "album"
-          ? item?.releaseDate?.split("-")[0] || ""
-          : ""}
+            ? item?.releaseDate?.split("-")[0] || ""
+            : ""}
       </Typography>
 
       <RatingDisplay
@@ -120,7 +128,34 @@ const ItemRow = ({
         </IconButton>
       )}
 
-      <IconButton 
+      {/* Icono Spotify */}
+      {(item?.externalLinks?.spotifyUrl || item.spotifyUrl) && (
+        <IconButton
+          component={Link}
+          href={item?.externalLinks?.spotifyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          size="small"
+          title="Escuchar en Spotify"
+          sx={{ ml: 1, color: "#1DB954" }}
+        >
+          <FontAwesomeIcon icon={faSpotify} />
+        </IconButton>
+      )}
+
+      {/* YouTube Icon */}
+      {(item?.externalLinks?.youtubeUrl || item.youtubeUrl) && (
+        <IconButton
+          onClick={handleYouTubeClick}
+          size="small"
+          title="Ver en YouTube"
+          sx={{ ml: 1, color: "#FF0000" }}
+        >
+          <FontAwesomeIcon icon={faYoutube} />
+        </IconButton>
+      )}
+
+      <IconButton
         onClick={() => onToggleFavorite(item.id || item.musicbrainzId, type, item)}
         color={isFavorite(item.id || item.musicbrainzId) ? "error" : "default"}
         size="small"

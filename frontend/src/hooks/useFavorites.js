@@ -23,9 +23,30 @@ export default function useFavorites(token) {
     if (token) fetchFavorites();
   }, [token]);
 
-  const addFavorite = async (id, type, title, artistName, coverUrl, releaseDate, duration) => {
+  const addFavorite = async (
+    id,
+    type,
+    title,
+    artistName,
+    coverUrl,
+    releaseDate,
+    duration,
+    spotifyUrl = "",
+    youtubeUrl = ""
+  ) => {
     try {
-      await api.addFavorite(id, type, title, artistName, coverUrl, releaseDate, duration, token);
+      await api.addFavorite(
+        id,
+        type,
+        title,
+        artistName,
+        coverUrl,
+        releaseDate,
+        duration,
+        spotifyUrl,
+        youtubeUrl,
+        token
+      );
       setFavorites(prev => [...prev, { favoriteId: id, favoriteType: type }]);
     } catch (err) {
       setError(err.message);
