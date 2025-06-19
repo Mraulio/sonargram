@@ -31,7 +31,7 @@ export const searchAlbums = async (albumName, token) => {
         return {
           id: rg.id,
           title: rg.title || "Título desconocido",
-          artist: rg["artist-credit"]?.[0]?.name || "Artista desconocido",
+          artist: rg["artist-credit"]?.[0]?.name || null,
           coverUrl,
           releaseDate,
         };
@@ -46,6 +46,7 @@ export const searchAlbums = async (albumName, token) => {
 };
 
 // Buscar canciones
+// Buscar canciones e incluir enlaces externos (YouTube / Spotify)
 export const searchSongs = async (songName, token) => {
   try {
     const data = await getMusicBrainzDataFromProxy(
@@ -53,13 +54,25 @@ export const searchSongs = async (songName, token) => {
       token
     );
 
-    return data.recordings.map((rec) => ({
-      id: rec.id,
-      title: rec.title,
-      artist: rec["artist-credit"]?.[0]?.name || "Artista desconocido",
-      album: rec.releases?.[0]?.title || "Álbum desconocido",
-      duration: rec.length || null,
-    }));
+    // Obtener grabaciones básicas
+    const recordings = data.recordings || [];
+
+    // Obtener enlaces externos en paralelo para cada canción
+    const results = await Promise.all(
+      recordings.map(async (rec) => {
+        const externalLinks = await getSongExternalLinks(rec.id, token);
+        console.log('external links', externalLinks);
+        return {
+          id: rec.id,
+          title: rec.title,
+          artist: rec["artist-credit"]?.[0]?.name || null,
+          album: rec.releases?.[0]?.title || null,
+          duration: rec.length || null,
+          externalLinks, // aquí están los enlaces de Spotify, YouTube, etc.
+        };
+      })
+    );
+    return results;
   } catch (error) {
     console.error("Error al buscar canciones:", error);
     throw error;
@@ -82,7 +95,7 @@ export const getAlbumsByArtist = async (artistId, token, limit = 5, offset = 0) 
         return {
           id: album.id,
           title: album.title,
-          artist: album["artist-credit"]?.[0]?.name || "Desconocido",
+          artist: album["artist-credit"]?.[0]?.name || null,
           coverUrl,
           releaseDate: album["first-release-date"] || "",
         };
@@ -110,24 +123,82 @@ export const getReleasesByReleaseGroup = async (releaseGroupId, token, limit = 5
   }
 };
 
-// Canciones por release
-export const getSongsByRelease = async (releaseId, token, limit = 5, offset = 0) => {
+// Canciones por release con enlaces externos
+export const getSongsByRelease = async (releaseId, token, limit = 15, offset = 0) => {
   try {
     const data = await getMusicBrainzDataFromProxy(
       `ws/2/recording?release=${releaseId}&limit=${limit}&offset=${offset}&fmt=json`,
       token
     );
 
-    const sortedSongs = data.recordings.sort((a, b) => a.position - b.position);
+    const sortedSongs = (data.recordings || []).sort(
+      (a, b) => (a.position || 0) - (b.position || 0)
+    );
 
-    return sortedSongs.map((rec) => ({
-      id: rec.id,
-      title: rec.title,
-      artist: rec["artist-credit"]?.[0]?.name || "Artista desconocido",
-      duration: rec.length || null,
-    }));
+    const results = await Promise.all(
+      sortedSongs.map(async (rec) => {
+        const externalLinks = await getSongExternalLinks(rec.id, token);
+
+        return {
+          id: rec.id,
+          title: rec.title,
+          artist: rec["artist-credit"]?.[0]?.name || null,
+          duration: rec.length || null,
+          externalLinks,
+        };
+      })
+    );
+
+    return results;
   } catch (error) {
     console.error("Error al obtener canciones del release:", error);
     throw error;
   }
+};
+
+// Obtener enlaces externos (YouTube, Spotify) de una canción por su ID
+export const getSongExternalLinks = async (recordingId, token) => {
+  try {
+    const data = await getMusicBrainzDataFromProxy(
+      `ws/2/recording/${recordingId}?inc=url-rels&fmt=json`,
+      token
+    );
+
+    const relations = data.relations || [];
+
+    let spotifyUrl = null;
+    let youtubeUrl = null;
+
+    for (const rel of relations) {
+      const url = rel?.url?.resource || "";
+
+      if (url.includes("open.spotify.com") && !spotifyUrl) {
+        spotifyUrl = url;
+      } else if ((url.includes("youtube.com") || url.includes("youtu.be")) && !youtubeUrl) {
+        youtubeUrl = url;
+      }
+    }
+
+    return { spotifyUrl, youtubeUrl };
+  } catch (error) {
+    console.error("Error al obtener enlaces externos:", error);
+    return { spotifyUrl: null, youtubeUrl: null };
+  }
+};
+
+export const extractSpotifyAndYouTubeLinks = (relations = []) => {
+  let spotifyUrl = null;
+  let youtubeUrl = null;
+
+  for (const rel of relations) {
+    const url = rel?.url?.resource || "";
+
+    if (url.includes("open.spotify.com")) {
+      spotifyUrl = url;
+    } else if (url.includes("youtube.com") || url.includes("youtu.be")) {
+      youtubeUrl = url;
+    }
+  }
+
+  return { spotifyUrl, youtubeUrl };
 };

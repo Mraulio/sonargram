@@ -61,10 +61,32 @@ export default function useRatings(token) {
     fetchTopRatingsByType(5);
   }, [token]);
 
-  const rateItem = async (mbid, type, rating, title, artistName, coverUrl, releaseDate, duration) => {
-    console.log("Rate item:", mbid, type, rating, title, artistName, coverUrl, releaseDate, duration);
+  const rateItem = async (
+    mbid,
+    type,
+    rating,
+    title,
+    artistName,
+    coverUrl,
+    releaseDate,
+    duration,
+    spotifyUrl = "",
+    youtubeUrl = ""
+  ) => {
     try {
-      const response = await api.rateItem(mbid, type, rating,title, artistName, coverUrl, releaseDate, duration, token);
+      const response = await api.rateItem(
+        mbid,
+        type,
+        rating,
+        title,
+        artistName,
+        coverUrl,
+        releaseDate,
+        duration,
+        spotifyUrl,
+        youtubeUrl,
+        token
+      );
       const updated = response.rating;
 
       setRatings(prev => {
@@ -82,6 +104,7 @@ export default function useRatings(token) {
       setError(err.message);
     }
   };
+
 
   const deleteRating = async (mbid) => {
     try {

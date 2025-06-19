@@ -1,20 +1,35 @@
 import createApiClient from './apiClient';
 
 // Crear o actualizar una valoración
-export const rateItem = async (mbid, type, rating, title, artistName, coverUrl, releaseDate, duration, token) => {
+export const rateItem = async (
+  mbid,
+  type,
+  rating,
+  title,
+  artistName,
+  coverUrl,
+  releaseDate,
+  duration,
+  spotifyUrl = "",
+  youtubeUrl = "",
+  token
+) => {
   const apiClient = createApiClient(token);
   const response = await apiClient.post('/rating/rate', {
     mbid,
     type,
-    rating, 
+    rating,
     title,
     artistName,
     coverUrl,
     releaseDate,
     duration,
+    spotifyUrl,
+    youtubeUrl
   });
   return response.data;
 };
+
 
 // Eliminar una valoración propia
 export const deleteRating = async (mbid, token) => {
@@ -40,19 +55,19 @@ export const getRatingsByItem = async (mbid) => {
 */
 
 export const getRatingsByMbids = async (mbidList, token) => {
-    const apiClient = createApiClient(token);
-    const query = mbidList.join(',');
-    const response = await apiClient.get(`/rating/ratings?mbids=${query}`);
-    return response.data; // → { mbid1: { average, count }, mbid2: {...}, ... }
-  };
+  const apiClient = createApiClient(token);
+  const query = mbidList.join(',');
+  const response = await apiClient.get(`/rating/ratings?mbids=${query}`);
+  return response.data; // → { mbid1: { average, count }, mbid2: {...}, ... }
+};
 
-  /**
- * Obtiene los items con mejor rating para un tipo específico (artist, album, song)
- * @param {string} type - Tipo del item ('artist', 'album', 'song')
- * @param {number} limit - Cantidad máxima de resultados
- * @param {string} token - Token de autenticación
- * @returns {Promise<Array>} Array de objetos con la info de los items y sus ratings
- */
+/**
+* Obtiene los items con mejor rating para un tipo específico (artist, album, song)
+* @param {string} type - Tipo del item ('artist', 'album', 'song')
+* @param {number} limit - Cantidad máxima de resultados
+* @param {string} token - Token de autenticación
+* @returns {Promise<Array>} Array de objetos con la info de los items y sus ratings
+*/
 export const getTopRatingsByType = async (limit = 5, token) => {
   const apiClient = createApiClient(token);
   // Suponiendo que el endpoint es así:

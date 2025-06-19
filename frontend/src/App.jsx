@@ -3,7 +3,9 @@ import { UserProvider, UserContext } from './context/UserContext';
 import { ThemeProviderCustom, ThemeContext } from './context/ThemeContext';
 import { ThemeProvider, CssBaseline, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, Link } from '@mui/material';
 import { useContext } from 'react';
+
 import FooterBar from './components/Footer';
+
 // Pages
 import IndexPage from './pages/IndexPage';
 import Dashboard from './pages/Dashboard';
@@ -18,29 +20,10 @@ import TestBuscador from './pages/TestBuscador'; // Asegúrate de importar el co
 import Test5 from './pages/Test5';
 import TopsPage from './pages/TopsPage';
 import ResultsPage from './pages/ResultsPage';
-import UserResult from './pages/UserResult'
-// FontAwesome
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
-import i18n from './i18n';
-import Test from './pages/Test';
-import { styled } from '@mui/material/styles';
+import UserResult from './pages/UserResult';
 
-const CustomButton = styled(Link)`
-    color : white;
-    text-decoration: none;
-    cursor: pointer;
-  `;
-
-const CustomMenu2 = styled(Box)`
-  display: flex;
-  gap: 30px;
-  left: 20px;
-  justify-content: center;
-  align-content: center;
-  width: 120px;
-  background: transparent;
-`;
+import { useYoutubePlayer, YoutubePlayerProvider } from './context/YoutubePlayerContext';
+import FloatingYouTubePlayer from './components/FloatingYoutubePlayer';
 
 function App() {
   const { token } = useContext(UserContext);
@@ -66,24 +49,31 @@ function App() {
   );
 }
 
-export default function AppWrapper() {
-  return (
-    <UserProvider>
-      <ThemeProviderCustom>
-        <ThemeWrapper />
-      </ThemeProviderCustom>
-    </UserProvider>
-  );
-}
-
-// Componente para aplicar el tema
+// Componente que envuelve el App y provee el contexto global del reproductor
 function ThemeWrapper() {
   const { theme, toggleTheme, mode } = useContext(ThemeContext);
+  const { youtubeUrl, closeYoutube } = useYoutubePlayer();
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <App />
+      {youtubeUrl && (
+        <FloatingYouTubePlayer url={youtubeUrl} onClose={closeYoutube} />
+      )}
       <FooterBar toggleTheme={toggleTheme} mode={mode} />
     </ThemeProvider>
+  );
+}
+
+export default function AppWrapper() {
+  return (
+    <UserProvider>
+      <YoutubePlayerProvider>
+        <ThemeProviderCustom>
+          <ThemeWrapper />
+        </ThemeProviderCustom>
+      </YoutubePlayerProvider>
+    </UserProvider>
   );
 }

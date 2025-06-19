@@ -5,13 +5,15 @@ const mbidCacheSchema = new mongoose.Schema({
   type: { 
     type: String, 
     required: true, 
-    enum: ['artist', 'album', 'song',] // puedes añadir más tipos si quieres
+    enum: ['artist', 'album', 'song'] // puedes añadir más tipos si quieres
   },
   title: { type: String, required: true }, // nombre o título genérico (artista, canción, álbum)
   artistName: { type: String }, // opcional, útil para álbum o canción
   coverUrl: { type: String }, // opcional, para portadas de álbum o canción
-  releaseDate: {type: String},
-  duration: {type: String},
+  releaseDate: { type: String },
+  duration: { type: String },
+  spotifyUrl: { type: String },   // <-- enlace Spotify opcional
+  youtubeUrl: { type: String },   // <-- enlace YouTube opcional
   data: { type: Object }, // info completa en JSON, opcional
   cachedAt: { type: Date, default: Date.now, index: true }
 });

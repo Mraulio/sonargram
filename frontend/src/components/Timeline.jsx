@@ -15,7 +15,6 @@ const Timeline = () => {
 
   const ratingProps = useRatings(token);
   const favoriteProps = useFavorites(token);
-  //console.log('favorite props TIMELINE', favoriteProps);
 
   const [favoriteCounts, setFavoriteCounts] = useState({});
 
@@ -58,7 +57,9 @@ const Timeline = () => {
           item?.artist || item?.artistName || "",
           item?.coverUrl || "",
           item?.releaseDate || "",
-          item?.duration || ""
+          item?.duration || "",
+          item?.spotifyUrl || "",   // <-- añadir aquí
+          item?.youtubeUrl || ""    // <-- añadir aquí
         );
       }
 
@@ -71,6 +72,7 @@ const Timeline = () => {
       console.error("Error alternando favorito", e);
     }
   };
+
 
   if (loading) return <Typography>Cargando actividades...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;

@@ -119,7 +119,6 @@ const ButtonBox= styled(Box)`
 
 function ResultsPage() {
   const { token, user } = useContext(UserContext);
-  console.log("USER CONTEXT:", user.userId);
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const {
     rateItem,
