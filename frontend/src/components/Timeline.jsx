@@ -78,7 +78,7 @@ const Timeline = () => {
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
-    <Box>
+    <Box sx={{ width: '90%'}}>
       {activities.length === 0 ? (
         <Typography variant="h4">{t('noactivities')}</Typography>
       ) : (

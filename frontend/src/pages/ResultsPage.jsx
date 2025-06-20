@@ -17,12 +17,11 @@ import useFollow from '../hooks/useFollow';
 import useListFollowers from '../hooks/useListFollowers';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import Menu2 from '../components/Menu2'
 import { Link } from 'react-router-dom'; // Asegúrate de importar Link
 import baseUrl from "../config.js";
 import InfoModal from '../components/InfoModal';
 import { showToast } from "../utils/toast.js";
-
+import ItemList from "../components/ItemList";
 
 
 const CustomTextField = styled(TextField)({
@@ -154,6 +153,7 @@ function ResultsPage() {
   const favoriteProps = useFavorites(token);
   const ratingProps = useRatings(token);
 
+
   // Selecciones para cargar info relacionada
   const [selectedArtistAlbums, setSelectedArtistAlbums] = useState([]);
   const [selectedAlbumSongsFromArtist, setSelectedAlbumSongsFromArtist] =
@@ -171,7 +171,7 @@ function ResultsPage() {
   const [error, setError] = useState(null);
   // Resultados generales
   const [searchTerm, setSearchTerm] = useState("");
-
+   
   const handleGeneralSearch = async (term = searchTerm) => {
   if (!term || !term.trim()) return;
   try {
@@ -662,29 +662,47 @@ const closeDetail = () => {
         setInfoModalOpen(false);
       };
 
-const handleFavoriteToggle = async (id, type, item) => {
-  if (favoriteProps.isFavorite(id)) {
-    await favoriteProps.removeFavorite(id);
-    setFavoriteCounts(prev => ({
-      ...prev,
-      [id]: Math.max((prev[id] || 1) - 1, 0)
-    }));
-  } else {
-    await favoriteProps.addFavorite(
-      id,
-      type,
-      item?.title || item?.name || "",
-      item?.artist || item?.artistName || "",
-      item?.coverUrl || "",
-      item?.releaseDate || "",
-      item?.duration || ""
-    );
-    setFavoriteCounts(prev => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1
-    }));
-  }
-};
+const handleFavoriteToggle = async (id, type) => {
+    try {
+      if (isFavorite(id)) {
+        await removeFavorite(id);
+      } else {
+        let item;
+        if (type === "artist") {
+          item = artistResults.find((a) => a.id === id);
+        } else if (type === "album") {
+          item =
+            albumResults.find((a) => a.id === id) ||
+            selectedArtistAlbums.find((a) => a.id === id);
+        } else if (type === "song") {
+          item =
+            songResults.find((s) => s.id === id) ||
+            selectedAlbumSongsFromArtist.find((s) => s.id === id) ||
+            selectedAlbumSongs.find((s) => s.id === id);
+        }
+
+        await addFavorite(
+          id,
+          type,
+          item?.title || item?.name || "",
+          item?.artist || item?.artistName || "",
+          item?.coverUrl || "",
+          item?.releaseDate || "",
+          item?.duration || "",
+          item?.externalLinks?.spotifyUrl || "",
+          item?.externalLinks?.youtubeUrl || ""
+        );
+      }
+
+      const newCount = await getFavoriteCount(id);
+      setFavoriteCounts((prev) => ({
+        ...prev,
+        [id]: newCount,
+      }));
+    } catch (e) {
+      console.error("Error alternando favorito", e);
+    }
+  };
 
 
 //funciones para buscar usuarios 
@@ -721,7 +739,7 @@ const handleSearchUser = async (term = searchTerm) => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <Menu2/>
+        <Menu/>
       <Box
         sx={{
           display: "flex",
@@ -747,13 +765,17 @@ const handleSearchUser = async (term = searchTerm) => {
           {artistResults.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
-              <Typography variant="h4">{t('artistsFound')}</Typography>
-              {renderItemList(
-                artistResults,
-                "artist",
-                handleSelectArtist,
-                "blue"
-              )}
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6">{t('artistFound')}</Typography>
+              <ItemList
+                items={artistResults}
+                type="artist"
+                onClickItem={handleSelectArtist}
+                ratingProps={ratingProps}
+                favoriteCounts={favoriteCounts}
+                isFavorite={isFavorite}
+                onToggleFavorite={handleFavoriteToggle}
+              />
             </>
           )}
 
@@ -862,14 +884,14 @@ const handleSearchUser = async (term = searchTerm) => {
         {/* COLUMNA LISTAS */}
           <Box sx={{ display: "flex", flexDirection:'column', gap: 2 }}>
             {searchResults.length > 0 && (
-              <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+              <Typography variant="h4" sx={{ mt: 2, mb: 1 }}>
                 {t('foundLists')}
               </Typography>)}
             {searchResults.map(l => (
               <ListCard key={l._id} >
                 <ListCardContent>
                   <Typography
-                    variant="h6"
+                    variant="h5"
                     sx={{ mb: 1, cursor: 'pointer' }}
                     onClick={() => {
                       setModalData({ type: 'list', data: l });
@@ -915,7 +937,7 @@ const handleSearchUser = async (term = searchTerm) => {
             </Box>
             {/* COLUMNA Usuarios */}
               {searches.length > 0 && (
-              <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+              <Typography variant="h4" sx={{ mt: 2, mb: 1 }}>
                 {t('foundUsers')}
               </Typography>
             )}

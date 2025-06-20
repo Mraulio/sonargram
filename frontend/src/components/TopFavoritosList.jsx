@@ -2,25 +2,29 @@ import { useEffect, useState, useContext } from "react";
 import {
   Box,
   Typography,
-  Divider,
-  Card,
-  CardContent,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  styled
+  Card,
+  CardContent,
+  styled,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  Divider
 } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown, faHeart } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../context/UserContext";
-import { getTopFavorites } from "../api/internal/favoriteApi";
+import { getTopRatingsByType } from "../api/internal/ratingApi";
+import useFavorites from "../hooks/useFavorites";
 import { useTranslation } from "react-i18next";
 
 const AccordionBox = styled(Box)`
   display: flex;
   justify-content: space-around;
   width: 100%;
-
   @media (max-width: 920px) {
     flex-direction: column;
     gap: 20px;
@@ -34,61 +38,75 @@ const CustomAccordion = styled(Accordion)`
   }
 `;
 
-function TopFavoritosList({ limit = 5, title = "Items Más Gustados" }) {
+function TopRatingsList({ limit = 5, title = "Items con Más Likes" }) {
   const { t } = useTranslation();
   const { token } = useContext(UserContext);
-  const [topFavorites, setTopFavorites] = useState({
-    artist: [],
-    album: [],
-    song: [],
-  });
+  const [topRatings, setTopRatings] = useState({ artist: [], album: [], song: [] });
   const [loading, setLoading] = useState(true);
+  const { getFavoriteCount, favoriteCounts } = useFavorites(token);
 
   useEffect(() => {
-    async function fetchTopFavorites() {
+    async function fetchTopRatings() {
       try {
-        const data = await getTopFavorites(limit, token);
+        const data = await getTopRatingsByType(limit, token);
+
         const formattedData = data.reduce(
           (acc, curr) => {
-            acc[curr._id] = curr.favorites || [];
+            acc[curr._id] = curr.ratings || [];
             return acc;
           },
           { artist: [], album: [], song: [] }
         );
-        setTopFavorites(formattedData);
-        
+
+        // Obtener recuento de favoritos para cada ítem
+        const allItems = Object.values(formattedData).flat();
+        for (const item of allItems) {
+          const id = item._id || item.mbid;
+          if (id) {
+            await getFavoriteCount(id);
+          }
+        }
+
+        setTopRatings(formattedData);
       } catch (error) {
-        console.error(t("errorFetchingTopFavorites") || "Error cargando favoritos populares", error);
+        console.error(t("errorFetchingTopRatings"), error);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchTopFavorites();
+    fetchTopRatings();
   }, [token, limit]);
 
   function getItemName(item, type) {
-  const fallback = "Sin nombre";
-
-  switch (type) {
-    case "artist":
-      return item?.data?.name || item?.title || fallback;
-    case "album":
-      return item?.data?.title || item?.data?.name || item?.title || fallback;
-    case "song":
-      // Solo canciones pueden tener claves de traducción como "song.title01"
-      return t(item?.title, { defaultValue: item?.data?.title || item?.title || fallback });
-    default:
-      return item?.name || fallback;
+    const base = item.data || {};
+    return (
+      item.title ||
+      base.title ||
+      base.name ||
+      item.name ||
+      t("unnamed") || "Sin nombre"
+    );
   }
-}
 
   if (loading) {
-    return <Typography>{t("loadingTopFavorites") || "Cargando favoritos populares..."}</Typography>;
+    return (
+      <Box p={4} display="flex" justifyContent="center">
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <Box sx={{ width: "100vw", display: "flex", flexDirection: "column", alignItems: "center", p: 2 }}>
+    <Box
+      sx={{
+        width: "100vw",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        p: 2,
+      }}
+    >
       <Typography variant="h4" mb={2}>
         {title}
       </Typography>
@@ -96,7 +114,10 @@ function TopFavoritosList({ limit = 5, title = "Items Más Gustados" }) {
       <AccordionBox>
         {["artist", "album", "song"].map((type) => (
           <CustomAccordion key={type}>
-            <AccordionSummary expandIcon={<FontAwesomeIcon icon={faCaretDown} />} sx={{ backgroundColor: '#d63b1f', color: 'white', borderRadius: 2 }}>
+            <AccordionSummary
+              expandIcon={<FontAwesomeIcon icon={faCaretDown} />}
+              sx={{ backgroundColor: "#d63b1f", color: "white", borderRadius: 2 }}
+            >
               <Typography variant="h5" textTransform="capitalize">
                 {type === "song" ? t("songs") : `${type}s`} {t("mostLiked") || "más populares"}
               </Typography>
@@ -105,24 +126,33 @@ function TopFavoritosList({ limit = 5, title = "Items Más Gustados" }) {
             <AccordionDetails>
               <Card sx={{ width: "100%" }}>
                 <CardContent>
-                  {topFavorites[type].length === 0 ? (
-                    <Typography>{t("noDataAvailable") || "No hay datos disponibles."}</Typography>
+                  {topRatings[type].length === 0 ? (
+                    <Typography>{t("noDataAvailable")}</Typography>
                   ) : (
-                    topFavorites[type].map((item) => (
-                      <Box
-                        key={item.favoriteId}
-                        mt={1}
-                        p={1}
-                        borderRadius={1}
-                        bgcolor="background.default"
-                      >
-                        <Typography fontWeight="bold">{getItemName(item, type)}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {t("count") || "Cantidad"}: {item.count}
-                        </Typography>
-                        <Divider sx={{ mt: 1 }} />
-                      </Box>
-                    ))
+                    <List dense>
+                      {topRatings[type].map((item, index) => {
+                        const id = item._id || item.mbid;
+                        const likes = favoriteCounts[id] ?? 0;
+
+                        return (
+                          <ListItem key={id || index} sx={{ gap:2}}>
+                          <ListItemText
+                            primary={
+                              <>
+                                <Typography component="span" fontWeight="bold">
+                                  {getItemName(item, type)}
+                                </Typography><br/>
+                                <Typography component="span" variant="body2" color="text.secondary" ml={1}>
+                                  ❤️ {likes} {t("likes")}
+                                </Typography>
+                                <Divider/>
+                              </>
+                            }
+                          />
+                        </ListItem>
+                        );
+                      })}
+                    </List>
                   )}
                 </CardContent>
               </Card>
@@ -134,4 +164,4 @@ function TopFavoritosList({ limit = 5, title = "Items Más Gustados" }) {
   );
 }
 
-export default TopFavoritosList;
+export default TopRatingsList;

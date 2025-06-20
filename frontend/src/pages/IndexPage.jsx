@@ -27,6 +27,7 @@ const LogoBox= styled(Box)`
   justify-content:center; 
   align-items:center; 
   gap:10px;
+  margin-top: 5em;
 
   @media (max-width: 960px) {
     display:flex;
@@ -57,7 +58,7 @@ function IndexPage() {
           <Typography sx={{ fontSize: '1.1rem' }}> {t('connect')}</Typography>
           <Typography sx={{ fontSize: '1.3rem' }}>{t('begintoexplore')}</Typography>
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginBottom: 3 }}>
           <Login/> {/* Logica para registrarse */ }
           <Typography align="center" sx={{marginTop: '1.2rem'}}>{t('donthaveanaccount?')} <Link  href="/register" sx={{color: '#d63b1f', textDecoration: 'none', fontWeight:'600'}}>{t('registerhere')}</Link></Typography>
         </Box>

@@ -5,7 +5,7 @@ import i18n from '../i18n';
 import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, styled, Link } from '@mui/material';
 
 const Footer = styled('footer')`
-  width: 100vw;
+  width: 100%;
   height: 10vh;
   background: #3e4a4c;
   padding: 10px 0;
@@ -22,6 +22,11 @@ const CustomMenu2 = styled(Box)`
     align-content: center;
     width: 120px;
     background: transparent;
+
+    @media (max-width: 960px) {
+      width: 50vw;
+      gap: 10px;
+    }
   `;
 
   const CustomButton = styled(Link)`
@@ -44,7 +49,11 @@ function FooterBar({ toggleTheme, mode }) {
         <CustomButton as="button" onClick={() => i18n.changeLanguage('en')}>EN</CustomButton>
         <CustomButton as="button" onClick={() => i18n.changeLanguage('es')}>ES</CustomButton>
       </CustomMenu2>
-      <Typography color='WHITE'>COPYRIGHT SONARGRAM</Typography>
+      <Typography sx={{ fontSize: '0.7rem' }} color='WHITE'>SONARGRAM<br/> © 2025 Raúl Miras Vidal, Borja Vera Andreu.<br/> Licenciado bajo la 
+      <a href="https://opensource.org/licenses/MIT" target="_blank" style={{ textDecoration: 'none', color: 'inherit', fontWeight: 700 }}> Licencia MIT</a>.
+      </Typography>
+      
+
     </Footer>
   );
 }

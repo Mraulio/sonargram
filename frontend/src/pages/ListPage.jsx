@@ -2,8 +2,7 @@ import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
 import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions, styled } from '@mui/material';
-import Menu2 from '../components/Menu2';
-import SearchBar from '../components/Search';
+import Menu from '../components/Menu';
 import useList from '../hooks/useList';
 import useUser from '../hooks/useUser';
 import useFavorites from '../hooks/useFavorites';
@@ -62,7 +61,7 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   '& label.Mui-focused': {
     color: theme.palette.primary.main, // etiqueta con foco
   },
-  width: '450px',
+  width: '100%',
 }));
 
 function ListPage() {
@@ -312,15 +311,15 @@ function ListPage() {
 
 
  return (
-  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100vw", minHeight:'100vh', alignItems:'center' }}>
-    <Menu2 /> 
-        <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4, flexWrap:'wrap' }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100%", minHeight:'100vh' }}>
+    <Menu /> 
+        <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4, flexWrap:'wrap', width:'95vw' }}>
           <Typography variant="h4" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
               <ListCard>
-                <ListCardContent sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', width:'100%' }}>
-                  <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
-                  <CustomTextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
+                <ListCardContent >
+                  <Typography variant="h5">{t('createList')}</Typography>
+                  <CustomTextField  label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
                   <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2, backgroundColor: '#d63b1f'  }}>{ t('createListButton')}</Button>
                 </ListCardContent>
               </ListCard>   
@@ -390,7 +389,7 @@ function ListPage() {
             </Box>
         </Box>            
                 
-        <Box sx={{  display: 'flex',  flexDirection: 'column', p: 4 }}>
+        <Box sx={{  display: 'flex',  flexDirection: 'column', p: 4, width:'95vw' }}>
           <Typography variant="h4">{t('listfollowed')}</Typography>
           <Box sx={{ display: 'flex', gap: 2, width: '95vw', flexWrap: 'wrap' }}>
             {followedLists.map(l => {
@@ -434,7 +433,7 @@ function ListPage() {
           </Box>
         </Box>     
 
-        <Box sx={{ display: 'flex',  flexDirection: 'column', p: 4}}>
+        <Box sx={{ display: 'flex',  flexDirection: 'column', p: 4, width:'95vw' }}>
           <Typography variant="h4" sx={{ mb: 2 }}>{t('allLists')}</Typography>              
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
             {lists && lists.length > 0 ? (
