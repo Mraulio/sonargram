@@ -24,6 +24,8 @@ async function logActivity({ user, action, targetType, targetId, metadata = {}, 
           coverUrl: metadata.coverUrl || undefined,
           releaseDate: metadata.releaseDate || undefined,
           duration: metadata.duration || undefined,
+          spotifyUrl: metadata.spotifyUrl || undefined,
+          youtubeUrl: metadata.youtubeUrl || undefined,
         });
       }
     }

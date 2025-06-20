@@ -26,7 +26,7 @@
     "deleteUserButton": "Borrar cuenta",
     "confirmDeleteUser": "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.",
     "userDeleted": "Usuario eliminado con éxito",
-    "welcometosonargram": "¡Te damos la bienvenida a SonarGram!",
+    "welcometosonargram": "¡Te damos la bienvenida a Sonargram!",
     "exploreaworld": "Explora un mundo de música al alcance de tus dedos. Aquí puedes:",
     "searchsongs": "Buscar tus canciones, artistas y álbumes favoritos",
     "discoversongs": "Descubrir listas de reproducción creadas por otros usuarios",
@@ -114,7 +114,26 @@
     "count": "Cantidad de Me Gusta",
     "Albums": "Álbumes",
     "Artists": "Artistas",
-    "topLiked": "Más Gustados de la comunidad"
+    "topLiked": "Más Gustados de la comunidad",
+    "tops": "Tops",
+    "dataUser": "Perfil del usuario",
+     "generalSearch": "Búsqueda general",
+    "searchAnything": "Busca artistas, álbumes o canciones",
+    "search": "Buscar",
+    "searchArtist": "Buscar Artista",
+    "searchAlbum": "Buscar Álbum",
+    "searchSong": "Buscar Canción",
+    "nameArtist": "Nombre del Artista",
+    "nameAlbum": "Nombre del Álbum",
+    "nameSong": "Nombre de la Canción",
+    "artistFound": "Artistas encontrados",
+    "artistAlbums": "Álbumes del Artista",
+    "albumSongs": "Canciones del Álbum",
+    "songFounds": "Canciones encontradas",
+    "searchLists": "Buscar Listas",
+    "searchUsers": "Buscar Usuarios",
+    "nameUser": "Nombre de Usuario"
+
 
     
   }  

@@ -6,6 +6,7 @@ import useFollow from '../hooks/useFollow';
 import useUser from '../hooks/useUser';
 import { useNavigate } from 'react-router-dom';
 import baseUrl from '../config.js';
+
 const FollowBox = styled(Box)`
     display: flex;
     flex-wrap: wrap; 
@@ -17,7 +18,7 @@ const FollowBox = styled(Box)`
     flex-direction: column;
     flex-wrap: nowrap;
     align-items: center;
-    width: 100vw;
+    width: 100%;
   }
 
     `;
@@ -26,9 +27,8 @@ const FollowBoxContent = styled(Box)`
     flex-direction: column; 
     align-items: center; 
     margin-top: 10px; 
-    width: 45%; 
-    height: 40vh;
-    overflow-y: auto;
+    width: 50%; 
+    min-height: 40vh;
     
     @media (max-width: 960px) {
     width: 95%
@@ -37,7 +37,7 @@ const FollowBoxContent = styled(Box)`
 `;
 
 const FollowCard = styled(Card)`
-    width: 650px; 
+    width: 100%; 
     padding: 15px; 
     display: flex; 
     align-items: center;
@@ -95,7 +95,7 @@ function Followers({ userId: propUserId }) {
         <FollowBox>
             <FollowBoxContent> 
                 <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollowed')}</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2, overFlowY: 'auto', width: '80%' }}>
                     {following.map(f => (
                         f.followed ? (
                             <FollowCard key={f.followed._id} >
@@ -124,7 +124,7 @@ function Followers({ userId: propUserId }) {
                                         variant="contained"
                                         color="error"
                                         onClick={() => handleUnfollow(f.followed._id)}
-                                     
+                                        sx={{ mt: 2, width: '20%', fontSize: '0.6rem', height: '10%' }}
                                     >
                                         {t('unfollow')}
                                         
@@ -140,7 +140,7 @@ function Followers({ userId: propUserId }) {
 
             <FollowBoxContent >
                 <Typography variant="h6" sx={{ mb: 2 }}>{t('usersfollowers')}</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, justifyContent: 'center', alignItems: 'center', mt: 2, overflowY: 'auto', width: '80%' }}>
                     {followers.map(f => (
                         f.follower ? (
                             <FollowCard key={f.follower._id} >
@@ -175,15 +175,16 @@ function Followers({ userId: propUserId }) {
                                             variant="contained"
                                             color="error"
                                             onClick={() => handleUnfollow(f.follower._id)}
-                                            
+                                            sx={{ mt: 2, width: '20%', fontSize: '0.6rem', height: '10%' }}
                                         >
                                             {t('unfollow')}
                                         </Button>
                                     ) : (
                                         <Button
-                                            sx={{ backgroundColor: '#d63b1f', color: 'white'}}
+                                            sx={{ backgroundColor: '#d63b1f', color: 'white', width: '20%', fontSize: '0.6rem', height: '10%'}}
                                             variant="contained"
                                             onClick={() => handleFollow(f.follower._id)}
+                                          
                                         >
                                             {t('follow')}
                                         </Button>

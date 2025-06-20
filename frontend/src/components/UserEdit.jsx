@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import useUser from '../hooks/useUser';
-import Menu from '../components/Menu';
+
 import baseUrl from '../config.js';
 
 function UserEdit() {

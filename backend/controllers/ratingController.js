@@ -3,7 +3,18 @@ const ratingService = require("../services/ratingService.js");
 const logActivity = require("../utils/logActivity");
 
 const rateItem = async (req, res) => {
-  const { mbid, type, rating, title, artistName, coverUrl, releaseDate, duration } = req.body;
+  const {
+    mbid,
+    type,
+    rating,
+    title,
+    artistName,
+    coverUrl,
+    releaseDate,
+    duration,
+    spotifyUrl = "",
+    youtubeUrl = "",
+  } = req.body;
   const { userId } = req.user;
 
   if (!mbid || !type || !rating) {
@@ -13,7 +24,16 @@ const rateItem = async (req, res) => {
   try {
     const updated = await Rating.findOneAndUpdate(
       { userId, mbid, type },
-      { rating },
+      {
+        rating,
+        title,
+        artistName,
+        coverUrl,
+        releaseDate,
+        duration,
+        spotifyUrl,
+        youtubeUrl,
+      },
       {
         new: true,
         upsert: true,
@@ -21,7 +41,7 @@ const rateItem = async (req, res) => {
         runValidators: true,
       }
     );
-    // Log de la actividad, con los datos recibidos
+
     await logActivity({
       user: userId,
       action: "rate",
@@ -33,13 +53,15 @@ const rateItem = async (req, res) => {
         coverUrl,
         releaseDate,
         duration,
+        spotifyUrl,
+        youtubeUrl,
       },
     });
-    
+
     res.status(200).json({ message: "Rating saved", rating: updated });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: error });
+    res.status(500).json({ message: error.message || error });
   }
 };
 

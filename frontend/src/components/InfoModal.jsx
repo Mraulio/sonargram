@@ -13,11 +13,12 @@ import useList from '../hooks/useList';
 import { UserContext } from "../context/UserContext";
 import { useTranslation } from 'react-i18next';
 
+
 const style = {
   position: 'absolute',
   top: '50%', left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 550, bgcolor: 'background.paper',
+  width: 450, bgcolor: 'background.paper',
   borderRadius: 2, boxShadow: 24,
   p: 3, maxHeight: '100vh', overflowY: 'auto'
 };
@@ -27,12 +28,12 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();  // Hook para obtener las traducciones
 
-  const { fetchListById } = useList();
   const { token, user } = useContext(UserContext);
   const {
     fetchListsByUser,
     userLists,
     addSong,
+    fetchListById,
     loading: listLoading
   } = useList(token);
 
@@ -74,7 +75,7 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
         selectedSong.releaseDate,
         selectedSong.duration
       );
-      setMessage("Canción añadida correctamente.");
+      setMessage("Canción añadida correctamesdsdnte.");
     } catch (err) {
       setMessage("Error al añadir la canción.");
     } finally {

@@ -30,11 +30,32 @@ export const getListById = async (listId, token) => {
 };
 
 // Añadir canción a lista
-export const addSongToList = async (listId, musicbrainzId, title, artistName, coverUrl, releaseDate, duration, token) => {
+export const addSongToList = async (
+  listId,
+  musicbrainzId,
+  title,
+  artistName,
+  coverUrl,
+  releaseDate,
+  duration,
+  spotifyUrl = "",
+  youtubeUrl = "",
+  token
+) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.post(`/lists/${listId}/songs`, { musicbrainzId, title, artistName, coverUrl, releaseDate, duration });
+  const response = await apiClient.post(`/lists/${listId}/songs`, {
+    musicbrainzId,
+    title,
+    artistName,
+    coverUrl,
+    releaseDate,
+    duration,
+    spotifyUrl,
+    youtubeUrl
+  });
   return response.data;
 };
+
 
 // Eliminar canción de lista
 export const removeSongFromList = async (listId, musicbrainzId, token) => {
@@ -46,7 +67,7 @@ export const removeSongFromList = async (listId, musicbrainzId, token) => {
 // Actualizar nombre de lista
 export const updateListName = async (listId, newName, token) => {
   const apiClient = createApiClient(token);
-  const response = await apiClient.put(`/lists/${listId}/name`, { name: newName } );
+  const response = await apiClient.put(`/lists/${listId}/name`, { name: newName });
   return response.data;
 };
 

@@ -5,7 +5,7 @@ import { Typography, Card, CardContent, Box, Avatar, Divider, styled } from '@mu
 import { useTranslation } from 'react-i18next';
 import OtherFollowers from '../components/OtherFollowers';
 import useUser from '../hooks/useUser';
-import Menu2 from '../components/Menu2';
+import Menu from '../components/Menu';
 import OtherLists from '../components/OtherLists'
 import baseUrl from '../config.js';
 
@@ -54,11 +54,11 @@ function UserResult() {
   }
 
   return (
-    <Box style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center' }}>
-    <Menu2/>
+    <Box style={{ display: 'flex', flexDirection: 'column'}}>
+    <Menu/>
       <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100vw'}}>
-        <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', justifyContent: 'space-around', width: '500px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
-        <Typography variant="h4" gutterBottom>
+        <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', justifyContent: 'space-around', width: '400px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
+        <Typography variant="h5" gutterBottom>
           {t('publicProfile')}
         </Typography>
             <Avatar

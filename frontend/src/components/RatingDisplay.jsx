@@ -17,15 +17,29 @@ const RatingDisplay = ({
   coverUrl,
   releaseDate,
   duration,
+  spotifyUrl,
+  youtubeUrl
 }) => {
   const { average, count } = getItemStats(mbid);
   const userRating = getRatingFor(mbid, type);
 
   const handleChange = (_, newValue) => {
-    if (newValue !== null) {
-      rateItem(mbid, type, newValue, title, artistName, coverUrl, releaseDate, duration);
-    }
-  };
+  if (newValue !== null) {
+    rateItem(
+      mbid,
+      type,
+      newValue,
+      title,
+      artistName,
+      coverUrl,
+      releaseDate,
+      duration,
+      spotifyUrl || "",
+      youtubeUrl || ""
+    );
+  }
+};
+
 
   const handleDelete = () => {
     deleteRating(mbid);

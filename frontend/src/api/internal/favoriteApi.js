@@ -1,7 +1,18 @@
 import createApiClient from "./apiClient";
 
 // Agregar a favoritos
-export const addFavorite = async (favoriteId, favoriteType, title, artistName, coverUrl, releaseDate, duration, token) => {
+export const addFavorite = async (
+  favoriteId,
+  favoriteType,
+  title,
+  artistName,
+  coverUrl,
+  releaseDate,
+  duration,
+  spotifyUrl = "",
+  youtubeUrl = "",
+  token
+) => {
   const apiClient = createApiClient(token);
   const response = await apiClient.post('/favorites', {
     favoriteId,
@@ -11,9 +22,12 @@ export const addFavorite = async (favoriteId, favoriteType, title, artistName, c
     coverUrl,
     releaseDate,
     duration,
+    spotifyUrl,
+    youtubeUrl,
   });
   return response.data;
 };
+
 
 // Eliminar de favoritos
 export const removeFavorite = async (favoriteId, token) => {
