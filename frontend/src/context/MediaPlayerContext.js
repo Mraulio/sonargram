@@ -4,10 +4,10 @@ import React, { createContext, useContext, useState } from "react";
 const MediaPlayerContext = createContext();
 
 export const MediaPlayerProvider = ({ children }) => {
-  const [mediaPlayer, setMediaPlayer] = useState({ type: null, url: null });
+  const [mediaPlayer, setMediaPlayer] = useState({ type: null, url: null, title: null });
 
-  const openMedia = (type, url) => setMediaPlayer({ type, url });
-  const closeMedia = () => setMediaPlayer({ type: null, url: null });
+  const openMedia = (type, url, title) => setMediaPlayer({ type, url, title });
+  const closeMedia = () => setMediaPlayer({ type: null, url: null, title: null });
 
   return (
     <MediaPlayerContext.Provider value={{ mediaPlayer, openMedia, closeMedia }}>

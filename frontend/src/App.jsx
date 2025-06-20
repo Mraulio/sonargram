@@ -59,7 +59,7 @@ function ThemeWrapper() {
       <CssBaseline />
       <App />
       {mediaPlayer?.url && (
-        <FloatingMediaPlayer type={mediaPlayer.type} url={mediaPlayer.url} onClose={closeMedia} />
+        <FloatingMediaPlayer type={mediaPlayer.type} url={mediaPlayer.url} title={mediaPlayer.title} onClose={closeMedia} />
       )}
       <FooterBar toggleTheme={toggleTheme} mode={mode} />
     </ThemeProvider>

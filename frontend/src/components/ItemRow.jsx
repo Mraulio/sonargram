@@ -35,12 +35,12 @@ const ItemRow = ({
 
   const handleYouTubeClick = () => {
     const url = item?.externalLinks?.youtubeUrl || item?.youtubeUrl;
-    if (url) openMedia("youtube", url);
+    if (url) openMedia("youtube", url, item.title);
   };
 
   const handleSpotifyClick = () => {
     const url = item?.externalLinks?.spotifyUrl || item?.spotifyUrl;
-    if (url) openMedia("spotify", url);
+    if (url) openMedia("spotify", url, item.title);
   };
 
   return (
