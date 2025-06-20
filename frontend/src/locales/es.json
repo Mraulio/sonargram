@@ -116,7 +116,24 @@
     "Artists": "Artistas",
     "topLiked": "Más Gustados de la comunidad",
     "tops": "Tops",
-    "dataUser": "Perfil del usuario"
+    "dataUser": "Perfil del usuario",
+     "generalSearch": "Búsqueda general",
+    "searchAnything": "Busca artistas, álbumes o canciones",
+    "search": "Buscar",
+    "searchArtist": "Buscar Artista",
+    "searchAlbum": "Buscar Álbum",
+    "searchSong": "Buscar Canción",
+    "nameArtist": "Nombre del Artista",
+    "nameAlbum": "Nombre del Álbum",
+    "nameSong": "Nombre de la Canción",
+    "artistFound": "Artistas encontrados",
+    "artistAlbums": "Álbumes del Artista",
+    "albumSongs": "Canciones del Álbum",
+    "songFounds": "Canciones encontradas",
+    "searchLists": "Buscar Listas",
+    "searchUsers": "Buscar Usuarios",
+    "nameUser": "Nombre de Usuario"
+
 
     
   }  

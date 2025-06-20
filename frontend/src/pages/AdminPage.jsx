@@ -168,11 +168,11 @@ function AdminPage() {
       };
   
     return (
-      <Box sx={{ fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+      <Box sx={{ fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column'}}>
         <Menu />
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',  maxWidth: '600px', marginTop: '1.1rem' }}>
-            <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red' }}>
-            <CardContent>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center',  marginTop: '1.1rem', width: '90vw', minHeight: '100vh', padding: '1rem' }}>
+            <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red', }}>
+            <CardContent sx={{ width: '100%'}}>
                 <Typography variant="h6" sx={{ color: token ? 'green' : 'red' }}>
                 {token ? t('userLoggedIn', { role }) : t('noUserLoggedIn')}
                 </Typography>
@@ -183,16 +183,7 @@ function AdminPage() {
             {role === 'admin' && (
             <Card sx={{ mb: 4 }}>
                 <CardContent>
-                <Typography variant="h5" gutterBottom>{t('createUser')}</Typography>
-                <TextField fullWidth label={t('name')} value={userName} onChange={e => setUserName(e.target.value)} margin="normal" />
-                <TextField fullWidth label={t('username')} value={userUsername} onChange={e => setUserUsername(e.target.value)} margin="normal" />
-                <TextField fullWidth label={t('email')} value={userEmail} onChange={e => setUserEmail(e.target.value)} margin="normal" />
-                <TextField fullWidth type="password" label={t('password')} value={userPassword} onChange={e => setUserPassword(e.target.value)} margin="normal" />
-                <Button variant="contained" onClick={handleCreateUser} sx={{ mt: 2 }}>
-                    {t('createUserButton')}
-                </Button>
-    
-                <Divider sx={{ my: 2 }} />
+                
                 <Typography variant="h6">{t('existingUsers')}</Typography>
 
                 <ul>
@@ -247,14 +238,7 @@ function AdminPage() {
 
             <Card>
             <CardContent>
-                <Typography variant="h5" gutterBottom>{t('createList')}</Typography>
-                <TextField fullWidth label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
-                <TextField fullWidth label={t('songIds')} value={songs} onChange={e => setSongs(e.target.value)} margin="normal" />
-                <Button variant="contained" onClick={handleCreateList} sx={{ mt: 2 }}>
-                {t('createListButton')}
-                </Button>
-    
-                <Divider sx={{ my: 2 }} />
+                
                 <Typography variant="h6">{t('existingLists')}</Typography>
                 <ul>
                 {lists.map(l => (

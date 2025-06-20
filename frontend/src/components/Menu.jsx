@@ -148,18 +148,11 @@ function Menu() {
           <img src='assets/images/logo.svg' alt="Logo" />
           <Typography sx={{ fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: '2rem', color: theme.palette.text.primary}}>Sonargram</Typography>
         </MenuLogo>
-        <Box sx={{ display: 'flex', gap: 1, width:'60%', justifyContent:'start', alignItems: 'center', gap:3 }}>
-          <Box sx= {{ display: 'flex', justifyContent:'center', alignItems:'center', width: '500px' }}>
-            <CustomTextField
-                label={t('searchBar')}
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)} // <-- agrega esto
-                onKeyDown={e => e.key === "Enter" && handleSearchClick()}
-                margin="normal"
-                
-              />
-            <Button onClick={handleSearchClick}><FontAwesomeIcon style={{fontSize: 24, color: '#3e4a4c', color: theme.palette.text.primary}} icon={faMagnifyingGlass} /></Button>
-          </Box>
+        <Box sx={{ display: 'flex', gap: 1, width:'60%', justifyContent:'end', alignItems: 'center', gap:3 }}>
+         
+           
+            <Button onClick={() => navigate('/search')}><FontAwesomeIcon style={{fontSize: 24, color: '#3e4a4c', color: theme.palette.text.primary}} icon={faMagnifyingGlass} /></Button>
+    
             <CustomLink sx={{ color: theme.palette.text.primary }} href="/lists" underline="hover"><span>{t('lists')}</span></CustomLink>
              <CustomLink sx={{ color: theme.palette.text.primary }} href="/tops" underline="hover" >{t('tops')}</CustomLink>
             
@@ -206,30 +199,13 @@ function Menu() {
           {isTabletOrMobile ? (
             <>
             {showSearchExpanded ? (
-            <Box sx={{  padding: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CustomTextField
-            autoFocus
-            label={t('searchBar')}
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === "Enter") {
-                handleSearchClick();
-                setShowSearchExpanded(false); // Cierra tras buscar
-              }
-            }}
-            sx={{
-              width: '30vw',
-              transition: 'width 0.3s ease',
-              overflow: 'hidden',
-            }}
-          />
+            
           <Button onClick={() => setShowSearchExpanded(false)}>
             <FontAwesomeIcon style={{ fontSize: 12, color: '#3e4a4c' }} icon={faXmark} />
           </Button>
-        </Box>
+
           ) : (
-            <Button onClick={toggleSearchExpanded}>
+            <Button onClick={() => navigate('/search')}>
               <FontAwesomeIcon style={{ fontSize: 16, color: '#3e4a4c' }} icon={faMagnifyingGlass} />
             </Button>
           )}

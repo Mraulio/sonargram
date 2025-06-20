@@ -21,7 +21,7 @@ import Test5 from './pages/Test5';
 import TopsPage from './pages/TopsPage';
 import ResultsPage from './pages/ResultsPage';
 import UserResult from './pages/UserResult';
-
+import SearchPage from './pages/SearchPage'; // Asegúrate de importar el componente de búsqueda
 import { useYoutubePlayer, YoutubePlayerProvider } from './context/YoutubePlayerContext';
 import FloatingYouTubePlayer from './components/FloatingYoutubePlayer';
 
@@ -33,7 +33,6 @@ function App() {
       <Routes>
         <Route path="/" element={!token ? <IndexPage /> : <Navigate to="/dashboard" />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/test" element={<PrivateRoute><Test/></PrivateRoute>} />
         <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
         <Route path="/admin" element={<PrivateRoute><AdminPage/></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><UserPage/></PrivateRoute>} />
@@ -43,6 +42,7 @@ function App() {
         <Route path="/tops" element={<PrivateRoute><TopsPage/></PrivateRoute>} />
         <Route path="results" element={<PrivateRoute><ResultsPage/></PrivateRoute>} />
         <Route path="/userresult/:id" element={<PrivateRoute><UserResult/></PrivateRoute>} />
+        <Route path="/search" element={<PrivateRoute><SearchPage/></PrivateRoute>} />
         <Route path="*" element={<Navigate to={token ? "/dashboard" : "/"} />} />
       </Routes>
     </Router>
