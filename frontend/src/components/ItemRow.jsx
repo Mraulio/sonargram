@@ -1,5 +1,5 @@
-import { useYoutubePlayer } from "../context/YoutubePlayerContext";
-import { Typography, IconButton, Link } from "@mui/material";
+import { useMediaPlayer } from "../context/MediaPlayerContext";
+import { Typography, IconButton } from "@mui/material";
 import RatingDisplay from "./RatingDisplay";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,8 +8,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { faSpotify, faYoutube } from "@fortawesome/free-brands-svg-icons";
-import { useState } from "react";
-import FloatingSpotifyPlayer from "./FloatingSpotifyPlayer";
 
 function formatDuration(ms) {
   if (!ms) return "";
@@ -32,13 +30,17 @@ const ItemRow = ({
   compact = false,
 }) => {
   const showCover = type === "album" && item.coverUrl;
-const [spotifyPlayerUrl, setSpotifyPlayerUrl] = useState(null);
 
-  const { openYoutube } = useYoutubePlayer();
+  const { openMedia } = useMediaPlayer();
 
   const handleYouTubeClick = () => {
-    const url = item?.externalLinks?.youtubeUrl || item.youtubeUrl || null;
-    if (url) openYoutube(url);
+    const url = item?.externalLinks?.youtubeUrl || item?.youtubeUrl;
+    if (url) openMedia("youtube", url);
+  };
+
+  const handleSpotifyClick = () => {
+    const url = item?.externalLinks?.spotifyUrl || item?.spotifyUrl;
+    if (url) openMedia("spotify", url);
   };
 
   return (
@@ -122,8 +124,10 @@ const [spotifyPlayerUrl, setSpotifyPlayerUrl] = useState(null);
 
       {type === "song" && (
         <IconButton
-          onClick={() => {console.log('ITEM PULSADO', item);
-            onAddClick(item)}}
+          onClick={() => {
+            console.log('ITEM PULSADO', item);
+            onAddClick(item)
+          }}
           size="small"
           title="Añadir a lista"
           sx={{ ml: 1 }}
@@ -132,28 +136,19 @@ const [spotifyPlayerUrl, setSpotifyPlayerUrl] = useState(null);
         </IconButton>
       )}
 
-
-      {/* Icono Spotify */}
+      {/* Botón Spotify */}
       {(item?.externalLinks?.spotifyUrl?.trim() || item?.spotifyUrl?.trim()) && (
-  <IconButton
-    onClick={() =>
-      setSpotifyPlayerUrl(item?.externalLinks?.spotifyUrl || item?.spotifyUrl)
-    }
-    size="small"
-    title="Escuchar en Spotify"
-    sx={{ ml: 1, color: "#1DB954" }}
-  >
-    <FontAwesomeIcon icon={faSpotify} />
-  </IconButton>
-)}
-{/* Reproductor flotante */}
-{spotifyPlayerUrl && (
-  <FloatingSpotifyPlayer
-    url={spotifyPlayerUrl}
-    onClose={() => setSpotifyPlayerUrl(null)}
-  />
-)}
-      {/* YouTube Icon */}
+        <IconButton
+          onClick={handleSpotifyClick}
+          size="small"
+          title="Escuchar en Spotify"
+          sx={{ ml: 1, color: "#1DB954" }}
+        >
+          <FontAwesomeIcon icon={faSpotify} />
+        </IconButton>
+      )}
+
+      {/* Botón YouTube */}
       {(item?.externalLinks?.youtubeUrl?.trim() || item?.youtubeUrl?.trim()) && (
         <IconButton
           onClick={handleYouTubeClick}
@@ -164,6 +159,7 @@ const [spotifyPlayerUrl, setSpotifyPlayerUrl] = useState(null);
           <FontAwesomeIcon icon={faYoutube} />
         </IconButton>
       )}
+
 
       <IconButton
         onClick={() => onToggleFavorite(item.id || item.musicbrainzId, type, item)}
