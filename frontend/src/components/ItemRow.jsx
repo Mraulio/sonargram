@@ -8,7 +8,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { faSpotify, faYoutube } from "@fortawesome/free-brands-svg-icons";
-
+import {faXmark} from "@fortawesome/free-solid-svg-icons";
+import { useEffect } from "react";
 function formatDuration(ms) {
   if (!ms) return "";
   const totalSeconds = Math.floor(ms / 1000);
@@ -19,6 +20,7 @@ function formatDuration(ms) {
 
 const ItemRow = ({
   item,
+  list,
   type,
   ratingProps,
   favoriteCounts = {},
@@ -28,6 +30,7 @@ const ItemRow = ({
   onClickItem,
   highlightColor,
   compact = false,
+  onDeleteFromList
 }) => {
   const showCover = type === "album" && item.coverUrl;
 
@@ -42,6 +45,11 @@ const ItemRow = ({
     const url = item?.externalLinks?.spotifyUrl || item?.spotifyUrl;
     if (url) openMedia("spotify", url, item.title);
   };
+
+  useEffect(() => {
+    console.log('ITEM ROW RENDERED', item);
+    console.log('ITEM ROW TYPE', type);
+  }, [item]);
 
   return (
     <div
@@ -173,6 +181,23 @@ const ItemRow = ({
       <Typography variant="body2" sx={{ ml: 1, minWidth: 25 }}>
         {favoriteCounts[item.id || item.musicbrainzId] || 0}
       </Typography>
+      {onDeleteFromList && (
+      <IconButton
+      
+        onClick={() => {
+      console.log("🔴 Eliminar de lista → item.id:", item.musicbrainzId);
+      console.log("🔴 Eliminar de lista → list:", list);
+      onDeleteFromList(list, item.musicbrainzId );}}
+       
+        size="small"
+        title="Eliminar de la lista"
+        sx={{ color: 'gray', ml: 1 }}
+      >
+        <FontAwesomeIcon icon={faXmark} />
+      </IconButton>
+    )}
+      {}
+
     </div>
   );
 };

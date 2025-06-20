@@ -235,8 +235,8 @@ function ListPage() {
           alert('Canción eliminada correctamente de la lista');
           if (!user || !user.userId) return;
           setSelectedListSongs(prevSongs =>
-      prevSongs.filter(song => song.musicbrainzId !== musicbrainzId)
-    );
+        prevSongs.filter(song => song.musicbrainzId !== musicbrainzId)
+      );
           await fetchListsByUser(user.userId);
         } catch (err) {
           alert('Error al eliminar la canción de la lista');
@@ -331,14 +331,9 @@ function ListPage() {
                     <Typography
                         variant="h6"
                         sx={{ mb: 1, cursor: 'pointer' }}
-                        onClick={() => {
-                          if (Array.isArray(l.songs)) {
-                            setSelectedListSongs(l.songs);
-                            setSelectedListId(l._id);
-                            setOpenSongsModal(true);
-                          } else {
-                            alert(t('Esta lista no tiene canciones para mostrar.'));
-                          }
+                       onClick={() => {
+                          setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
+                          setInfoModalOpen(true);
                         }}
                       >
                         {l.name}

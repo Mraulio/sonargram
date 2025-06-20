@@ -14,9 +14,10 @@ import {
 import { UserContext } from "../context/UserContext";
 import useList from "../hooks/useList";
 import ItemRow from "./ItemRow";
-
+import { useTranslation } from "react-i18next";
 const ItemList = ({
   items = [],
+  list,
   type,
   onClickItem,
   highlightColor,
@@ -24,7 +25,9 @@ const ItemList = ({
   favoriteCounts = {},
   isFavorite,
   onToggleFavorite,
+  onDeleteFromList
 }) => {
+  const { t } = useTranslation();  // Hook para obtener las traducciones
   const { token, user } = useContext(UserContext);
   const { fetchListsByUser, userLists, addSong, loading } = useList(token);
 
@@ -32,10 +35,12 @@ const ItemList = ({
   const [selectedSong, setSelectedSong] = useState(null);
   const [adding, setAdding] = useState(false);
   const [message, setMessage] = useState("");
-
+  const [listId, setListId] = useState(null);
   useEffect(() => {
     if (modalOpen && user?.userId) {
       fetchListsByUser(user.userId);
+      setListId(list)
+
     }
   }, [modalOpen, user, fetchListsByUser]);
 
@@ -88,6 +93,7 @@ const ItemList = ({
           <li key={item.id || item.musicbrainzId}>
             <ItemRow
               item={item}
+              list={list}
               type={type}
               ratingProps={ratingProps}
               isFavorite={isFavorite}
@@ -96,24 +102,31 @@ const ItemList = ({
               onAddClick={handleAddClick}
               highlightColor={highlightColor}
               onClickItem={onClickItem}
+              onDeleteFromList={onDeleteFromList}
             />
           </li>
         ))}
       </ul>
 
       <Dialog open={modalOpen} onClose={handleClose}>
-        <DialogTitle>Añadir "{selectedSong?.title}" a una lista</DialogTitle>
+        <DialogTitle>{t('add')} "{selectedSong?.title}" {t('toList')}</DialogTitle>
         <DialogContent dividers>
           {loading ? (
             <CircularProgress />
           ) : (
             <List>
-              {userLists.map((list) => (
-                <ListItem key={list._id} disablePadding>
-                  <ListItemButton onClick={() => handleAddToList(list)} disabled={adding}>
-                    <ListItemText primary={list.name} />
-                  </ListItemButton>
-                </ListItem>
+              {userLists
+                .filter(list => 
+                  !list.isFavoriteList &&
+                  !list.isRatingList &&
+                  list._id !== listId
+                )
+                .map((list) => (
+                  <ListItem key={list._id} disablePadding>
+                    <ListItemButton onClick={() => handleAddToList(list)} disabled={adding}>
+                      <ListItemText primary={list.name} />
+                    </ListItemButton>
+                  </ListItem>
               ))}
             </List>
           )}
