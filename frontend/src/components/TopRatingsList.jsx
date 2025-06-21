@@ -42,7 +42,6 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
     async function fetchTopRatings() {
       try {
         const data = await getTopRatingsByType(limit, token);
-        console.log('ratingdataprimero', data)
         const formattedData = data.reduce(
           (acc, curr) => {
             acc[curr._id] = curr.ratings || [];
@@ -52,7 +51,6 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
         );
 
         setTopRatings(formattedData);
-        console.log('ratingdata', formattedData)
       } catch (error) {
         console.error(t('errorFetchingTopRatings'), error);
       } finally {
