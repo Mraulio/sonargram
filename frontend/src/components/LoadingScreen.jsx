@@ -8,7 +8,7 @@ const rotate = keyframes`
     transform: rotate(0deg) scale(1);
   }
   50% {
-    transform: rotate(180deg) scale(1.1);
+    transform: rotate(180deg) scale(1.3);
   }
   100% {
     transform: rotate(360deg) scale(1);
@@ -27,7 +27,7 @@ const FullScreenLoader = ({ open = false }) => {
     >
       <Box
         component="img"
-        src={"/assets/images/logo.svg"} // Asegúrate que esta ruta sea válida
+        src={"/assets/images/logo.svg"}
         alt="Logo cargando"
         sx={{
           width: 120,
