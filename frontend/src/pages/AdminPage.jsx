@@ -1,8 +1,8 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext,  } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions, useTheme } from '@mui/material';
 import Menu from '../components/Menu';
 import useUser from '../hooks/useUser';
 import useList from '../hooks/useList';
@@ -10,6 +10,7 @@ import { showToast } from '../utils/toast';
 
 function AdminPage() {
     const { t } = useTranslation();
+    const theme = useTheme();
     const navigate = useNavigate();
     const { token, role, logout } = useContext(UserContext);
     const [open, setOpen] = useState(false);
@@ -167,9 +168,9 @@ function AdminPage() {
       };
   
     return (
-      <Box sx={{ fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column'}}>
+      <Box sx={{ fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', backgroundColor: theme.palette.background.secondary}}>
         <Menu />
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center',  marginTop: '1.1rem', width: '90vw', minHeight: '100vh', padding: '1rem' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center',  marginTop: '1.1rem', width: '90vw', minHeight: '100vh', padding: '1rem', backgroundColor: theme.palette.background.secondary }}>
             <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red', }}>
             <CardContent sx={{ width: '100%'}}>
                 <Typography variant="h6" sx={{ color: token ? 'green' : 'red' }}>

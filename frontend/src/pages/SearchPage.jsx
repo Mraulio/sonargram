@@ -14,7 +14,8 @@ import {
   Card,
   CardContent,
   Avatar,
-  Link
+  Link,
+  useTheme
 } from "@mui/material";
 import Menu from "../components/Menu";
 import {
@@ -110,16 +111,25 @@ const ResultBoxUL = styled(Box)`
   display: flex; 
   flex-direction: column; 
   gap: 15px; 
-  width: 40%;
+  width: 100%;
   padding: 10px;
   justify-content: center;
   @media (max-width: 960px) {
     width: 100%;
   }
   `;
+  const CustomCard = styled(Card)`
+  width: 33vw;
+  display: flex;  
+  align-items: center;
+  @media (max-width: 960px) {
+    width:100%;
+  }
+`;
 
 function SearchPage() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
+  const theme = useTheme();
   const { token, user } = useContext(UserContext);
   const {
     rateItem,
@@ -619,12 +629,14 @@ function SearchPage() {
 
   return (
     <Box
-      sx={{ minHeight: "100vh", width: "100%" }}
+      sx={{ minHeight: "100vh", width: "100%",backgroundColor: theme.palette.background.secondary }}
     >
       <Menu />
 
-      <ResultBox>
+      <ResultBox sx={{marginTop:2}}>
         {/* ARTISTAS */}
+        <CustomCard>
+          <CardContent sx={{ width: '100%'}}>
         <Box sx={{ flex: 1, p: 2, borderRadius: 1 }}>
           <Typography variant="h5" gutterBottom>
             {t('searchArtist')}
@@ -688,57 +700,65 @@ function SearchPage() {
             </>
           )}
         </Box>
+        </CardContent>
+        </CustomCard>
 
         {/* ÁLBUMES */}
-        <Box sx={{ flex: 1, p: 2, borderRadius: 1 }}>
-          <Typography variant="h5" gutterBottom>
-            {t('searchAlbum')}
-          </Typography>
-          <TextField
-            fullWidth
-            label={t('nameAlbum')}
-            value={searchTermAlbum}
-            onChange={(e) => setSearchTermAlbum(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearchAlbums()}
-            margin="normal"
-          />
-          <Button variant="contained" onClick={handleSearchAlbums} sx={{ backgroundColor: '#d63b1f', color: 'white' }} >
-            Buscar
-          </Button>
+          <CustomCard >
+            <CardContent sx={{ width: '100%'}}>
+              <Box sx={{ flex: 1, p: 2, borderRadius: 1 }}>
+                <Typography variant="h5" gutterBottom>
+                  {t('searchAlbum')}
+                </Typography>
+                <TextField
+                  fullWidth
+                  label={t('nameAlbum')}
+                  value={searchTermAlbum}
+                  onChange={(e) => setSearchTermAlbum(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearchAlbums()}
+                  margin="normal"
+                />
+                <Button variant="contained" onClick={handleSearchAlbums} sx={{ backgroundColor: '#d63b1f', color: 'white' }} >
+                  {t('search')}
+                </Button>
 
-          {albumResults.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">{t('albumFound')}</Typography>
-              <ItemList
-                items={albumResults}
-                type="album"
-                onClickItem={handleSelectAlbumFromAlbumSearch}
-                ratingProps={ratingProps}
-                favoriteCounts={favoriteCounts}
-                isFavorite={isFavorite}
-                onToggleFavorite={handleFavoriteToggle}
-              />
-            </>
-          )}
+                {albumResults.length > 0 && (
+                  <>
+                    <Divider sx={{ my: 2 }} />
+                    <Typography variant="h6">{t('albumFound')}</Typography>
+                    <ItemList
+                      items={albumResults}
+                      type="album"
+                      onClickItem={handleSelectAlbumFromAlbumSearch}
+                      ratingProps={ratingProps}
+                      favoriteCounts={favoriteCounts}
+                      isFavorite={isFavorite}
+                      onToggleFavorite={handleFavoriteToggle}
+                    />
+                  </>
+                )}
 
-          {selectedAlbumSongs.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="h6">{t('albumSongs')}</Typography>
-              <ItemList
-                items={selectedAlbumSongs}
-                type="song"
-                ratingProps={ratingProps}
-                favoriteCounts={favoriteCounts}
-                isFavorite={isFavorite}
-                onToggleFavorite={handleFavoriteToggle}
-              />
-            </>
-          )}
-        </Box>
+                {selectedAlbumSongs.length > 0 && (
+                  <>
+                    <Divider sx={{ my: 2 }} />
+                    <Typography variant="h6">{t('albumSongs')}</Typography>
+                    <ItemList
+                      items={selectedAlbumSongs}
+                      type="song"
+                      ratingProps={ratingProps}
+                      favoriteCounts={favoriteCounts}
+                      isFavorite={isFavorite}
+                      onToggleFavorite={handleFavoriteToggle}
+                    />
+                  </>
+                )}
+              </Box>
+        </CardContent>
+        </CustomCard>
 
         {/* CANCIONES */}
+        <CustomCard>
+          <CardContent sx={{width:'100%'}}>
         <Box sx={{ flex: 1, p: 2, borderRadius: 1 }}>
           <Typography variant="h5" gutterBottom>
             {t('searchSong')}
@@ -770,148 +790,159 @@ function SearchPage() {
             </>
           )}
         </Box>
+        </CardContent>
+        </CustomCard>
 
       </ResultBox>
-      <ResultBox>
+      <ResultBox sx={{marginTop: 5}}>
         {/* COLUMNA LISTAS */}
-        <ResultBoxUL >
-          <Typography variant="h5" gutterBottom>
-            {t('searchLists')}
-          </Typography>
-          <TextField
-            fullWidth
-            label={t('nameList')}
-            value={searchTermList}
-            onChange={(e) => setSearchTermList(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearchListByName(searchTermList)}
-            margin="normal"
-          />
-          <Button variant="contained" onClick={() => handleSearchListByName(searchTermList)} sx={{ mt: 2, width: '20%', backgroundColor: '#d63b1f', color: 'white' }} >
-            {t('search')}
-          </Button>
-          {searchResults.length > 0 && (
-            <Typography variant="h4" sx={{ mt: 2, mb: 1 }}>
-              {t('foundLists')}
-            </Typography>)}
-          {searchResults.map(l => (
-            <ListCard key={l._id} >
-              <ListCardContent>
-                <Typography
-                  variant="h5"
-                  sx={{ mb: 1, cursor: 'pointer' }}
-                  onClick={() => {
-                    setModalData({ type: 'list', data: l });
-                    setInfoModalOpen(true);
-                  }}
-                >
-                  {l.name}
-                </Typography>
-                <Divider />
-
-                <Typography variant="body2" color="text.secondary">
-                  {t('creator')}: {l.creator.name || t('unknown')}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {t('numberSongs')}: {l.songs.length} {t('songs')}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {t('creatorOfList')}: {l.creator?.name || t('unknown')}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {t('dateofcreation')}: {l.createdAt.slice(0, 10)}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {t('lastupdate')}: {l.updatedAt.slice(0, 10)}
-                </Typography>
-
-                <Box sx={{ mt: 2 }}>
-                  {followedLists.some(followed => String(followed._id) === String(l._id)) ? (
-                    <ButtonBox>
-                      <Typography color="success.main">{t('following')}</Typography>
-                    </ButtonBox>
-                  ) : (
-                    <ButtonBox>
-                      <Button onClick={() => handlefollowList(l._id)} variant='contained'>
-                        {t('follow')}
-                      </Button>
-                    </ButtonBox>
-                  )}
-                </Box>
-              </ListCardContent>
-            </ListCard>
-          ))}
-        </ResultBoxUL>
-        {/* COLUMNA Usuarios */}
-        <ResultBoxUL>
-          <Typography variant="h5" gutterBottom>
-            {t('searchUsers')}
-          </Typography>
-          <TextField
-            fullWidth
-            label={t('nameUser')}
-            value={searchTermUser}
-            onChange={(e) => setSearchTermUser(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearchUser(searchTermUser)}
-            margin="normal"
-          />
-          <Button variant="contained" onClick={() => handleSearchUser(searchTermUser)} sx={{ mt: 2, width: '20%', backgroundColor: '#d63b1f', color: 'white' }}>
-            {t('search')}
-          </Button>
-          {searches.length > 0 && (
-            <Typography variant="h4" sx={{ mt: 2, mb: 1 }}>
-              {t('foundUsers')}
-            </Typography>
-          )}
-
-          {searches.map(user => (
-
-            <FollowCard key={user._id} >
-              <Avatar
-                src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png'}
-                alt={user.name}
-                sx={{ width: 60, height: 60, mr: 2 }}
+        <CustomCard>
+          <CardContent sx={{width: '100%'}}>
+            <ResultBoxUL >
+              <Typography variant="h5" gutterBottom>
+                {t('searchLists')}
+              </Typography>
+              <TextField
+                fullWidth
+                label={t('nameList')}
+                value={searchTermList}
+                onChange={(e) => setSearchTermList(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearchListByName(searchTermList)}
+                margin="normal"
               />
-              <CardContent sx={{ width: '100%' }}>
-                <Typography
-                  variant="h5"
-                  component={Link}
-                  onClick={() => navigate(`/userresult/${user._id}`)}
-
-                  sx={{
-                    color: 'text.primary',
-                    textDecoration: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {user.name}
-                </Typography>
-                <Divider />
-                <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent: 'space-between' }}>
-                  <Box >
-                    <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(user.createdAt).toLocaleDateString()}</Typography>
-                    <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>
-                  </Box>
-
-                  {isFollowing(user._id) ? (
-                    <Typography color="success.main">{t('following')}</Typography>
-                  ) : (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleFollow(user._id)}
-                      sx={{ mt: 1 }}
+              <Button variant="contained" onClick={() => handleSearchListByName(searchTermList)} sx={{ mt: 2, width: '20%', backgroundColor: '#d63b1f', color: 'white' }} >
+                {t('search')}
+              </Button>
+              {searchResults.length > 0 && (
+                <Typography variant="h4" sx={{ mt: 2, mb: 1 }}>
+                  {t('foundLists')}
+                </Typography>)}
+              {searchResults.map(l => (
+                <ListCard key={l._id} >
+                  <ListCardContent>
+                    <Typography
+                      variant="h5"
+                      sx={{ mb: 1, cursor: 'pointer' }}
+                      onClick={() => {
+                        setModalData({ type: 'list', data: l });
+                        setInfoModalOpen(true);
+                      }}
                     >
-                      {t('follow')}
-                    </Button>
-                  )}
-                </Box>
-              </CardContent>
-            </FollowCard>
+                      {l.name}
+                    </Typography>
+                    <Divider />
 
-          ))}
+                    <Typography variant="body2" color="text.secondary">
+                      {t('creator')}: {l.creator.name || t('unknown')}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('numberSongs')}: {l.songs.length} {t('songs')}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('creatorOfList')}: {l.creator?.name || t('unknown')}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('dateofcreation')}: {l.createdAt.slice(0, 10)}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('lastupdate')}: {l.updatedAt.slice(0, 10)}
+                    </Typography>
 
-        </ResultBoxUL>
-      </ResultBox>
+                    <Box sx={{ mt: 2 }}>
+                      {followedLists.some(followed => String(followed._id) === String(l._id)) ? (
+                        <ButtonBox>
+                          <Typography color="success.main">{t('following')}</Typography>
+                        </ButtonBox>
+                      ) : (
+                        <ButtonBox>
+                          <Button onClick={() => handlefollowList(l._id)} variant='contained'>
+                            {t('follow')}
+                          </Button>
+                        </ButtonBox>
+                      )}
+                    </Box>
+                  </ListCardContent>
+                </ListCard>
+              ))}
+            </ResultBoxUL>
+          </CardContent>
+        </CustomCard>
+        {/* COLUMNA Usuarios */}
+         <CustomCard>
+          <CardContent sx={{width:'100%'}}>
+            <ResultBoxUL>
+              <Typography variant="h5" gutterBottom>
+                {t('searchUsers')}
+              </Typography>
+              <TextField
+                fullWidth
+                label={t('nameUser')}
+                value={searchTermUser}
+                onChange={(e) => setSearchTermUser(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearchUser(searchTermUser)}
+                margin="normal"
+              />
+              <Button variant="contained" onClick={() => handleSearchUser(searchTermUser)} sx={{ mt: 2, width: '20%', backgroundColor: '#d63b1f', color: 'white' }}>
+                {t('search')}
+              </Button>
+              {searches.length > 0 && (
+                <Typography variant="h4" sx={{ mt: 2, mb: 1 }}>
+                  {t('foundUsers')}
+                </Typography>
+              )}
+
+              {searches.map(user => (
+
+                <FollowCard key={user._id} >
+                  <Avatar
+                    src={user.profilePic ? `http://localhost:5000/uploads/${user.profilePic}` : '/assets/images/profilepic_default.png'}
+                    alt={user.name}
+                    sx={{ width: 60, height: 60, mr: 2 }}
+                  />
+                  <CardContent sx={{ width: '100%' }}>
+                    <Typography
+                      variant="h5"
+                      component={Link}
+                      onClick={() => navigate(`/userresult/${user._id}`)}
+
+                      sx={{
+                        color: 'text.primary',
+                        textDecoration: 'none',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {user.name}
+                    </Typography>
+                    <Divider />
+                    <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent: 'space-between' }}>
+                      <Box >
+                        <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(user.createdAt).toLocaleDateString()}</Typography>
+                        <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>
+                      </Box>
+
+                      {isFollowing(user._id) ? (
+                        <Typography color="success.main">{t('following')}</Typography>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleFollow(user._id)}
+                          sx={{ mt: 1 }}
+                        >
+                          {t('follow')}
+                        </Button>
+                      )}
+                    </Box>
+                  </CardContent>
+                </FollowCard>
+
+              ))}
+
+            </ResultBoxUL>
+            </CardContent>
+      </CustomCard>
+          </ResultBox>
+        
       <InfoModal
         open={infoModalOpen}
         onClose={() => setInfoModalOpen(false)}

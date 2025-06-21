@@ -6,13 +6,16 @@ import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider,
 
 const Footer = styled('footer')`
   width: 100%;
-  height: 10vh;
+  height: 7vh;
   background: #3e4a4c;
   padding: 10px 0;
   z-index: 100;
   display: flex;
   justify-content:space-around;
   align-items:center;
+ @media (max-width: 920px) {
+    height: 10vh;
+  }
 `;
 const CustomMenu2 = styled(Box)`
     display: flex;

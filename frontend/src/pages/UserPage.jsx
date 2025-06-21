@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect, useRef } from 'react';
-import { TextField, Button, Typography, Card, CardContent, Box, Divider, ButtonBase, Modal, styled } from '@mui/material';
+import { TextField, Button, Typography, Card, CardContent, Box, Divider, ButtonBase, Modal, styled, useTheme } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
@@ -54,6 +54,7 @@ function UserPage() {
         const fileInputRef = useRef(null);
         const [currentUser, setCurrentUser] = useState(null);
         const [selectedUser, setSelectedUser] = useState(null);
+        const theme = useTheme();
 
         const {
               fetchAllUsers,
@@ -229,7 +230,7 @@ function UserPage() {
 
 
  return (
-  <Box style={{ width: '100%',display: 'flex', flexDirection: 'column' }}>
+  <Box style={{ width: '100%',display: 'flex', flexDirection: 'column', backgroundColor: theme.palette.background.secondary }}>
     <Menu />
     <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100%'}}>
       <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', width: '400px', marginBottom: '50px', marginTop: '50px',padding: 10}}>

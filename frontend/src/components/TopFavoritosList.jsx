@@ -22,19 +22,24 @@ import useFavorites from "../hooks/useFavorites";
 import { useTranslation } from "react-i18next";
 
 const AccordionBox = styled(Box)`
-  display: flex;
-  justify-content: space-around;
+  display: flex; 
+  justify-content: space-around; 
+  flex-direction: column; 
   width: 100%;
+  gap: 20px;
+
   @media (max-width: 920px) {
-    flex-direction: column;
+    flex-direction: column; 
     gap: 20px;
   }
+
 `;
 
 const CustomAccordion = styled(Accordion)`
-  width: 30%;
+  width: 100%;
+  gap: 20px;
   @media (max-width: 920px) {
-    width: 100%;
+    width: 100%; 
   }
 `;
 
@@ -100,7 +105,6 @@ function TopRatingsList({ limit = 5, title = "Items con Más Likes" }) {
   return (
     <Box
       sx={{
-        width: "100vw",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

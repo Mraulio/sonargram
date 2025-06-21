@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions, styled } from '@mui/material';
+import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions, styled, useTheme } from '@mui/material';
 import Menu from '../components/Menu';
 import useList from '../hooks/useList';
 import useUser from '../hooks/useUser';
@@ -68,6 +68,7 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
 function ListPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
     const { token, role, logout, user } = useContext(UserContext);
+    const theme = useTheme();
     const [editingList, setEditingList] = useState(null); // Estado para la lista en edición
     const [listName, setListName] = useState(''); // Estado para el nombre de la lista
     const [searchListName, setSearchListName] = useState(''); // Estado para el nombre de la lista a buscar
@@ -311,7 +312,7 @@ function ListPage() {
 
 
  return (
-  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100%", minHeight:'100vh' }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100%", minHeight:'100vh', backgroundColor: theme.palette.background.secondary }}>
     <Menu /> 
         <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4, flexWrap:'wrap', width:'95vw' }}>
           <Typography variant="h4" sx={{ mb: 2 }}>{t('yourLists')}</Typography>

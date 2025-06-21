@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { UserContext } from '../context/UserContext';
 import { useParams } from 'react-router-dom';
-import { Typography, Card, CardContent, Box, Avatar, Divider, styled } from '@mui/material';
+import { Typography, Card, CardContent, Box, Avatar, Divider, styled, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import OtherFollowers from '../components/OtherFollowers';
 import useUser from '../hooks/useUser';
@@ -18,7 +18,7 @@ function UserResult() {
   const { token, user } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
   const { getUserById } = useUser(token);
-  console.log('base urlssss:', baseUrl);
+  const theme = useTheme();
  useEffect(() => {
   const fetchUser = async () => {
     setLoading(true);
@@ -54,7 +54,7 @@ function UserResult() {
   }
 
   return (
-    <Box style={{ display: 'flex', flexDirection: 'column'}}>
+    <Box style={{ display: 'flex', flexDirection: 'column', backgroundColor: theme.palette.background.secondary}}>
     <Menu/>
       <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100vw'}}>
         <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', justifyContent: 'space-around', width: '400px', marginBottom: '50px', marginTop: '50px',padding: 10}}>

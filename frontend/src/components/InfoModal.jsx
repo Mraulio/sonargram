@@ -3,7 +3,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import {
   Modal, Paper, Stack, Typography, Divider, IconButton,
   CircularProgress, Dialog, DialogTitle, DialogContent,
-  List, ListItem, ListItemButton, ListItemText, Button,
+  List, ListItem, ListItemButton, ListItemText, Button, Box
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -13,7 +13,7 @@ import useList from '../hooks/useList';
 import { UserContext } from "../context/UserContext";
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../utils/toast';
-
+import useListFollowers from '../hooks/useListFollowers'; // si no lo tienes aún
 
 const style = {
   position: 'absolute',
@@ -24,7 +24,7 @@ const style = {
   p: 3, maxHeight: '100vh', overflowY: 'auto'
 };
 
-const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) => {
+const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps, handleUnfollowList }) => {
   const [listItems, setListItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -38,7 +38,10 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
     removeSong,
     loading: listLoading
   } = useList(token);
-
+  const {
+  followedLists,
+  fetchFollowedLists
+} = useListFollowers(token);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSong, setSelectedSong] = useState(null);
   const [adding, setAdding] = useState(false);
@@ -219,7 +222,14 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
       fetchListData();
     }
   }, [type, data?._id]);
-  
+  const isFollowedByUser = (listId) => {
+  return followedLists.some(list => list._id === listId);
+};
+useEffect(() => {
+  if (type === 'list' && user?.userId) {
+    fetchFollowedLists(user.userId);
+  }
+}, [type, user?.userId, fetchFollowedLists]);
 
   if (!open || !data) return null;
 
@@ -231,12 +241,13 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
         <Paper sx={style}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">{t('detail')} {t(type)}</Typography>
+            
             <IconButton size="small" onClick={onClose}>
               <FontAwesomeIcon icon={faTimes} />
             </IconButton>
           </Stack>
           <Divider sx={{ mb: 2 }} />
-
+          
           {['song', 'album', 'artist'].includes(type) && (
             <ItemRow
               item={data}
@@ -254,9 +265,21 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
 
           {type === 'list' && (
             <>
+            <Box sx={{width:'100%', display: 'flex', justifyContent: 'space-between'}}>
               <Typography variant="subtitle1" gutterBottom>
                 {t('list')}: {data.name}
               </Typography>
+              {isFollowedByUser(data._id) && (
+              <Button 
+                sx={{ fontSize: '0.6rem' }}
+                variant= 'contained'
+                onClick={() => handleUnfollowList(data._id)} 
+                color="error"
+              >
+                {t('unfollow')}
+              </Button>
+            )}
+            </Box>
               {loading ? (
                 <CircularProgress />
               ) : (
@@ -276,8 +299,9 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
                 />
                
               )}
+              
             </>
-  
+            
           )}
         </Paper>
       </Modal>

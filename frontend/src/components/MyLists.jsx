@@ -14,14 +14,14 @@ import InfoModal from '../components/InfoModal';
 import useRatings from '../hooks/useRatings';
 import { showToast } from '../utils/toast';
 
-const MyListsBox = styled(Box)`
+const MyListsBox = styled(Card)`
   display: flex; 
   flex-direction: column; 
   justify-content: start; 
   align-items: center; 
   gap: 3; 
   margin-left: 5px;
-
+  min-height: 100vh;
   @media (max-width: 960px) {
     width: 90%;
   }
@@ -263,7 +263,8 @@ const handleFavoriteToggle = async (id, type, item) => {
 
 return (
   <MyListsBox >
-    <Typography variant="h4" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
+    <CardContent>
+    <Typography variant="h5" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
     {userLists.map(l => {
       handleGetCreatorName(l.creator);
@@ -309,7 +310,7 @@ return (
       );
     })}
     </ul>
-    <Typography variant="h4" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
+    <Typography variant="h5" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
         {followedLists.map(l => {
           handleGetCreatorName(l.creator);
@@ -399,18 +400,20 @@ return (
       </DialogActions>
     </Dialog>
     <InfoModal
-      open={infoModalOpen}
-      onClose={() => setInfoModalOpen(false)}
-      type={modalData.type}
-      data={modalData.data}
-      ratingProps={ratingProps}
-      favoriteProps={{
-        ...favoriteProps,
-        favoriteCounts,
-        setFavoriteCounts,
-        handleFavoriteToggle,
-      }}
-    />
+        open={infoModalOpen}
+        onClose={() => setInfoModalOpen(false)}
+        type={modalData.type}
+        data={modalData.data}
+        ratingProps={ratingProps}
+        favoriteProps={{
+          ...favoriteProps,
+          favoriteCounts,
+          setFavoriteCounts,
+          handleFavoriteToggle,
+        }}
+        handleUnfollowList={handleUnfollowList} // ✅ Se pasa como prop
+      />
+    </CardContent>
   </MyListsBox>
 );
           }
