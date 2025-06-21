@@ -12,7 +12,6 @@ import {
   useMediaQuery
 } from '@mui/material';
 import { ThemeContext } from '../context/ThemeContext.js';
-import useUser from '../hooks/useUser.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faListUl,
@@ -119,9 +118,7 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
 
 function Menu() {
   const { t } = useTranslation();
-  const { token, role, logout } = useContext(UserContext);
-  const [currentUser, setCurrentUser] = useState(null);
-  const { getCurrentUser } = useUser(token);
+  const { token, role, logout, profilePic } = useContext(UserContext);
 
   const [openUserEdit, setOpenUserEdit] = useState(false);
   const handleOpenUserEdit = () => setOpenUserEdit(true);
@@ -133,18 +130,6 @@ function Menu() {
 
   const [showSearchExpanded, setShowSearchExpanded] = useState(false);
   const isTabletOrMobile = useMediaQuery('(max-width:960px)');
-
-  useEffect(() => {
-    const fetchCurrent = async () => {
-      try {
-        const user = await getCurrentUser();
-        setCurrentUser(user);
-      } catch (err) {
-        console.error('Error fetching current user', err);
-      }
-    };
-    if (token) fetchCurrent();
-  }, [token, getCurrentUser]);
 
   const handleSearchClick = () => {
     if (searchTerm.trim()) {
@@ -218,8 +203,8 @@ function Menu() {
               marginBottom: '5px'
             }}
             src={
-              currentUser?.profilePic
-                ? `${baseUrl}/uploads/${currentUser.profilePic}`
+              profilePic
+                ? `${baseUrl}/uploads/${profilePic}`
                 : '/assets/images/profilepic_default.png'
             }
             alt="imagen perfil"
@@ -341,8 +326,8 @@ function Menu() {
               marginBottom: '5px'
             }}
             src={
-              currentUser?.profilePic
-                ? `${baseUrl}/uploads/${currentUser.profilePic}`
+              profilePic
+                ? `${baseUrl}/uploads/${profilePic}`
                 : '/assets/images/profilepic_default.png'
             }
             alt="imagen perfil"

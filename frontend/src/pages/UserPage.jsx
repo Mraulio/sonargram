@@ -46,7 +46,7 @@ function UserPage() {
         const [userBio, setUserBio] = useState('');
         const [openModal, setOpenModal] = useState(false);
         const [openProfilePicModal, setOpenProfilePicModal] = useState(false);
-        const { token, role, logout, login } = useContext(UserContext);
+        const { token, role, logout, login, profilePic, setProfilePic } = useContext(UserContext);
         const navigate = useNavigate();
         const [previewImage, setPreviewImage] = useState(null);
         const [resizedImage, setResizedImage] = useState(null);
@@ -196,9 +196,9 @@ function UserPage() {
   
       // Subir la imagen usando el hook
       const resp = await uploadProfilePic(formData); // Esta es la llamada a la API
-
-      setCurrentUser({...currentUser, profilePic: `${resp.profilePic}?t=${new Date().getTime()}` }) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
-
+      const newProfilePic = `${resp.profilePic}?t=${new Date().getTime()}`;
+      setCurrentUser({...currentUser, profilePic: newProfilePic }) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
+      setProfilePic(newProfilePic)
       setOpenProfilePicModal(false); // Cerrar el modal
     } catch (err) {
       console.error(t('errorUpdateProfilePic'), err);
@@ -215,6 +215,7 @@ function UserPage() {
       try {
         const resp = await deleteProfilePic();
         setCurrentUser({...currentUser, profilePic: resp.updatedUser.profilePic});
+        setProfilePic(null);
       } catch (err) {
         alert(t('errorDeleteProfilePic'));
         console.error(err);
@@ -247,8 +248,8 @@ function UserPage() {
         >
           <img
             src={
-              currentUser && currentUser.profilePic
-                ? `${baseUrl}/uploads/${currentUser.profilePic}`
+             profilePic
+                ? `${baseUrl}/uploads/${profilePic}`
                 : '/assets/images/profilepic_default.png'
             }
             alt="Profile Pic"
