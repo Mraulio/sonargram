@@ -67,12 +67,13 @@ function ThemeWrapper() {
 // Envolvemos todo en los providers
 export default function AppWrapper() {
   return (
-    <UserProvider>
-      <MediaPlayerProvider>
+    <MediaPlayerProvider>
+      <UserProvider>
         <ThemeProviderCustom>
           <ThemeWrapper />
         </ThemeProviderCustom>
-      </MediaPlayerProvider>
-    </UserProvider>
+      </UserProvider>
+    </MediaPlayerProvider>
+
   );
 }
