@@ -20,7 +20,6 @@ import TestPage from './pages/Test';
 import TestBuscador from './pages/TestBuscador';
 import Test5 from './pages/Test5';
 import TopsPage from './pages/TopsPage';
-import ResultsPage from './pages/ResultsPage';
 import UserResult from './pages/UserResult';
 import SearchPage from './pages/SearchPage';
 import FloatingMediaPlayer from './components/FloatingMediaPlayer';
@@ -40,7 +39,6 @@ function App() {
         <Route path="/test5" element={<PrivateRoute><Test5 /></PrivateRoute>} />
         <Route path="/test2" element={<PrivateRoute><TestBuscador /></PrivateRoute>} />
         <Route path="/tops" element={<PrivateRoute><TopsPage /></PrivateRoute>} />
-        <Route path="/results" element={<PrivateRoute><ResultsPage /></PrivateRoute>} />
         <Route path="/userresult/:id" element={<PrivateRoute><UserResult /></PrivateRoute>} />
         <Route path="/search" element={<PrivateRoute><SearchPage /></PrivateRoute>} />
         <Route path="*" element={<Navigate to={token ? "/dashboard" : "/"} />} />
