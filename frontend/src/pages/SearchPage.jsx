@@ -43,10 +43,12 @@ const ResultBox = styled(Box)`
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+    align-items: start;
     width: 100%;
   
     @media (max-width: 960px) {
         flex-direction: column;
+        justify-content: start;
 
     }
 `;
