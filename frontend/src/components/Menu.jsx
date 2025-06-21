@@ -342,7 +342,7 @@ function Menu() {
             }}
             src={
               currentUser?.profilePic
-                ? `http://localhost:5000/uploads/${currentUser.profilePic}`
+                ? `${baseUrl}/uploads/${currentUser.profilePic}`
                 : '/assets/images/profilepic_default.png'
             }
             alt="imagen perfil"

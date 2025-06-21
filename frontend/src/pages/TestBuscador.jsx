@@ -3,12 +3,13 @@ import { UserContext } from "../context/UserContext";
 import RatingDisplay from "../components/RatingDisplay";
 import useRatings from "../hooks/useRatings";
 import useFavorites from "../hooks/useFavorites";
+import CircularProgress from "@mui/material/CircularProgress";
+
 import {
   Box,
   Typography,
   Button,
   TextField,
-  IconButton,
   Divider,
 } from "@mui/material";
 import Menu from "../components/Menu";
@@ -20,9 +21,7 @@ import {
   getSongsByRelease,
   getReleasesByReleaseGroup,
 } from "../api/external/apiMB";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
-import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
+
 import ItemList from "../components/ItemList";
 
 function TestBuscador() {
@@ -47,30 +46,27 @@ function TestBuscador() {
   const [songResults, setSongResults] = useState([]);
 
   const [selectedArtistAlbums, setSelectedArtistAlbums] = useState([]);
-  const [selectedAlbumSongsFromArtist, setSelectedAlbumSongsFromArtist] =
-    useState([]);
+  const [selectedAlbumSongsFromArtist, setSelectedAlbumSongsFromArtist] = useState([]);
   const [selectedAlbumSongs, setSelectedAlbumSongs] = useState([]);
 
   const [favoriteCounts, setFavoriteCounts] = useState({});
+
+  const [loadingArtistAlbums, setLoadingArtistAlbums] = useState(false);
+  const [loadingAlbumSongsFromArtist, setLoadingAlbumSongsFromArtist] = useState(false);
+  const [loadingAlbumSongs, setLoadingAlbumSongs] = useState(false);
 
   const handleFavoriteToggle = async (id, type) => {
     try {
       if (isFavorite(id)) {
         await removeFavorite(id);
       } else {
-        let item;
-        if (type === "artist") {
-          item = artistResults.find((a) => a.id === id);
-        } else if (type === "album") {
-          item =
-            albumResults.find((a) => a.id === id) ||
-            selectedArtistAlbums.find((a) => a.id === id);
-        } else if (type === "song") {
-          item =
-            songResults.find((s) => s.id === id) ||
-            selectedAlbumSongsFromArtist.find((s) => s.id === id) ||
-            selectedAlbumSongs.find((s) => s.id === id);
-        }
+        let item =
+          artistResults.find((a) => a.id === id) ||
+          albumResults.find((a) => a.id === id) ||
+          selectedArtistAlbums.find((a) => a.id === id) ||
+          songResults.find((s) => s.id === id) ||
+          selectedAlbumSongsFromArtist.find((s) => s.id === id) ||
+          selectedAlbumSongs.find((s) => s.id === id);
 
         await addFavorite(
           id,
@@ -95,7 +91,6 @@ function TestBuscador() {
     }
   };
 
-
   const handleGeneralSearch = async () => {
     try {
       const [artists, albums, songs] = await Promise.all([
@@ -111,17 +106,10 @@ function TestBuscador() {
       setSelectedAlbumSongsFromArtist([]);
 
       const counts = {};
-
       await Promise.all([
-        ...artists.map(async (a) => {
-          counts[a.id] = (await getFavoriteCount(a.id)) || 0;
-        }),
-        ...albums.map(async (a) => {
-          counts[a.id] = (await getFavoriteCount(a.id)) || 0;
-        }),
-        ...songs.map(async (s) => {
-          counts[s.id] = (await getFavoriteCount(s.id)) || 0;
-        }),
+        ...artists.map(async (a) => (counts[a.id] = await getFavoriteCount(a.id) || 0)),
+        ...albums.map(async (a) => (counts[a.id] = await getFavoriteCount(a.id) || 0)),
+        ...songs.map(async (s) => (counts[s.id] = await getFavoriteCount(s.id) || 0)),
       ]);
 
       setFavoriteCounts(counts);
@@ -151,6 +139,7 @@ function TestBuscador() {
   };
 
   const handleSelectArtist = async (artistId) => {
+    setLoadingArtistAlbums(true);
     try {
       const albums = await getAlbumsByArtist(artistId);
       setSelectedArtistAlbums(albums);
@@ -165,10 +154,13 @@ function TestBuscador() {
     } catch (e) {
       alert("Error al obtener álbumes del artista");
       console.error(e);
+    } finally {
+      setLoadingArtistAlbums(false);
     }
   };
 
   const handleSelectAlbumFromArtist = async (releaseGroupId) => {
+    setLoadingAlbumSongsFromArtist(true);
     try {
       const releases = await getReleasesByReleaseGroup(releaseGroupId);
       if (releases.length === 0) {
@@ -187,6 +179,8 @@ function TestBuscador() {
     } catch (e) {
       alert("Error al obtener canciones del álbum");
       console.error(e);
+    } finally {
+      setLoadingAlbumSongsFromArtist(false);
     }
   };
 
@@ -209,6 +203,7 @@ function TestBuscador() {
   };
 
   const handleSelectAlbumFromAlbumSearch = async (releaseGroupId) => {
+    setLoadingAlbumSongs(true);
     try {
       const releases = await getReleasesByReleaseGroup(releaseGroupId);
       if (releases.length === 0) {
@@ -227,6 +222,8 @@ function TestBuscador() {
     } catch (e) {
       alert("Error al obtener canciones del álbum");
       console.error(e);
+    } finally {
+      setLoadingAlbumSongs(false);
     }
   };
 
@@ -279,9 +276,7 @@ function TestBuscador() {
   };
 
   return (
-    <Box
-      sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}
-    >
+    <Box sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", width: "100vw" }}>
       <Menu />
       <Box sx={{ p: 2, backgroundColor: "#fff" }}>
         <Typography variant="h4" gutterBottom>
@@ -334,7 +329,11 @@ function TestBuscador() {
             </>
           )}
 
-          {selectedArtistAlbums.length > 0 && (
+          {loadingArtistAlbums ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+              <CircularProgress />
+            </Box>
+          ) : selectedArtistAlbums.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Álbumes del artista</Typography>
@@ -350,7 +349,11 @@ function TestBuscador() {
             </>
           )}
 
-          {selectedAlbumSongsFromArtist.length > 0 && (
+          {loadingAlbumSongsFromArtist ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+              <CircularProgress />
+            </Box>
+          ) : selectedAlbumSongsFromArtist.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Canciones del álbum</Typography>
@@ -399,7 +402,11 @@ function TestBuscador() {
             </>
           )}
 
-          {selectedAlbumSongs.length > 0 && (
+          {loadingAlbumSongs ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+              <CircularProgress />
+            </Box>
+          ) : selectedAlbumSongs.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
               <Typography variant="h6">Canciones del álbum</Typography>

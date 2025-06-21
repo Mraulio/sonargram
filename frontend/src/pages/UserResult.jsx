@@ -76,7 +76,7 @@ function UserResult() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 1 }}>
                   <Typography variant="body2" color="text.secondary">{t('userName')}: {userResult.username}</Typography>
                   <Typography variant="body2" color="text.secondary">email: {userResult.email}</Typography>
-                  <Typography variant="body2" color="text.secondary">{t('createDate')}: {userResult.createdAt.slice(0,10)}</Typography>
+                  <Typography variant="body2" color="text.secondary">{t('createDate')}: {userResult?.createdAt?.slice(0,10)}</Typography>
                   <Typography variant="subtitle1" color="text.secondary">{t('bio')}: {userResult.bio || t('noBio')}</Typography>
                 </Box>
             </CardContent>
