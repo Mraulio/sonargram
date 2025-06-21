@@ -36,7 +36,7 @@ import { showToast } from "../utils/toast.js";
 import useFollow from "../hooks/useFollow";
 import useUser from "../hooks/useUser";
 import InfoModal from '../components/InfoModal';
-
+import { useNavigate } from 'react-router-dom';
 
 
 const ResultBox = styled(Box)`
@@ -157,7 +157,7 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
   const [selectedAlbumSongsFromArtist, setSelectedAlbumSongsFromArtist] =
     useState([]);
   const [selectedAlbumSongs, setSelectedAlbumSongs] = useState([]);
-
+   const navigate = useNavigate();
   const [favoriteCounts, setFavoriteCounts] = useState({});
 
   const handleFavoriteToggleResult = async (id, type) => {
@@ -412,6 +412,7 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
     getRatingFor,
     rateItem,
     deleteRating,
+    fetchMultipleItemRatings,
   };
 
   //funciones para buscar listas
@@ -846,7 +847,8 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
                       <Typography
                         variant="h5"
                         component={Link}
-                        to={`/userresult/${user._id}`}
+                        onClick={() => navigate(`/userresult/${user._id}`)}
+                   
                         sx={{
                           color: 'text.primary',
                           textDecoration: 'none',
@@ -890,11 +892,12 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
         data={modalData.data}
         ratingProps={ratingProps}
         favoriteProps={{
-          ...favoriteProps,
-          favoriteCounts,
-          setFavoriteCounts,
-          handleFavoriteToggle,
-        }}
+        ...favoriteProps,
+        favoriteCounts,
+        setFavoriteCounts,
+        handleFavoriteToggle,
+      }}
+         
       />
       </Box>
 

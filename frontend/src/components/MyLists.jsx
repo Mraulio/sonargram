@@ -247,14 +247,19 @@ const handleFavoriteToggle = async (id, type, item) => {
       item?.artist || item?.artistName || "",
       item?.coverUrl || "",
       item?.releaseDate || "",
-      item?.duration || ""
-    );
+      item?.duration || "",
+      item?.externalLinks?.spotifyUrl || "",
+          item?.externalLinks?.youtubeUrl || ""
+      
+        );
+    
     setFavoriteCounts(prev => ({
       ...prev,
       [id]: (prev[id] || 0) + 1
     }));
   }
 };
+
 return (
   <MyListsBox >
     <Typography variant="h4" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
