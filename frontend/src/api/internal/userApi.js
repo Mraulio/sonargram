@@ -74,7 +74,7 @@ export const getCurrentUser = async (token) => {
     const response = await apiClient.get(`/users/me`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching user by email:", error);
+    console.error("Error fetching user by token:", error);
     throw error; // Propagar el error
   }
 };
@@ -86,7 +86,7 @@ export const getUserById = async (id, token) => {
     const response = await apiClient.get(`/users/id/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching user by email:", error);
+    console.error("Error fetching user by id:", error);
     throw error; // Propagar el error
   }
 };
