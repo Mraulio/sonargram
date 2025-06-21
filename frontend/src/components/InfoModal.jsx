@@ -18,7 +18,7 @@ const style = {
   position: 'absolute',
   top: '50%', left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 450, bgcolor: 'background.paper',
+  width: 550, bgcolor: 'background.paper',
   borderRadius: 2, boxShadow: 24,
   p: 3, maxHeight: '100vh', overflowY: 'auto'
 };
@@ -27,13 +27,14 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
   const [listItems, setListItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();  // Hook para obtener las traducciones
-
+  const [ creatorList, setCreatorList ] = useState([]);
   const { token, user } = useContext(UserContext);
   const {
     fetchListsByUser,
     userLists,
     addSong,
     fetchListById,
+    removeSong,
     loading: listLoading
   } = useList(token);
 
@@ -82,15 +83,103 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
       setAdding(false);
     }
   };
+  const handleDeleteSongList = async (listId, musicbrainzId) => {
+  try {
+    await removeSong(listId, musicbrainzId);
+    alert('Canción eliminada correctamente de la lista');
+
+    // Actualiza el estado local eliminando la canción
+    setListItems(prev => prev.filter(song =>
+      (song.id || song.musicbrainzId || song._id) !== musicbrainzId
+    ));
+
+    // Opcional: actualiza listas del usuario si es necesario en otros lugares
+    if (user?.userId) {
+      await fetchListsByUser(user.userId);
+    }
+
+  } catch (err) {
+    alert('Error al eliminar la canción de la lista');
+    console.error(err);
+  }
+};
 
   // Fetch list data & favoriteCounts efficiently
   useEffect(() => {
     const fetchListData = async () => {
       setLoading(true);
+     
       try {
-        const res = await fetchListById(data._id);
-        const songs = res.songs || [];
-        setListItems(songs);
+        if (data.isFavoriteList == true){
+                const songs = data.songs || [];
+                
+                setListItems(songs);
+          
+
+              const ids = songs.map(song => song.id || song.musicbrainzId || song._id);
+              if (ids.length === 0) return;
+
+              ratingProps.fetchMultipleItemRatings(ids);
+
+              const missingIds = ids.filter(id => !(id in favoriteProps.favoriteCounts));
+              if (missingIds.length === 0) return;
+
+              const countsArray = await Promise.all(missingIds.map(id => favoriteProps.getFavoriteCount(id)));
+              const countsMap = {};
+              let changed = false;
+
+              missingIds.forEach((id, idx) => {
+                const count = countsArray[idx] || 0;
+                if (favoriteProps.favoriteCounts[id] !== count) {
+                  countsMap[id] = count;
+                  changed = true;
+                }
+              });
+
+              if (changed) {
+                favoriteProps.setFavoriteCounts(prev => ({
+                  ...prev,
+                  ...countsMap
+                }));
+              }
+              }
+        else if (data.isRatingList == true){
+                const songs = data.songs || [];
+                setListItems(songs);
+
+              const ids = songs.map(song => song.id || song.musicbrainzId || song._id);
+              if (ids.length === 0) return;
+
+              ratingProps.fetchMultipleItemRatings(ids);
+
+              const missingIds = ids.filter(id => !(id in favoriteProps.favoriteCounts));
+              if (missingIds.length === 0) return;
+
+              const countsArray = await Promise.all(missingIds.map(id => favoriteProps.getFavoriteCount(id)));
+              const countsMap = {};
+              let changed = false;
+
+              missingIds.forEach((id, idx) => {
+                const count = countsArray[idx] || 0;
+                if (favoriteProps.favoriteCounts[id] !== count) {
+                  countsMap[id] = count;
+                  changed = true;
+                }
+              });
+
+              if (changed) {
+                favoriteProps.setFavoriteCounts(prev => ({
+                  ...prev,
+                  ...countsMap
+                }));
+              }
+        }
+        else{
+           const res = await fetchListById(data._id);
+          const songs = res.songs || [];
+          const creator = res.creator || data.creator;
+          setListItems(songs);
+          setCreatorList(creator._id);
 
         const ids = songs.map(song => song.id || song.musicbrainzId || song._id);
         if (ids.length === 0) return;
@@ -118,6 +207,8 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
             ...countsMap
           }));
         }
+        }
+       
       } finally {
         setLoading(false);
       }
@@ -127,8 +218,11 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
       fetchListData();
     }
   }, [type, data?._id]);
+  
 
   if (!open || !data) return null;
+
+  
 
   return (
     <>
@@ -153,6 +247,7 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
               compact={false}
               showAddButton={type === 'song'}
               onAddClick={handleAddClick}
+              
             />
           )}
 
@@ -166,14 +261,22 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
               ) : (
                 <ItemList
                   items={listItems}
+                  list={data._id}
                   type="song"
                   ratingProps={ratingProps}
                   favoriteCounts={favoriteProps.favoriteCounts}
                   isFavorite={favoriteProps.isFavorite}
                   onToggleFavorite={favoriteProps.handleFavoriteToggle}
+                  onDeleteFromList={
+                    creatorList === user?.userId && !data.isFavoriteList && !data.isRatingList
+                      ? handleDeleteSongList
+                      : undefined
+}
                 />
+               
               )}
             </>
+  
           )}
         </Paper>
       </Modal>
@@ -200,7 +303,7 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
             </Typography>
           )}
           <Button onClick={handleClose} disabled={adding} sx={{ mt: 2 }}>
-            Cerrar
+            {t('close')}
           </Button>
         </DialogContent>
       </Dialog>

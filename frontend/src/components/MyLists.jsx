@@ -88,8 +88,13 @@ function MyLists() {
       if (token) {
         handleSearchListByUser(); // Llama a la función para buscar listas del usuario actual
         fetchAllLists(); // Llama a la función para obtener todas las listas
+        console.log('Fetching lists for user:', user?.userId);
       }
     }, [token]);
+    useEffect(() => {
+      console.log('Lists updated:', userLists);
+  
+    })
 
     const handleSearchListByName = useCallback(async () => {
           setLoading(true);
@@ -261,13 +266,11 @@ return (
         <Typography
           variant="h6"
           sx={{ mb: 1, cursor: 'pointer' }}
-          onClick={() => {
-            setSelectedListSongs(l.songs);
-            setSelectedListId(l._id);
-            setListName(l.name);
-            setEditingList(l); // guardar la lista completa, ya que contiene el nombre
-            setOpenSongsModal(true);
-          }}
+         onClick={() => {
+          console.log('Abriendo modal con lista:', l);
+          setModalData({ type: 'list', data: l });
+          setInfoModalOpen(true);
+        }}
         >
           {l.name}
         </Typography>
