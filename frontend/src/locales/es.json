@@ -134,7 +134,14 @@
     "searchUsers": "Buscar Usuarios",
     "nameUser": "Nombre de Usuario",
     "add": "Añadir",
-    "nameList": "Nombre de la Lista"
+    "nameList": "Nombre de la Lista",
+    "errorDeletingListSong": "Error al eliminar canción de la lista",
+    "songRemovedFromList": "Canción eliminada de la lista",
+    "errorGeneralSearch": "Error en la búsqueda general",
+    "errorArtistAlbums": "Error al obtener álbumes del artista",
+    "errorAlbumSongs": "Error al obtener canciones del álbum",
+    "errorFetchingAlbum": "Error al buscar álbumes",
+    "errorFetchingSongs": "Error al buscar canciones"
 
 
     

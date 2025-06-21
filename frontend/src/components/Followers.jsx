@@ -6,6 +6,7 @@ import useFollow from '../hooks/useFollow';
 import useUser from '../hooks/useUser';
 import { useNavigate } from 'react-router-dom';
 import baseUrl from '../config.js';
+import { showToast } from '../utils/toast.js';
 
 const FollowBox = styled(Box)`
     display: flex;
@@ -82,10 +83,11 @@ function Followers({ userId: propUserId }) {
                 await fetchFollowers(userId);
                 await fetchFollowing(userId);
             }
-            alert(t('userFollowed'));
+            showToast(t('userFollowed'), 'success');
         } catch (err) {
             console.error(t('errorFollowingUser'), err);
-            alert(t('errorFollowingUser'));
+            showToast( t('errorFollowingUser'), 'error');
+         
         }
     };
 
@@ -115,7 +117,6 @@ function Followers({ userId: propUserId }) {
                                     <Divider/>
                                     <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent:'space-between' }}>
                                         <Box>
-                                            <Typography variant="body2" color="text.secondary">email: {f.followed.email}</Typography>
                                             <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.followed.createdAt).toLocaleDateString()}</Typography>
                                             <Typography variant="body2" color="text.secondary">{t('bio')}: {f.followed.bio}</Typography>
                                         </Box>
@@ -164,7 +165,6 @@ function Followers({ userId: propUserId }) {
                                     <Divider/>
                                     <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent:'space-between' }}>
                                         <Box>
-                                            <Typography variant="body2" color="text.secondary">email: {f.follower.email}</Typography>
                                             <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.follower.createdAt).toLocaleDateString()}</Typography>
                                             <Typography variant="body2" color="text.secondary">{t('bio')}: {f.follower.bio}</Typography>
                                         </Box>

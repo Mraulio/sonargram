@@ -267,7 +267,7 @@ function SearchPage() {
 
       setFavoriteCounts(counts);
     } catch (e) {
-      alert("Error en la búsqueda general");
+      showToast(t('errorGeneralSearch'), 'error')
       console.error(e);
     }
   };
@@ -287,7 +287,7 @@ function SearchPage() {
       );
       setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
-      alert("Error al buscar artistas");
+      showToast(t('errorArtistSearch'), 'error')
       console.error(e);
     } finally {
       setLoadScreen(false);
@@ -308,7 +308,7 @@ function SearchPage() {
       );
       setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
-      alert("Error al obtener álbumes del artista");
+      showToast(t('errorArtistAlbums'), 'error')
       console.error(e);
     } finally {
       setLoadScreen(false);
@@ -334,7 +334,7 @@ function SearchPage() {
       );
       setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
-      alert("Error al obtener canciones del álbum");
+      showToast(t('errorAlbumSongs'), 'error')
       console.error(e);
     } finally {
       setLoadScreen(false);
@@ -356,7 +356,7 @@ function SearchPage() {
       );
       setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
-      alert("Error al buscar álbumes");
+      showToast(t('errorFetchingAlbum'), 'error')
       console.error(e);
     } finally {
       setLoadScreen(false);
@@ -382,7 +382,7 @@ function SearchPage() {
       );
       setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
-      alert("Error al obtener canciones del álbum");
+      showToast(t('errorAlbumSongs'), 'error')
       console.error(e);
     } finally {
       setLoadScreen(false);
@@ -403,7 +403,7 @@ function SearchPage() {
       );
       setFavoriteCounts((prev) => ({ ...prev, ...counts }));
     } catch (e) {
-      alert("Error al buscar canciones");
+      showToast(t('errorFetchingSongs'), 'error')
       console.error(e);
     } finally {
       setLoadScreen(false);
@@ -455,7 +455,7 @@ function SearchPage() {
 
     try {
       if (!user || !user.userId) {
-        alert(t('errorFetchingUserId'));
+        showToast(t('errorFetchingUserId'), 'error')
         return;
       }
 
@@ -479,10 +479,10 @@ function SearchPage() {
       await followL(listId);
       if (!user || !user.userId) return;
       await fetchFollowedLists(user.userId); // <-- Esto refresca el estado
-      alert(t('listFollowed'));
+      showToast(t('listFollowed'), 'success')
     } catch (err) {
       console.error('Error following list:', err);
-      alert(t('errorFollowingList'));
+      showToast(t('errorFollowingList'), 'error')
     }
   };
 
@@ -543,7 +543,7 @@ function SearchPage() {
     setInfoModalOpen(false);
   };
 
-  const handleFavoriteToggle = async (id, type) => {
+  const handleFavoriteToggle = async (id, type, item) => {
     try {
       if (isFavorite(id)) {
         await removeFavorite(id);
@@ -610,10 +610,10 @@ function SearchPage() {
     try {
       await follow(followedId); // Llama a la función follow
       await fetchFollowing(user.userId);
-      alert(t('userFollowed')); // Muestra un mensaje de éxito
+      showToast(t('userFollowed'), 'success')
     } catch (err) {
       console.error('Error following user:', err);
-      alert(t('errorFollowingUser')); // Muestra un mensaje de error
+      showToast(t('errorFollowingUser'), 'error')
     }
   };
 
@@ -888,7 +888,6 @@ function SearchPage() {
                 <Divider />
                 <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent: 'space-between' }}>
                   <Box >
-                    <Typography variant="body2" color="text.secondary">email: {user.email}</Typography>
                     <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(user.createdAt).toLocaleDateString()}</Typography>
                     <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>
                   </Box>
@@ -922,6 +921,7 @@ function SearchPage() {
         favoriteProps={{
           ...favoriteProps,
           favoriteCounts,
+          isFavorite,
           setFavoriteCounts,
           handleFavoriteToggle,
         }}
@@ -929,6 +929,16 @@ function SearchPage() {
       />
       <LoadingScreen open={loadScreen} />
     </Box>
+
+
+
+
+
+
+
+
+
+
 
   );
 }

@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import InfoModal from '../components/InfoModal';
 import useRatings from '../hooks/useRatings';
+import { showToast } from '../utils/toast';
 
 const ListCard= styled(Card)`
   width: 45vw;
@@ -102,7 +103,7 @@ function ListPage() {
           try {
             // Usa el user del contexto directamente
             if (!user || !user.userId) {
-              alert(t('errorFetchingUserId'));
+              showToast (t('errorFetchingUserId'), 'error');
               return;
             }
             const userId = user.userId;
@@ -111,7 +112,7 @@ function ListPage() {
             await fetchFollowedLists(userId);
           } catch (err) {
             console.error(t('errorFetchingListsByUser'), err);
-            alert(t('errorFetchingListsByUser'));
+            showToast(t('errorFetchingListsByUser'), 'error');
           }
         };
           
@@ -137,12 +138,11 @@ function ListPage() {
           await createNewList({ name: listName, songs: songArray });
           if (!user || !user.userId) return;
           fetchListsByUser(user.userId); // Actualiza la lista de listas
-
-          alert(t('createListGoFill'));
+          showToast(t('createListGoFill'), 'success');
           setListName('');
           setSongs('');
         } catch (err) {
-          alert(t('errorCreatingList'));
+          showToast(t('errorCreatingList'), 'error');
           console.error(err);
         }
       };
@@ -157,7 +157,7 @@ function ListPage() {
           if (!user || !user.userId) return;
           fetchListsByUser(user.userId); // Actualiza la lista de listas
         } catch (err) {
-          alert(t('errorDeletingList'));
+          showToast(t('errorDeletingList'), 'error');
           console.error(err);
         }
       };
@@ -185,21 +185,20 @@ function ListPage() {
             .map(id => ({ musicbrainzId: id }));
 
           await renameList(editingList._id, editListName);
-
-          alert(t('listUpdated'));
+          showToast(t('listUpdated'), 'success');
           setOpen(false);
           if (!user || !user.userId) return;
           fetchListsByUser(user.userId); // Actualiza la lista de listas
         } catch (err) {
           console.error('Error updating list:', err);
           if (err.response && err.response.status === 400) {
-            alert(t('errorUpdatingListFields'));
+            showToast(t('errorUpdatingListFields'), 'error');
           } else if (err.response && err.response.status === 403) {
-            alert(t('errorAccessDenied'));
+            showToast(t('errorAccessDenied'), 'error');
           } else if (err.response && err.response.status === 404) {
-            alert(t('errorListNotFound'));
+            showToast(t('errorListNotFound'), 'error');
           } else {
-            alert(t('errorUpdatingList'));
+            showToast(t('errorUpdatingList'), 'error');
           }
         }
       };
@@ -208,11 +207,11 @@ function ListPage() {
         try {
           await followL(listId);
           if (!user || !user.userId) return;
-          await fetchFollowedLists(user.userId);
-          alert(t('listFollowed'));
+          await fetchFollowedLists(user.userId);      
+          showToast(t('listFollowed'), 'success');
         } catch (err) {
           console.error('Error following list:', err);
-          alert(t('errorFollowingList'));
+          showToast(t('errorFollowingList'), 'error');
         }
       };
 
@@ -222,10 +221,10 @@ function ListPage() {
           if (!user || !user.userId) return;
           await fetchFollowedLists(user.userId);
           setFollowedLists(prev => prev.filter(list => list._id !== listId));
-          alert(t('listUnfollowed'));
+          showToast(t('listUnfollowed'), 'success');
         } catch (err) {
           console.error('Error unfollowing list:', err);
-          alert(t('errorUnfollowingList'));
+          showToast(t('errorUnfollowingList'), 'error');
         }
       };
 
@@ -233,13 +232,14 @@ function ListPage() {
         try {
           await removeSong(listId, musicbrainzId);
           alert('Canción eliminada correctamente de la lista');
+          showToast(t('songDeletedFromList'), 'success');
           if (!user || !user.userId) return;
           setSelectedListSongs(prevSongs =>
         prevSongs.filter(song => song.musicbrainzId !== musicbrainzId)
       );
           await fetchListsByUser(user.userId);
         } catch (err) {
-          alert('Error al eliminar la canción de la lista');
+          showToast(t('errorDeletingListSong'), 'error');
           console.error(err);
         }
       };

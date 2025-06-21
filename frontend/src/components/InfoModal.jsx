@@ -12,6 +12,7 @@ import ItemList from './ItemList';
 import useList from '../hooks/useList';
 import { UserContext } from "../context/UserContext";
 import { useTranslation } from 'react-i18next';
+import { showToast } from '../utils/toast';
 
 
 const style = {
@@ -86,7 +87,7 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
   const handleDeleteSongList = async (listId, musicbrainzId) => {
   try {
     await removeSong(listId, musicbrainzId);
-    alert('Canción eliminada correctamente de la lista');
+    showToast(t('songRemovedFromList'), "success");
 
     // Actualiza el estado local eliminando la canción
     setListItems(prev => prev.filter(song =>
@@ -99,7 +100,7 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps }) =>
     }
 
   } catch (err) {
-    alert('Error al eliminar la canción de la lista');
+    showToast(t('errorDeletingListSong'), "error");
     console.error(err);
   }
 };

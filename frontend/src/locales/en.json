@@ -133,7 +133,16 @@
     "searchUsers": "Search Users",
     "nameUser": "Username",
     "add": "Add",
-    "nameList": "List Name"
+    "nameList": "List Name",
+    "errorDeletingListSong": "Error deleting list",
+    "songRemovedFromList": "Song removed from list",
+    "errorGeneralSearch": "Error General Search",
+    "errorArtistAlbums": "Error fetching artist's albums",
+    "errorAlbumSongs": "Error fetching album's songs",
+    "errorFetchingAlbum": "Error fetching albums",
+    "errorFetchingSongs": "Error fetching songs"
+    
+
   
     
   

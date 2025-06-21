@@ -6,6 +6,7 @@ import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog,
 import Menu from '../components/Menu';
 import useUser from '../hooks/useUser';
 import useList from '../hooks/useList';
+import { showToast } from '../utils/toast';
 
 function AdminPage() {
     const { t } = useTranslation();
@@ -67,7 +68,7 @@ function AdminPage() {
         };
     
         await updateUser(editingUser._id, updates); // Llama a la función updateUser con los datos permitidos
-        alert(t('userUpdated')); // Mensaje de éxito
+        showToast(t('userUpdated'), 'success'); // Muestra un toast de éxito
         setOpen(false); // Cierra el modal
         fetchAllUsers(); // Actualiza la lista de usuarios
       } catch (err) {
@@ -75,13 +76,13 @@ function AdminPage() {
     
         // Manejo de errores basado en la respuesta del backend
         if (err.response && err.response.status === 400) {
-          alert(t('errorUpdatingUserFields')); // Mensaje para campos no permitidos
+          showToast(t('errorUpdatingUserFields'), 'error');
         } else if (err.response && err.response.status === 403) {
-          alert(t('errorAccessDenied')); // Mensaje para acceso denegado
+          showToast(t('errorAccessDenied'), 'error');
         } else if (err.response && err.response.status === 404) {
-          alert(t('errorUserNotFound')); // Mensaje para usuario no encontrado
+          showToast(t('errorUserNotFound'), 'error');
         } else {
-          alert(t('errorUpdatingUser')); // Mensaje genérico
+          showToast(t('errorUpdatingUser'), 'error');
         }
       }
     };
@@ -100,7 +101,7 @@ function AdminPage() {
         setUserEmail('');
         setUserPassword('');
       } catch (err) {
-        alert('Error creating user');
+        showToast(t('errorCreatingUser'), 'error')
         console.error(err);
       }
     };
@@ -114,12 +115,11 @@ function AdminPage() {
           .map(id => ({ musicbrainzId: id }));
   
         await createNewList({ name: listName, songs: songArray });
-  
-        alert('List created');
+        showToast(t('listCreated'), 'success');
         setListName('');
         setSongs('');
       } catch (err) {
-        alert('Error creating list');
+        showToast(t('errorCreatingList'), 'error');
         console.error(err);
       }
     };
@@ -130,7 +130,7 @@ function AdminPage() {
       try {
         await removeList(listId);
       } catch (err) {
-        alert(t('errorDeletingList'));
+        showToast(t('errorDeletingList'), 'error');
         console.error(err);
       }
     };
@@ -140,10 +140,9 @@ function AdminPage() {
         console.log('Deleting user with ID:', userId); // Verifica el ID del usuario a eliminar
         try {
           await deleteUser(userId); // Llamamos a la función deleteUser del hook
-          alert(t('userDeleted')); // Mensaje de éxito
+          showToast(t('userDeleted'), 'success'); // Muestra un toast de éxito
         } catch (err) {
-          alert(t('errorDeletingUser')); // Mensaje de error
-          console.error('Error deleting user:', err);
+          showToast(t('errorDeletingUser'), 'error'); // Muestra un toast de error
         }
       };
 
@@ -162,7 +161,7 @@ function AdminPage() {
             Created: ${user.createdAt}
           `);
         } catch (err) {
-          alert("Error al obtener datos del usuario");
+          showToast(t('errorFetchingUserData'), 'error');
           console.error(err);
         }
       };

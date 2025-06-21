@@ -45,23 +45,6 @@ function TopsPage() {
     }
   };
 
-  const isFollowing = useCallback((userId) => {
-    return following.some(f => f.followed && f.followed._id === userId);
-  }, [following]);
-  
- 
-
-  const handleFollow = async (followedId) => {
-    try {
-      await follow(followedId); // Llama a la función follow
-      const user = await getCurrentUser()
-      await fetchFollowing(user._id);
-      alert(t('userFollowed')); // Muestra un mensaje de éxito
-    } catch (err) {
-      console.error('Error following user:', err);
-      alert(t('errorFollowingUser')); // Muestra un mensaje de error
-    }
-  };
 
   const handleFetchFollowers = async () => {
         try {

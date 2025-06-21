@@ -8,6 +8,7 @@ import useUser from '../hooks/useUser';
 import Menu from '../components/Menu';
 import TopRatingsUser from '../components/TopRatingsUser'
 import baseUrl from '../config.js';
+import { showToast } from "../utils/toast.js";
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
@@ -103,10 +104,10 @@ function UserPage() {
           
           try {
             await deleteUser(userId); // Llamamos a la función deleteUser del hook
-            alert(t('userDeleted')); // Mensaje de éxito
+            showToast(t('userDeleted'), 'success')
             logout(); // Cerrar sesión después de eliminar el usuario
           } catch (err) {
-            alert(t('errorDeletingUser')); // Mensaje de error
+            showToast(t('errorDeletingUser'), 'error')
             console.error(t('errorDeletingUser'), err);
           }
         };
@@ -120,20 +121,20 @@ function UserPage() {
             };
         
             await updateUser(userId, updates); // Llama a la función updateUser con los datos permitidos
-            alert(t('userUpdated')); // Mensaje de éxito
+            showToast(t('userUpdated'), 'success')
        
           } catch (err) {
             console.error(t('errorUpdateUser'), err);
         
             // Manejo de errores basado en la respuesta del backend
             if (err.response && err.response.status === 400) {
-              alert(t('errorUpdatingUserFields')); // Mensaje para campos no permitidos
+              showToast(t('errorUpdatingUserFields'), 'error')
             } else if (err.response && err.response.status === 403) {
-              alert(t('errorAccessDenied')); // Mensaje para acceso denegado
+              showToast(t('errorAccessDenied'), 'error')
             } else if (err.response && err.response.status === 404) {
-              alert(t('errorUserNotFound')); // Mensaje para usuario no encontrado
+              showToast(t('errorUserNotFound'), 'error')
             } else {
-              alert(t('errorUpdatingUser')); // Mensaje genérico
+              showToast(t('errorUpdatingUser'), 'error')
             }
           }
         };
@@ -202,7 +203,7 @@ function UserPage() {
       setOpenProfilePicModal(false); // Cerrar el modal
     } catch (err) {
       console.error(t('errorUpdateProfilePic'), err);
-      alert(t('errorUpdateProfilePic'));
+      showToast(t('errorUpdateProfilePic'), 'error')
     }
   };
 
@@ -216,7 +217,7 @@ function UserPage() {
         const resp = await deleteProfilePic();
         setCurrentUser({...currentUser, profilePic: resp.updatedUser.profilePic});
       } catch (err) {
-        alert(t('errorDeleteProfilePic'));
+        showToast(t('errorDeleteProfilePic'), 'error')
         console.error(err);
       } 
   };

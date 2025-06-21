@@ -13,6 +13,7 @@ import FooterBar from '../components/Footer'
 import { useNavigate } from 'react-router-dom';
 import useFavorites from '../hooks/useFavorites';
 import useList from '../hooks/useList';
+import { showToast } from '../utils/toast';
 
 const MenuBox= styled(Box)`
  margin-left: 15px;
@@ -157,10 +158,10 @@ function Dashboard() {
       await follow(followedId); // Llama a la función follow
       const user = await getCurrentUser()
       await fetchFollowing(user._id);
-      alert(t('userFollowed')); // Muestra un mensaje de éxito
+      showToast (t('userFollowed'), 'success');
     } catch (err) {
       console.error('Error following user:', err);
-      alert(t('errorFollowingUser')); // Muestra un mensaje de error
+      showToast(t('errorFollowingUser'), 'error');
     }
   };
 
