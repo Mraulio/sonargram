@@ -125,6 +125,7 @@ function SearchPage() {
     getRatingFor,
     fetchMultipleItemRatings,
   } = useRatings(token);
+
   const { addFavorite, removeFavorite, isFavorite, getFavoriteCount } =
     useFavorites(token);
  const { lists, userLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, addSong, fetchListById } = useList(token);
@@ -514,47 +515,46 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
         };
   
   const handleFavoriteToggle = async (id, type) => {
-      try {
-        if (isFavorite(id)) {
-          await removeFavorite(id);
-        } else {
-          let item;
-          if (type === "artist") {
-            item = artistResults.find((a) => a.id === id);
-          } else if (type === "album") {
-            item =
-              albumResults.find((a) => a.id === id) ||
-              selectedArtistAlbums.find((a) => a.id === id);
-          } else if (type === "song") {
-            item =
-              songResults.find((s) => s.id === id) ||
-              selectedAlbumSongsFromArtist.find((s) => s.id === id) ||
-              selectedAlbumSongs.find((s) => s.id === id);
-          }
-  
-          await addFavorite(
-            id,
-            type,
-            item?.title || item?.name || "",
-            item?.artist || item?.artistName || "",
-            item?.coverUrl || "",
-            item?.releaseDate || "",
-            item?.duration || "",
-            item?.externalLinks?.spotifyUrl || "",
-            item?.externalLinks?.youtubeUrl || ""
-          );
+    try {
+      if (isFavorite(id)) {
+        await removeFavorite(id);
+      } else {
+        let item;
+        if (type === "artist") {
+          item = artistResults.find((a) => a.id === id);
+        } else if (type === "album") {
+          item =
+            albumResults.find((a) => a.id === id) ||
+            selectedArtistAlbums.find((a) => a.id === id);
+        } else if (type === "song") {
+          item =
+            songResults.find((s) => s.id === id) ||
+            selectedAlbumSongsFromArtist.find((s) => s.id === id) ||
+            selectedAlbumSongs.find((s) => s.id === id);
         }
-  
-        const newCount = await getFavoriteCount(id);
-        setFavoriteCounts((prev) => ({
-          ...prev,
-          [id]: newCount,
-        }));
-      } catch (e) {
-        console.error("Error alternando favorito", e);
+
+        await addFavorite(
+          id,
+          type,
+          item?.title || item?.name || "",
+          item?.artist || item?.artistName || "",
+          item?.coverUrl || "",
+          item?.releaseDate || "",
+          item?.duration || "",
+          item?.externalLinks?.spotifyUrl || "",
+          item?.externalLinks?.youtubeUrl || ""
+        );
       }
-    };
-  
+
+      const newCount = await getFavoriteCount(id);
+      setFavoriteCounts((prev) => ({
+        ...prev,
+        [id]: newCount,
+      }));
+    } catch (e) {
+      console.error("Error alternando favorito", e);
+    }
+  };
   
   //funciones para buscar usuarios 
   const handleSearchUser = async (term = searchTerm) => {
@@ -593,22 +593,6 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
       sx={{  minHeight: "100vh", width: "100%" }}
     >
       <Menu />
-      <Box sx={{ p: 2 }}>
-        <Typography variant="h4" gutterBottom>
-          {t('generalSearch')}
-        </Typography>
-        <TextField
-          fullWidth
-          label={t('searchAnything')}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleGeneralSearch()}
-          margin="normal"
-        />
-        <Button variant="contained" onClick={handleGeneralSearch} sx={{backgroundColor: '#d63b1f', color: 'white'}}>
-          {t('search')}
-        </Button>
-      </Box>
 
       <ResultBox>
         {/* ARTISTAS */}
@@ -639,7 +623,7 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
                 ratingProps={ratingProps}
                 favoriteCounts={favoriteCounts}
                 isFavorite={isFavorite}
-                onToggleFavorite={handleFavoriteToggleResult}
+                onToggleFavorite={handleFavoriteToggle}
               />
             </>
           )}
@@ -655,7 +639,7 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
                 ratingProps={ratingProps}
                 favoriteCounts={favoriteCounts}
                 isFavorite={isFavorite}
-                onToggleFavorite={handleFavoriteToggleResult}
+                onToggleFavorite={handleFavoriteToggle}
               />
             </>
           )}
@@ -670,7 +654,7 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
                 ratingProps={ratingProps}
                 favoriteCounts={favoriteCounts}
                 isFavorite={isFavorite}
-                onToggleFavorite={handleFavoriteToggleResult}
+                onToggleFavorite={handleFavoriteToggle}
               />
             </>
           )}
@@ -704,7 +688,7 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
                 ratingProps={ratingProps}
                 favoriteCounts={favoriteCounts}
                 isFavorite={isFavorite}
-                onToggleFavorite={handleFavoriteToggleResult}
+                onToggleFavorite={handleFavoriteToggle}
               />
             </>
           )}
@@ -719,7 +703,7 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
                 ratingProps={ratingProps}
                 favoriteCounts={favoriteCounts}
                 isFavorite={isFavorite}
-                onToggleFavorite={handleFavoriteToggleResult}
+                onToggleFavorite={handleFavoriteToggle}
               />
             </>
           )}
@@ -752,7 +736,7 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
                 ratingProps={ratingProps}
                 favoriteCounts={favoriteCounts}
                 isFavorite={isFavorite}
-                onToggleFavorite={handleFavoriteToggleResult}
+                onToggleFavorite={handleFavoriteToggle}
               />
             </>
           )}
@@ -899,7 +883,19 @@ const [open, setOpen] = useState(false); // Estado para controlar el modal
               
           </ResultBoxUL>
           </ResultBox>
-
+      <InfoModal
+        open={infoModalOpen}
+        onClose={() => setInfoModalOpen(false)}
+        type={modalData.type}
+        data={modalData.data}
+        ratingProps={ratingProps}
+        favoriteProps={{
+          ...favoriteProps,
+          favoriteCounts,
+          setFavoriteCounts,
+          handleFavoriteToggle,
+        }}
+      />
       </Box>
 
   );
