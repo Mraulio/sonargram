@@ -17,6 +17,8 @@ const enrichListSongs = async (list) => {
         coverUrl: cache?.coverUrl || null,
         releaseDate: cache?.releaseDate || null,
         duration: cache?.duration || null,
+        spotifyUrl: cache?.spotifyUrl || null,
+        youtubeUrl: cache?.youtubeUrl || null,
       };
     })
   );
@@ -86,6 +88,8 @@ const getListsByUser = async (req, res) => {
           coverUrl: cache?.coverUrl || null,
           releaseDate: cache?.releaseDate || null,
           duration: cache?.duration || null,
+          spotifyUrl: cache?.spotifyUrl || null,
+          youtubeUrl: cache?.youtubeUrl || null,
         };
       })
     );
@@ -115,6 +119,8 @@ const getListsByUser = async (req, res) => {
           coverUrl: cache?.coverUrl || null,
           releaseDate: cache?.releaseDate || null,
           duration: cache?.duration || null,
+          spotifyUrl: cache?.spotifyUrl || null,
+          youtubeUrl: cache?.youtubeUrl || null,
         };
       })
     );
@@ -177,7 +183,7 @@ const addSongToList = async (req, res) => {
       return res.status(400).json({ message: 'Song already in list' });
     }
 
-    list.songs.push({musicbrainzId});
+    list.songs.push({ musicbrainzId });
 
     await logActivity({
       user: userId,
