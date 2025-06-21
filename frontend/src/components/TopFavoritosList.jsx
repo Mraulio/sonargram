@@ -20,6 +20,7 @@ import { UserContext } from "../context/UserContext";
 import { getTopRatingsByType } from "../api/internal/ratingApi";
 import useFavorites from "../hooks/useFavorites";
 import { useTranslation } from "react-i18next";
+import * as api from '../api/internal/favoriteApi';
 
 const AccordionBox = styled(Box)`
   display: flex; 
@@ -49,39 +50,29 @@ function TopRatingsList({ limit = 5, title = "Items con Más Likes" }) {
   const [topRatings, setTopRatings] = useState({ artist: [], album: [], song: [] });
   const [loading, setLoading] = useState(true);
   const { getFavoriteCount, favoriteCounts } = useFavorites(token);
+  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    async function fetchTopRatings() {
-      try {
-        const data = await getTopRatingsByType(limit, token);
-
-        const formattedData = data.reduce(
-          (acc, curr) => {
-            acc[curr._id] = curr.ratings || [];
-            return acc;
-          },
-          { artist: [], album: [], song: [] }
-        );
-
-        // Obtener recuento de favoritos para cada ítem
-        const allItems = Object.values(formattedData).flat();
-        for (const item of allItems) {
-          const id = item._id || item.mbid;
-          if (id) {
-            await getFavoriteCount(id);
-          }
-        }
-
-        setTopRatings(formattedData);
-      } catch (error) {
-        console.error(t("errorFetchingTopRatings"), error);
-      } finally {
-        setLoading(false);
-      }
+  async function fetchTopFavorites() {
+    try {
+      const data = await api.getTopFavorites(limit, token);
+      const formattedData = data.reduce(
+        (acc, curr) => {
+          acc[curr._id] = curr.favorites || [];
+          return acc;
+        },
+        { artist: [], album: [], song: [] }
+      );
+      setFavorites(formattedData);
+    } catch (error) {
+      console.error(t("errorFetchingTopRatings"), error);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    fetchTopRatings();
-  }, [token, limit]);
+  fetchTopFavorites();
+}, [token, limit]);
 
   function getItemName(item, type) {
     const base = item.data || {};
@@ -130,32 +121,34 @@ function TopRatingsList({ limit = 5, title = "Items con Más Likes" }) {
             <AccordionDetails>
               <Card sx={{ width: "100%" }}>
                 <CardContent>
-                  {topRatings[type].length === 0 ? (
+                  {favorites[type].length === 0 ? (
                     <Typography>{t("noDataAvailable")}</Typography>
                   ) : (
                     <List dense>
-                      {topRatings[type].map((item, index) => {
-                        const id = item._id || item.mbid;
-                        const likes = favoriteCounts[id] ?? 0;
+                      {favorites[type].map((item, index) => {
+                const id = item.favoriteId || item._id || item.data?.mbid || item.data?._id || index;
+                const name = getItemName(item, type);
+                const likes = item.count ?? 0;
 
-                        return (
-                          <ListItem key={id || index} sx={{ gap:2}}>
-                          <ListItemText
-                            primary={
-                              <>
-                                <Typography component="span" fontWeight="bold">
-                                  {getItemName(item, type)}
-                                </Typography><br/>
-                                <Typography component="span" variant="body2" color="text.secondary" ml={1}>
-                                  ❤️ {likes} {t("likes")}
-                                </Typography>
-                                <Divider/>
-                              </>
-                            }
-                          />
-                        </ListItem>
-                        );
-                      })}
+                return (
+                  <ListItem key={id} sx={{ gap: 2 }}>
+                    <ListItemText
+                      primary={
+                        <>
+                          <Typography component="span" fontWeight="bold">
+                            {name}
+                          </Typography>
+                          <br />
+                          <Typography component="span" variant="body2" color="text.secondary" ml={1}>
+                            ❤️ {likes} {t("likes")}
+                          </Typography>
+                          <Divider />
+                        </>
+                      }
+                    />
+                  </ListItem>
+                );
+              })}
                     </List>
                   )}
                 </CardContent>

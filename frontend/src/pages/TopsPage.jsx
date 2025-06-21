@@ -14,7 +14,7 @@ const TopBox= styled(Box)`
    display: flex; 
    gap: 10px;  
    justify-content: center; 
-   align-items: center; 
+  
    width: 100%;
     @media (max-width: 920px) {
     flex-direction: column; 
@@ -104,13 +104,11 @@ function TopsPage() {
 
       <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0, gap: 2, minHeight:'100vh', width: '100%', backgroundColor: theme.palette.background.secondary }}>
         <Menu />
-       
         <TopBox>    
           <TopRatingsList limit={5} title={t('topRated')} />        
           <TopFavoritosList limit={5} title={t('topLiked')}/>        
-      </TopBox> 
+        </TopBox> 
       </Box>
-
   );
 }
 

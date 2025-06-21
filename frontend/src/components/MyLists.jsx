@@ -263,7 +263,7 @@ const handleFavoriteToggle = async (id, type, item) => {
 
 return (
   <MyListsBox >
-    <CardContent>
+    <CardContent sx={{width:'100%', marginTop: 3}}>
     <Typography variant="h5" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
     {userLists.map(l => {
@@ -287,7 +287,7 @@ return (
           {l.isFavoriteList !== true && l.isRatingList !== true && (
           <>
           <Typography variant="body2" color="text.secondary">
-            {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
+            {t('creatorOfList')}: {creatorNames[l.creator] || l.creator || t('unknown')}
           </Typography>
             <Button
              

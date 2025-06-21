@@ -136,7 +136,7 @@ const ItemList = ({
             </Typography>
           )}
           <Button onClick={handleClose} disabled={adding} sx={{ mt: 2 }}>
-            Cerrar
+           {t('close')}
           </Button>
         </DialogContent>
       </Dialog>
