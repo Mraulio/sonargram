@@ -4,7 +4,7 @@ import { getCoverFromProxy, getMusicBrainzDataFromProxy } from "../internal/prox
 export const searchArtists = async (artista, token) => {
   try {
     const data = await getMusicBrainzDataFromProxy(
-      `ws/2/artist?query=${encodeURIComponent(artista)}&limit=1&fmt=json`,
+      `ws/2/artist?query=${encodeURIComponent(artista)}&limit=3&fmt=json`,
       token
     );
     return data.artists;
@@ -18,7 +18,7 @@ export const searchArtists = async (artista, token) => {
 export const searchAlbums = async (albumName, token) => {
   try {
     const data = await getMusicBrainzDataFromProxy(
-      `ws/2/release-group?query=${encodeURIComponent(albumName)}&type=album&limit=5&fmt=json`,
+      `ws/2/release-group?query=${encodeURIComponent(albumName)}&type=album&limit=15&fmt=json`,
       token
     );
 
@@ -50,7 +50,7 @@ export const searchAlbums = async (albumName, token) => {
 export const searchSongs = async (songName, token) => {
   try {
     const data = await getMusicBrainzDataFromProxy(
-      `ws/2/recording?query=${encodeURIComponent(songName)}&limit=5&fmt=json`,
+      `ws/2/recording?query=${encodeURIComponent(songName)}&limit=15&fmt=json`,
       token
     );
 
@@ -80,7 +80,7 @@ export const searchSongs = async (songName, token) => {
 };
 
 // Álbumes por artista
-export const getAlbumsByArtist = async (artistId, token, limit = 5, offset = 0) => {
+export const getAlbumsByArtist = async (artistId, token, limit = 15, offset = 0) => {
   try {
     const data = await getMusicBrainzDataFromProxy(
       `ws/2/release-group?artist=${artistId}&type=album&limit=${limit}&offset=${offset}&fmt=json`,
@@ -110,7 +110,7 @@ export const getAlbumsByArtist = async (artistId, token, limit = 5, offset = 0) 
 };
 
 // Releases por release-group
-export const getReleasesByReleaseGroup = async (releaseGroupId, token, limit = 5, offset = 0) => {
+export const getReleasesByReleaseGroup = async (releaseGroupId, token, limit = 20, offset = 0) => {
   try {
     const data = await getMusicBrainzDataFromProxy(
       `ws/2/release?release-group=${releaseGroupId}&limit=${limit}&offset=${offset}&fmt=json`,
@@ -124,7 +124,7 @@ export const getReleasesByReleaseGroup = async (releaseGroupId, token, limit = 5
 };
 
 // Canciones por release con enlaces externos
-export const getSongsByRelease = async (releaseId, token, limit = 15, offset = 0) => {
+export const getSongsByRelease = async (releaseId, token, limit = 20, offset = 0) => {
   try {
     const data = await getMusicBrainzDataFromProxy(
       `ws/2/recording?release=${releaseId}&limit=${limit}&offset=${offset}&fmt=json`,
