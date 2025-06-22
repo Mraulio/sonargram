@@ -114,7 +114,38 @@
     "count": "Number of likes",
     "Albums": "Albums",
     "Artists": "Artists",
-    "topLiked": "Top Favorites by community"
+    "topLiked": "Top Favorites by community",
+    "tops": "Tops",
+    "generalSearch": "General Search",
+    "searchAnything": "Search artists, albums, or songs",
+    "search": "Search",
+    "searchArtist": "Buscar Artista",
+    "searchAlbum": "Search Album",
+    "searchSong": "Search Song",
+    "nameArtist": "Artist Name",
+    "nameAlbum": "Album Name",
+    "nameSong": "Song Name",
+    "artistFound": "Artists Found",
+    "artistAlbums": "Artist's Albums",
+    "albumSongs": "Album Songs",
+    "songFounds": "Songs Found",
+    "searchLists": "Search Lists",
+    "searchUsers": "Search Users",
+    "nameUser": "Username",
+    "add": "Add",
+    "nameList": "List Name",
+    "errorDeletingListSong": "Error deleting list",
+    "songRemovedFromList": "Song removed from list",
+    "errorGeneralSearch": "Error General Search",
+    "errorArtistAlbums": "Error fetching artist's albums",
+    "errorAlbumSongs": "Error fetching album's songs",
+    "errorFetchingAlbum": "Error fetching albums",
+    "errorFetchingSongs": "Error fetching songs"
+    
+
+  
+    
+  
     
     
   }

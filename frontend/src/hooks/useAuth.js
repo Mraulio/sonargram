@@ -3,6 +3,7 @@ import { loginUser, registerUser } from '../api/internal/userApi';  // Importamo
 import { useContext } from 'react';
 import { UserContext } from '../context/UserContext';  // Contexto para gestionar la sesión
 import { jwtDecode } from 'jwt-decode';  // Para decodificar el token JWT
+import { showToast } from '../utils/toast';
 
 export default function useAuth() {
   const { login } = useContext(UserContext);  // Para guardar el token y rol en el contexto
@@ -18,8 +19,10 @@ export default function useAuth() {
       const token = await loginUser(email, password);  // Llamamos al método loginUser
       const decodedToken = jwtDecode(token);  // Decodificamos el token
       login(token, decodedToken.role);  // Guardamos el token y el rol en el contexto
+      showToast('Logueado correctamente', 'success');
       return true;  // Si el login es exitoso, devolvemos true
     } catch (err) {
+      showToast('Error al loguearse', 'error');
       setError('Error logging in');
       console.error(err);
       return false;

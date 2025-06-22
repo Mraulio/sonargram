@@ -114,7 +114,35 @@
     "count": "Cantidad de Me Gusta",
     "Albums": "Álbumes",
     "Artists": "Artistas",
-    "topLiked": "Más Gustados de la comunidad"
+    "topLiked": "Más Gustados de la comunidad",
+    "tops": "Tops",
+    "dataUser": "Perfil del usuario",
+     "generalSearch": "Búsqueda general",
+    "searchAnything": "Busca artistas, álbumes o canciones",
+    "search": "Buscar",
+    "searchArtist": "Buscar Artista",
+    "searchAlbum": "Buscar Álbum",
+    "searchSong": "Buscar Canción",
+    "nameArtist": "Nombre del Artista",
+    "nameAlbum": "Nombre del Álbum",
+    "nameSong": "Nombre de la Canción",
+    "artistFound": "Artistas encontrados",
+    "artistAlbums": "Álbumes del Artista",
+    "albumSongs": "Canciones del Álbum",
+    "songFounds": "Canciones encontradas",
+    "searchLists": "Buscar Listas",
+    "searchUsers": "Buscar Usuarios",
+    "nameUser": "Nombre de Usuario",
+    "add": "Añadir",
+    "nameList": "Nombre de la Lista",
+    "errorDeletingListSong": "Error al eliminar canción de la lista",
+    "songRemovedFromList": "Canción eliminada de la lista",
+    "errorGeneralSearch": "Error en la búsqueda general",
+    "errorArtistAlbums": "Error al obtener álbumes del artista",
+    "errorAlbumSongs": "Error al obtener canciones del álbum",
+    "errorFetchingAlbum": "Error al buscar álbumes",
+    "errorFetchingSongs": "Error al buscar canciones"
+
 
     
   }  

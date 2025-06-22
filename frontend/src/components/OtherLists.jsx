@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Box, Typography, Card, CardContent, Divider, Dialog, DialogTitle, DialogContent, DialogActions, Button, styled } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import useList from '../hooks/useList';
+import InfoModal from '../components/InfoModal';
+import useFavorites from '../hooks/useFavorites';
+import useRatings from '../hooks/useRatings';
 
 const ListCard= styled(Card)`
   width: 45vw;
@@ -25,11 +28,45 @@ function OtherLists({ userId }) {
   const { t } = useTranslation();
   const { token } = useContext(UserContext);
   const { userLists, fetchListsByUser, loading } = useList(token);
-
+  const [modalData, setModalData] = useState({ type: '', data: null });
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
   // Estado para el modal de canciones
   const [openSongsModal, setOpenSongsModal] = useState(false);
   const [selectedListSongs, setSelectedListSongs] = useState([]);
   const [selectedListName, setSelectedListName] = useState('');
+  const favoriteProps = useFavorites(token);
+  const ratingProps = useRatings(token);
+  const [favoriteCounts, setFavoriteCounts] = useState({
+        artists: {},
+        albums: {},
+        songs: {},
+      });
+      const handleFavoriteToggle = async (id, type, item) => {
+  if (favoriteProps.isFavorite(id)) {
+    await favoriteProps.removeFavorite(id);
+    setFavoriteCounts(prev => ({
+      ...prev,
+      [id]: Math.max((prev[id] || 1) - 1, 0)
+    }));
+  } else {
+    await favoriteProps.addFavorite(
+      id,
+      type,
+      item?.title || item?.name || "",
+      item?.artist || item?.artistName || "",
+      item?.coverUrl || "",
+      item?.releaseDate || "",
+      item?.duration || "",
+      item?.externalLinks?.spotifyUrl || "",
+      item?.externalLinks?.youtubeUrl || ""
+        );
+    
+    setFavoriteCounts(prev => ({
+      ...prev,
+      [id]: (prev[id] || 0) + 1
+    }));
+  }
+};
 
   useEffect(() => {
     if (userId) {
@@ -63,11 +100,10 @@ function OtherLists({ userId }) {
             <Typography
               variant="h5"
               sx={{ cursor: 'pointer' }}
-              onClick={() => {
-                setSelectedListSongs(list.songs || []);
-                setSelectedListName(list.name);
-                setOpenSongsModal(true);
-              }}
+               onClick={() => {
+                  setModalData({ type: 'list', data: list });
+                  setInfoModalOpen(true);
+                }}
             >
               {list.name}
             </Typography>
@@ -105,6 +141,19 @@ function OtherLists({ userId }) {
           </Button>
         </DialogActions>
       </Dialog>
+      <InfoModal
+      open={infoModalOpen}
+      onClose={() => setInfoModalOpen(false)}
+      type={modalData.type}
+      data={modalData.data}
+      ratingProps={ratingProps}
+      favoriteProps={{
+        ...favoriteProps,
+        favoriteCounts,
+        setFavoriteCounts,
+        handleFavoriteToggle,
+      }}
+    />
     </Box>
   );
 }

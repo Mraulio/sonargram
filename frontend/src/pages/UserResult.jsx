@@ -1,11 +1,11 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { UserContext } from '../context/UserContext';
 import { useParams } from 'react-router-dom';
-import { Typography, Card, CardContent, Box, Avatar, Divider, styled } from '@mui/material';
+import { Typography, Card, CardContent, Box, Avatar, Divider, styled, useTheme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import OtherFollowers from '../components/OtherFollowers';
 import useUser from '../hooks/useUser';
-import Menu2 from '../components/Menu2';
+import Menu from '../components/Menu';
 import OtherLists from '../components/OtherLists'
 import baseUrl from '../config.js';
 
@@ -18,7 +18,7 @@ function UserResult() {
   const { token, user } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
   const { getUserById } = useUser(token);
-  console.log('base urlssss:', baseUrl);
+  const theme = useTheme();
  useEffect(() => {
   const fetchUser = async () => {
     setLoading(true);
@@ -54,11 +54,11 @@ function UserResult() {
   }
 
   return (
-    <Box style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center' }}>
-    <Menu2/>
+    <Box style={{ display: 'flex', flexDirection: 'column', backgroundColor: theme.palette.background.secondary}}>
+    <Menu/>
       <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100vw'}}>
-        <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', justifyContent: 'space-around', width: '500px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
-        <Typography variant="h4" gutterBottom>
+        <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', justifyContent: 'space-around', width: '400px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
+        <Typography variant="h5" gutterBottom>
           {t('publicProfile')}
         </Typography>
             <Avatar
@@ -75,8 +75,7 @@ function UserResult() {
                 <Divider sx={{ width: '100%'}}/>
                 <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 1 }}>
                   <Typography variant="body2" color="text.secondary">{t('userName')}: {userResult.username}</Typography>
-                  <Typography variant="body2" color="text.secondary">email: {userResult.email}</Typography>
-                  <Typography variant="body2" color="text.secondary">{t('createDate')}: {userResult.createdAt.slice(0,10)}</Typography>
+                  <Typography variant="body2" color="text.secondary">{t('createDate')}: {userResult?.createdAt?.slice(0,10)}</Typography>
                   <Typography variant="subtitle1" color="text.secondary">{t('bio')}: {userResult.bio || t('noBio')}</Typography>
                 </Box>
             </CardContent>

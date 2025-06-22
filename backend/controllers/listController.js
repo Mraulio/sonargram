@@ -17,6 +17,8 @@ const enrichListSongs = async (list) => {
         coverUrl: cache?.coverUrl || null,
         releaseDate: cache?.releaseDate || null,
         duration: cache?.duration || null,
+        spotifyUrl: cache?.spotifyUrl || null,
+        youtubeUrl: cache?.youtubeUrl || null,
       };
     })
   );
@@ -76,7 +78,7 @@ const getListsByUser = async (req, res) => {
     const songFavorites = allFavorites.filter(fav => fav.favoriteType === 'song');
 
     // 3. Enriquecer solo las canciones
-    const enrichedFavorites = await Promise.all(
+    let enrichedFavorites = await Promise.all(
       songFavorites.map(async (fav) => {
         const cache = await MBIDCache.findOne({ mbid: fav.favoriteId });
         return {
@@ -86,9 +88,14 @@ const getListsByUser = async (req, res) => {
           coverUrl: cache?.coverUrl || null,
           releaseDate: cache?.releaseDate || null,
           duration: cache?.duration || null,
+          spotifyUrl: cache?.spotifyUrl || null,
+          youtubeUrl: cache?.youtubeUrl || null,
         };
       })
     );
+
+    // Ordena del más reciente al más antiguo
+    enrichedFavorites = enrichedFavorites.reverse();
 
     // 4. Lista virtual de favoritos (solo canciones)
     const listaFavoritos = {
@@ -115,6 +122,8 @@ const getListsByUser = async (req, res) => {
           coverUrl: cache?.coverUrl || null,
           releaseDate: cache?.releaseDate || null,
           duration: cache?.duration || null,
+          spotifyUrl: cache?.spotifyUrl || null,
+          youtubeUrl: cache?.youtubeUrl || null,
         };
       })
     );
@@ -177,7 +186,7 @@ const addSongToList = async (req, res) => {
       return res.status(400).json({ message: 'Song already in list' });
     }
 
-    list.songs.push({musicbrainzId});
+    list.songs.push({ musicbrainzId });
 
     await logActivity({
       user: userId,

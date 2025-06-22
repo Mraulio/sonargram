@@ -5,6 +5,7 @@ import { Avatar, Box, Typography, Card, CardContent, Button, styled } from '@mui
 import useFollow from '../hooks/useFollow';
 import { useNavigate } from 'react-router-dom';
 import baseUrl from '../config.js';
+import { showToast } from '../utils/toast.js';
 
 const FollowBox = styled(Box)`
     display: flex;
@@ -78,10 +79,10 @@ function OtherFollowers({ userId: propUserId }) {
                 await fetchFollowers(propUserId);
                 await fetchFollowing(propUserId);
             }
-            alert(t('userFollowed'));
+            showToast(t('userFollowed'), 'success');
         } catch (err) {
             console.error(t('errorFollowingUser'), err);
-            alert(t('errorFollowingUser'));
+            showToast(t('errorFollowingUser'), 'error');
         }
     };
 
@@ -109,7 +110,6 @@ function OtherFollowers({ userId: propUserId }) {
                                     >
                                         {f.followed.name}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">email: {f.followed.email}</Typography>
                                     <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(f.createdAt).toLocaleDateString()}</Typography>
                                     <Typography variant="body2" color="text.secondary">{t('bio')}: {f.followed.bio}</Typography>
                                 </CardContent>

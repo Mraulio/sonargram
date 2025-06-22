@@ -1,13 +1,14 @@
 import { useState, useContext, useEffect, useRef } from 'react';
-import { TextField, Button, Typography, Card, CardContent, Box, Divider, ButtonBase, Modal, styled } from '@mui/material';
+import { TextField, Button, Typography, Card, CardContent, Box, Divider, ButtonBase, Modal, styled, useTheme } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
 import Followers from '../components/Followers';
 import useUser from '../hooks/useUser';
-import Menu2 from '../components/Menu2';
+import Menu from '../components/Menu';
 import TopRatingsUser from '../components/TopRatingsUser'
 import baseUrl from '../config.js';
+import { showToast } from "../utils/toast.js";
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
@@ -33,7 +34,7 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   '& label.Mui-focused': {
     color: theme.palette.primary.main, // etiqueta con foco
   },
-  width: '450px',
+  width: '100%',
 }));
 
 function UserPage() {
@@ -46,13 +47,14 @@ function UserPage() {
         const [userBio, setUserBio] = useState('');
         const [openModal, setOpenModal] = useState(false);
         const [openProfilePicModal, setOpenProfilePicModal] = useState(false);
-        const { token, role, logout, login } = useContext(UserContext);
+        const { token, role, logout, login, profilePic, setProfilePic } = useContext(UserContext);
         const navigate = useNavigate();
         const [previewImage, setPreviewImage] = useState(null);
         const [resizedImage, setResizedImage] = useState(null);
         const fileInputRef = useRef(null);
         const [currentUser, setCurrentUser] = useState(null);
         const [selectedUser, setSelectedUser] = useState(null);
+        const theme = useTheme();
 
         const {
               fetchAllUsers,
@@ -103,10 +105,10 @@ function UserPage() {
           
           try {
             await deleteUser(userId); // Llamamos a la función deleteUser del hook
-            alert(t('userDeleted')); // Mensaje de éxito
+            showToast(t('userDeleted'), 'success')
             logout(); // Cerrar sesión después de eliminar el usuario
           } catch (err) {
-            alert(t('errorDeletingUser')); // Mensaje de error
+            showToast(t('errorDeletingUser'), 'error')
             console.error(t('errorDeletingUser'), err);
           }
         };
@@ -120,20 +122,20 @@ function UserPage() {
             };
         
             await updateUser(userId, updates); // Llama a la función updateUser con los datos permitidos
-            alert(t('userUpdated')); // Mensaje de éxito
+            showToast(t('userUpdated'), 'success')
        
           } catch (err) {
             console.error(t('errorUpdateUser'), err);
         
             // Manejo de errores basado en la respuesta del backend
             if (err.response && err.response.status === 400) {
-              alert(t('errorUpdatingUserFields')); // Mensaje para campos no permitidos
+              showToast(t('errorUpdatingUserFields'), 'error')
             } else if (err.response && err.response.status === 403) {
-              alert(t('errorAccessDenied')); // Mensaje para acceso denegado
+              showToast(t('errorAccessDenied'), 'error')
             } else if (err.response && err.response.status === 404) {
-              alert(t('errorUserNotFound')); // Mensaje para usuario no encontrado
+              showToast(t('errorUserNotFound'), 'error')
             } else {
-              alert(t('errorUpdatingUser')); // Mensaje genérico
+              showToast(t('errorUpdatingUser'), 'error')
             }
           }
         };
@@ -196,13 +198,13 @@ function UserPage() {
   
       // Subir la imagen usando el hook
       const resp = await uploadProfilePic(formData); // Esta es la llamada a la API
-
-      setCurrentUser({...currentUser, profilePic: `${resp.profilePic}?t=${new Date().getTime()}` }) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
-
+      const newProfilePic = `${resp.profilePic}?t=${new Date().getTime()}`;
+      setCurrentUser({...currentUser, profilePic: newProfilePic }) // Le meto una url con un tiempo aleatorio para que vea un cambio y se actualice
+      setProfilePic(newProfilePic)
       setOpenProfilePicModal(false); // Cerrar el modal
     } catch (err) {
       console.error(t('errorUpdateProfilePic'), err);
-      alert(t('errorUpdateProfilePic'));
+      showToast(t('errorUpdateProfilePic'), 'error')
     }
   };
 
@@ -215,8 +217,9 @@ function UserPage() {
       try {
         const resp = await deleteProfilePic();
         setCurrentUser({...currentUser, profilePic: resp.updatedUser.profilePic});
+        setProfilePic(null);
       } catch (err) {
-        alert(t('errorDeleteProfilePic'));
+        showToast(t('errorDeleteProfilePic'), 'error')
         console.error(err);
       } 
   };
@@ -227,11 +230,11 @@ function UserPage() {
 
 
  return (
-  <Box style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems:'center' }}>
-    <Menu2 />
-    <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100vw'}}>
-      <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', width: '600px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
-        <Typography variant="h4" gutterBottom>
+  <Box style={{ width: '100%',display: 'flex', flexDirection: 'column', backgroundColor: theme.palette.background.secondary }}>
+    <Menu />
+    <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100%'}}>
+      <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', width: '400px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
+        <Typography variant="h5" gutterBottom>
           {t('dataUser')}
         </Typography>
     
@@ -240,15 +243,15 @@ function UserPage() {
           sx={{
             borderRadius: '50%',
             overflow: 'hidden',
-            width: 200,
-            height: 200,
+            width: 150,
+            height: 150,
             display: 'inline-block',
           }}
         >
           <img
             src={
-              currentUser && currentUser.profilePic
-                ? `${baseUrl}/uploads/${currentUser.profilePic}`
+             profilePic
+                ? `${baseUrl}/uploads/${profilePic}`
                 : '/assets/images/profilepic_default.png'
             }
             alt="Profile Pic"
@@ -288,7 +291,7 @@ function UserPage() {
                 name: userName,
               })
             }
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, width: '40%', fontSize: '0.6rem' }}
           >
             {t('editUserButton')}
           </Button>
@@ -296,7 +299,7 @@ function UserPage() {
             variant="contained"
             color="error"
             onClick={() => handleDeleteUser(userId)}
-            sx={{ mt: 2,  }}
+            sx={{ mt: 2, width: '40%', fontSize: '0.6rem' }}
           >
             {t('deleteUserButton')}
           </Button>
