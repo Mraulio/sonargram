@@ -155,6 +155,7 @@ function ListPage() {
         try {
           console.log('Deleting list with ID:', listId);
           await removeList(listId);
+          showToast(t('deletedList'), 'success')
           if (!user || !user.userId) return;
           fetchListsByUser(user.userId); // Actualiza la lista de listas
         } catch (err) {
@@ -232,7 +233,6 @@ function ListPage() {
       const handleDeleteSongList = async (listId, musicbrainzId) => {
         try {
           await removeSong(listId, musicbrainzId);
-          alert('Canción eliminada correctamente de la lista');
           showToast(t('songDeletedFromList'), 'success');
           if (!user || !user.userId) return;
           setSelectedListSongs(prevSongs =>

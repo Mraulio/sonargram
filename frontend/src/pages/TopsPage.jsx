@@ -32,7 +32,7 @@ const TopBox = styled(Box)(({ theme }) => ({
   gap: '10px',
   justifyContent: 'space-between',
   width: '100%',
-  height: '100vh',
+  minHeight: '100vh',
   backgroundColor: theme.palette.background.secondary,
   '@media (max-width: 920px)': {
     flexDirection: 'column',
@@ -272,7 +272,10 @@ function TopsPage() {
             <CircularProgress />
           ) : (
             <List>
-              {userLists.map((list) => (
+              {userLists
+                .filter(list => 
+                  !list.isFavoriteList &&
+                  !list.isRatingList).map((list) => (
                 <ListItem key={list._id} disablePadding>
                   <ListItemButton onClick={() => handleAddToList(list)} disabled={adding}>
                     <ListItemText primary={list.name} />
