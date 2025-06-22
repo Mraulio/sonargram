@@ -33,9 +33,10 @@ const MenuBox= styled(Box)`
 
 const ListsBox= styled(Box)`
 width: 25vw; 
-min-height: 100vh;
+height: 100vh;
 padding-left:2px; 
 overflow-x: hidden;
+overflow-y: auto;
 @media (max-width: 960px) {
     width: 100vw;
     border-right: 0px;
@@ -49,10 +50,8 @@ const TimeLineBox= styled(Box)`
 display: flex; 
 
 width: 60vw; 
-height: 100vh; 
+height: 100vh;
 overflow-y: auto;
-overflow-x: hidden;
-margin-top: 15px;
 @media (max-width: 960px) {
     width: 90vw;
     justify-content:center;
@@ -65,7 +64,7 @@ margin-top: 15px;
 const DashBoardBox= styled(Box)`
  display: flex;
  margin-right: 15px; 
- align-items:center; 
+
  width:95vw; 
  gap:15px;
 

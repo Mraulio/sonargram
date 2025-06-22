@@ -21,7 +21,8 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: 550, bgcolor: 'background.paper',
   borderRadius: 2, boxShadow: 24,
-  p: 3, maxHeight: '100vh', overflowY: 'auto'
+  p: 3, maxHeight: '100vh', overflowY: 'auto',
+  width: { xs: '90vw', md: '40vw' }
 };
 
 const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps, handleUnfollowList }) => {
@@ -237,7 +238,7 @@ useEffect(() => {
 
   return (
     <>
-      <Modal open={open} onClose={onClose}>
+      <Modal open={open} onClose={onClose} >
         <Paper sx={style}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">{t('detail')} {t(type)}</Typography>

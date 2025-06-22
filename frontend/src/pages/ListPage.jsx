@@ -386,7 +386,7 @@ function ListPage() {
         </Box>            
                 
         <Box sx={{  display: 'flex',  flexDirection: 'column', p: 4, width:'95vw' }}>
-          <Typography variant="h4">{t('listfollowed')}</Typography>
+          <Typography variant="h4" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
           <Box sx={{ display: 'flex', gap: 2, width: '95vw', flexWrap: 'wrap' }}>
             {followedLists.map(l => {
               handleGetCreatorName(l.creator);
