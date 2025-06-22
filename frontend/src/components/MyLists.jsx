@@ -12,15 +12,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import InfoModal from '../components/InfoModal';
 import useRatings from '../hooks/useRatings';
+import { showToast } from '../utils/toast';
 
-const MyListsBox = styled(Box)`
+const MyListsBox = styled(Card)`
   display: flex; 
   flex-direction: column; 
   justify-content: start; 
   align-items: center; 
   gap: 3; 
   margin-left: 5px;
-
+  min-height: 100vh;
   @media (max-width: 960px) {
     width: 90%;
   }
@@ -72,7 +73,7 @@ function MyLists() {
     const handleSearchListByUser = async () => {
       try {
         if (!user || !user.userId) {
-          alert(t('errorFetchingUserId'));
+          showToast(t('errorFetchingUserId'), 'error');
         return;
         }
         const userId = user.userId;
@@ -80,7 +81,7 @@ function MyLists() {
           await fetchFollowedLists(userId);
         } catch (err) {
           console.error('Error fetching lists by user:', err);
-          alert(t('errorFetchingListsByUser'));
+          showToast(t('errorFetchingListsByUser'), 'error');
         }
         };
           
@@ -102,7 +103,7 @@ function MyLists() {
           try {
             // Usa el user del contexto directamente
             if (!user || !user.userId) {
-              alert(t('errorFetchingUserId'));
+              showToast(t('errorFetchingUserId'), 'error');
               return;
             }
             const filteredLists = lists.filter(list =>
@@ -131,7 +132,7 @@ function MyLists() {
           if (!user || !user.userId) return;
           fetchListsByUser(user.userId); // Actualiza la lista de listas
         } catch (err) {
-          alert(t('errorDeletingList'));
+          showToast(t('errorDeletingList'), 'error');
           console.error(err);
         }
       };
@@ -160,20 +161,20 @@ function MyLists() {
 
           await renameList(editingList._id, editListName);
 
-          alert(t('listUpdated'));
+          showToast(t('listUpdated'), 'success');
           setOpen(false);
           if (!user || !user.userId) return;
           fetchListsByUser(user.userId); // Actualiza la lista de listas
         } catch (err) {
           console.error('Error updating list:', err);
           if (err.response && err.response.status === 400) {
-            alert(t('errorUpdatingListFields'));
+            showToast(t('errorUpdatingListFields'), 'error');
           } else if (err.response && err.response.status === 403) {
-            alert(t('errorAccessDenied'));
+            showToast(t('errorUpdatingListPermission'), 'error');
           } else if (err.response && err.response.status === 404) {
-            alert(t('errorListNotFound'));
+            showToast(t('errorListNotFound'), 'error');
           } else {
-            alert(t('errorUpdatingList'));
+            showToast(t('errorUpdatingList'), 'error');
           }
         }
       };
@@ -183,10 +184,10 @@ function MyLists() {
           await followL(listId);
           if (!user || !user.userId) return;
           await fetchFollowedLists(user.userId);
-          alert(t('listFollowed'));
+          showToast(t('listFollowed'), 'success');
         } catch (err) {
           console.error('Error following list:', err);
-          alert(t('errorFollowingList'));
+          showToast(t('errorFollowingList'), 'error');
         }
       };
 
@@ -196,21 +197,21 @@ function MyLists() {
           if (!user || !user.userId) return;
           await fetchFollowedLists(user.userId);
           setFollowedLists(prev => prev.filter(list => list._id !== listId));
-          alert(t('listUnfollowed'));
+          showToast(t('listUnfollowed'), 'success');
         } catch (err) {
           console.error('Error unfollowing list:', err);
-          alert(t('errorUnfollowingList'));
+          showToast(t('errorUnfollowingList'), 'error');
         }
       };
 
       const handleDeleteSongList = async (listId, musicbrainzId) => {
         try {
           await removeSong(listId, musicbrainzId);
-          alert('Canción eliminada correctamenteXSDSD de la lista');
+          showToast(t('songRemovedFromList'), 'success');
           if (!user || !user.userId) return;
           await fetchListsByUser(user.userId);
         } catch (err) {
-          alert('Error al eliminar la canción de la lista');
+          showToast(t('errorRemovingSongFromList'), 'error');
           console.error(err);
         }
       };
@@ -262,7 +263,8 @@ const handleFavoriteToggle = async (id, type, item) => {
 
 return (
   <MyListsBox >
-    <Typography variant="h4" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
+    <CardContent sx={{width:'100%', marginTop: 3}}>
+    <Typography variant="h5" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
     {userLists.map(l => {
       handleGetCreatorName(l.creator);
@@ -285,7 +287,7 @@ return (
           {l.isFavoriteList !== true && l.isRatingList !== true && (
           <>
           <Typography variant="body2" color="text.secondary">
-            {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
+            {t('creatorOfList')}: {creatorNames[l.creator] || l.creator || t('unknown')}
           </Typography>
             <Button
              
@@ -308,7 +310,7 @@ return (
       );
     })}
     </ul>
-    <Typography variant="h4" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
+    <Typography variant="h5" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
         {followedLists.map(l => {
           handleGetCreatorName(l.creator);
@@ -398,18 +400,20 @@ return (
       </DialogActions>
     </Dialog>
     <InfoModal
-      open={infoModalOpen}
-      onClose={() => setInfoModalOpen(false)}
-      type={modalData.type}
-      data={modalData.data}
-      ratingProps={ratingProps}
-      favoriteProps={{
-        ...favoriteProps,
-        favoriteCounts,
-        setFavoriteCounts,
-        handleFavoriteToggle,
-      }}
-    />
+        open={infoModalOpen}
+        onClose={() => setInfoModalOpen(false)}
+        type={modalData.type}
+        data={modalData.data}
+        ratingProps={ratingProps}
+        favoriteProps={{
+          ...favoriteProps,
+          favoriteCounts,
+          setFavoriteCounts,
+          handleFavoriteToggle,
+        }}
+        handleUnfollowList={handleUnfollowList} // ✅ Se pasa como prop
+      />
+    </CardContent>
   </MyListsBox>
 );
           }

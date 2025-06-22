@@ -58,7 +58,7 @@ function OtherLists({ userId }) {
       item?.releaseDate || "",
       item?.duration || "",
       item?.externalLinks?.spotifyUrl || "",
-          item?.externalLinks?.youtubeUrl || ""
+      item?.externalLinks?.youtubeUrl || ""
         );
     
     setFavoriteCounts(prev => ({

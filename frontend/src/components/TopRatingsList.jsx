@@ -10,8 +10,9 @@ import { useTranslation } from 'react-i18next';
 const AccordionBox = styled(Box)`
   display: flex; 
   justify-content: space-around; 
+  flex-direction: column; 
   width: 100%;
-
+  gap: 20px;
   @media (max-width: 920px) {
     flex-direction: column; 
     gap: 20px;
@@ -20,7 +21,8 @@ const AccordionBox = styled(Box)`
 `;
 
 const CustomAccordion = styled(Accordion)`
-  width: 30%;
+  width: 100%;
+  gap: 20px;
   @media (max-width: 920px) {
     width: 100%; 
   }
@@ -77,7 +79,7 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
   }
 
    return (
-    <Box sx={{ width: "100vw", display: "flex", flexDirection: "column", alignItems: "center", p: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", p: 2 }}>
       <Typography variant="h4" mb={2}>
         {title}
       </Typography>

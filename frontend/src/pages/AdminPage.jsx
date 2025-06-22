@@ -1,14 +1,16 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext,  } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions, useTheme } from '@mui/material';
 import Menu from '../components/Menu';
 import useUser from '../hooks/useUser';
 import useList from '../hooks/useList';
+import { showToast } from '../utils/toast';
 
 function AdminPage() {
     const { t } = useTranslation();
+    const theme = useTheme();
     const navigate = useNavigate();
     const { token, role, logout } = useContext(UserContext);
     const [open, setOpen] = useState(false);
@@ -67,7 +69,7 @@ function AdminPage() {
         };
     
         await updateUser(editingUser._id, updates); // Llama a la función updateUser con los datos permitidos
-        alert(t('userUpdated')); // Mensaje de éxito
+        showToast(t('userUpdated'), 'success'); // Muestra un toast de éxito
         setOpen(false); // Cierra el modal
         fetchAllUsers(); // Actualiza la lista de usuarios
       } catch (err) {
@@ -75,13 +77,13 @@ function AdminPage() {
     
         // Manejo de errores basado en la respuesta del backend
         if (err.response && err.response.status === 400) {
-          alert(t('errorUpdatingUserFields')); // Mensaje para campos no permitidos
+          showToast(t('errorUpdatingUserFields'), 'error');
         } else if (err.response && err.response.status === 403) {
-          alert(t('errorAccessDenied')); // Mensaje para acceso denegado
+          showToast(t('errorAccessDenied'), 'error');
         } else if (err.response && err.response.status === 404) {
-          alert(t('errorUserNotFound')); // Mensaje para usuario no encontrado
+          showToast(t('errorUserNotFound'), 'error');
         } else {
-          alert(t('errorUpdatingUser')); // Mensaje genérico
+          showToast(t('errorUpdatingUser'), 'error');
         }
       }
     };
@@ -100,7 +102,7 @@ function AdminPage() {
         setUserEmail('');
         setUserPassword('');
       } catch (err) {
-        alert('Error creating user');
+        showToast(t('errorCreatingUser'), 'error')
         console.error(err);
       }
     };
@@ -114,12 +116,11 @@ function AdminPage() {
           .map(id => ({ musicbrainzId: id }));
   
         await createNewList({ name: listName, songs: songArray });
-  
-        alert('List created');
+        showToast(t('listCreated'), 'success');
         setListName('');
         setSongs('');
       } catch (err) {
-        alert('Error creating list');
+        showToast(t('errorCreatingList'), 'error');
         console.error(err);
       }
     };
@@ -130,7 +131,7 @@ function AdminPage() {
       try {
         await removeList(listId);
       } catch (err) {
-        alert(t('errorDeletingList'));
+        showToast(t('errorDeletingList'), 'error');
         console.error(err);
       }
     };
@@ -140,10 +141,9 @@ function AdminPage() {
         console.log('Deleting user with ID:', userId); // Verifica el ID del usuario a eliminar
         try {
           await deleteUser(userId); // Llamamos a la función deleteUser del hook
-          alert(t('userDeleted')); // Mensaje de éxito
+          showToast(t('userDeleted'), 'success'); // Muestra un toast de éxito
         } catch (err) {
-          alert(t('errorDeletingUser')); // Mensaje de error
-          console.error('Error deleting user:', err);
+          showToast(t('errorDeletingUser'), 'error'); // Muestra un toast de error
         }
       };
 
@@ -162,15 +162,15 @@ function AdminPage() {
             Created: ${user.createdAt}
           `);
         } catch (err) {
-          alert("Error al obtener datos del usuario");
+          showToast(t('errorFetchingUserData'), 'error');
           console.error(err);
         }
       };
   
     return (
-      <Box sx={{ fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column'}}>
+      <Box sx={{ fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', backgroundColor: theme.palette.background.secondary}}>
         <Menu />
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center',  marginTop: '1.1rem', width: '90vw', minHeight: '100vh', padding: '1rem' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center',  marginTop: '1.1rem', width: '90vw', minHeight: '100vh', padding: '1rem', backgroundColor: theme.palette.background.secondary }}>
             <Card sx={{ mb: 4, backgroundColor: token ? '#e8f5e9' : '#ffebee', border: '1px solid', borderColor: token ? 'green' : 'red', }}>
             <CardContent sx={{ width: '100%'}}>
                 <Typography variant="h6" sx={{ color: token ? 'green' : 'red' }}>

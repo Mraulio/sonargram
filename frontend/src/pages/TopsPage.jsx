@@ -1,16 +1,26 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext.js';
-import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, useTheme, styled } from '@mui/material';
 import Menu from '../components/Menu.jsx';
 import Followers from '../components/Followers.jsx';
 import useUser from '../hooks/useUser.js';
 import useFollow from '../hooks/useFollow.js';
 import baseUrl from '../config.js';
-
 import TopRatingsList from '../components/TopRatingsList.jsx';
 import TopFavoritosList from '../components/TopFavoritosList.jsx'
 
+const TopBox= styled(Box)`
+   display: flex; 
+   gap: 10px;  
+   justify-content: center; 
+  
+   width: 100%;
+    @media (max-width: 920px) {
+    flex-direction: column; 
+    gap: 20px;
+  }
+`;
 function TopsPage() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const [userUsername, setUserUsername] = useState('');
@@ -20,9 +30,7 @@ function TopsPage() {
   const { followers, follow, following, fetchFollowing, fetchFollowers, unfollow } = useFollow(token);
   const { users, fetchAllUsers, getCurrentUser } = useUser(token);
   const [searches, setSearches] = useState([]);
-
-  
-
+  const theme = useTheme();
    
   useEffect(() => {
     fetchAllUsers(token);
@@ -45,23 +53,6 @@ function TopsPage() {
     }
   };
 
-  const isFollowing = useCallback((userId) => {
-    return following.some(f => f.followed && f.followed._id === userId);
-  }, [following]);
-  
- 
-
-  const handleFollow = async (followedId) => {
-    try {
-      await follow(followedId); // Llama a la función follow
-      const user = await getCurrentUser()
-      await fetchFollowing(user._id);
-      alert(t('userFollowed')); // Muestra un mensaje de éxito
-    } catch (err) {
-      console.error('Error following user:', err);
-      alert(t('errorFollowingUser')); // Muestra un mensaje de error
-    }
-  };
 
   const handleFetchFollowers = async () => {
         try {
@@ -111,15 +102,13 @@ function TopsPage() {
 
   return (
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0, gap: 2, minHeight:'100vh', width: '100%' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0, gap: 2, minHeight:'100vh', width: '100%', backgroundColor: theme.palette.background.secondary }}>
         <Menu />
-       
-        <Box sx={{ display: 'flex', gap: 1, flexDirection:'column', justifyContent:'center', alignItems: 'center', width: '100%' }}>    
+        <TopBox>    
           <TopRatingsList limit={5} title={t('topRated')} />        
           <TopFavoritosList limit={5} title={t('topLiked')}/>        
-      </Box> 
+        </TopBox> 
       </Box>
-
   );
 }
 

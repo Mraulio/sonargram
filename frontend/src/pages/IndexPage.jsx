@@ -1,4 +1,4 @@
-import { Typography, Box, Link, styled } from '@mui/material';
+import { Typography, Box, Link, styled, useTheme } from '@mui/material';
 import Login  from '../components/Login'
 import SonargramIntro from '../components/SonargramIntro';
 import { useTranslation } from 'react-i18next';
@@ -40,8 +40,9 @@ const LogoBox= styled(Box)`
 
 function IndexPage() {  
   const { t } = useTranslation();  // Hook para obtener las traducciones
+  const theme = useTheme();
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', width: '100%',  gap: 10 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', width: '100%',  gap: 10,  }}>
       <AnimationBox>
         <SonargramIntro/>
       </AnimationBox>

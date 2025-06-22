@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { TextField, Button, Typography, Card, CardContent, Box, Divider } from '@mui/material';
+import { TextField, Button, Typography, Card, CardContent, Box, Divider, useTheme } from '@mui/material';
 import { UserContext } from '../context/UserContext';
 import { jwtDecode } from 'jwt-decode';
 import { loginUser } from '../api/internal/userApi';  // Importamos la función desde userApi
@@ -11,6 +11,7 @@ import { registerUser, getAllUsers } from '../api/internal/userApi'
 
 function RegisterPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
+    const theme = useTheme();
     const [users, setUsers] = useState([]);
     const [userName, setUserName] = useState('');
     const [userUsername, setUserUsername] = useState('');
@@ -47,7 +48,7 @@ function RegisterPage() {
       };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100vw' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100vw', backgroundColor: theme.palette.background.secondary }}>
       
       <Card sx={{ display:'flex', flexDirection: 'column', justifyContent:'center', alignItems:'center', width: '400px', height: "660px", gap: 1.5 }}>
         <Box sx={{ display: 'flex', justifyContent:'center', alignItems:'center', gap:1}}>

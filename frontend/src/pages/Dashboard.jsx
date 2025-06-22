@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, styled } from '@mui/material';
+import { Avatar, Box, Typography, Card, CardContent, Button, TextField, Divider, FormControl, InputLabel, Select, MenuItem, styled, useTheme } from '@mui/material';
 import Menu from '../components/Menu';
 import useUser from '../hooks/useUser';
 import useFollow from '../hooks/useFollow';
@@ -13,6 +13,7 @@ import FooterBar from '../components/Footer'
 import { useNavigate } from 'react-router-dom';
 import useFavorites from '../hooks/useFavorites';
 import useList from '../hooks/useList';
+import { showToast } from '../utils/toast';
 
 const MenuBox= styled(Box)`
  margin-left: 15px;
@@ -34,7 +35,6 @@ const ListsBox= styled(Box)`
 width: 25vw; 
 min-height: 100vh;
 padding-left:2px; 
-border-right: 1px solid;
 overflow-x: hidden;
 @media (max-width: 960px) {
     width: 100vw;
@@ -81,6 +81,7 @@ const DashBoardBox= styled(Box)`
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const [userUsername, setUserUsername] = useState('');
+  const theme = useTheme();
   const { token, role, logout, user} = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -157,16 +158,16 @@ function Dashboard() {
       await follow(followedId); // Llama a la función follow
       const user = await getCurrentUser()
       await fetchFollowing(user._id);
-      alert(t('userFollowed')); // Muestra un mensaje de éxito
+      showToast (t('userFollowed'), 'success');
     } catch (err) {
       console.error('Error following user:', err);
-      alert(t('errorFollowingUser')); // Muestra un mensaje de error
+      showToast(t('errorFollowingUser'), 'error');
     }
   };
 
 
   return (
-    <Box sx={{width:'100%', display: 'flex', flexDirection:'column', minHeight: '100vh'}}>
+    <Box sx={{width:'100%', display: 'flex', flexDirection:'column', minHeight: '100vh', backgroundColor: theme.palette.background.secondary}}>
       <Menu/>
       <DashBoardBox>
         <ListsBox>
