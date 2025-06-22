@@ -45,7 +45,7 @@ const ResultBox = styled(Box)`
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    align-items: start;
+    
     width: 100vw;
     gap: 10px;
     align-items:center;
@@ -651,7 +651,7 @@ function SearchPage() {
       <ResultBox sx={{marginTop:2}}>
         {/* ARTISTAS */}
         <CustomCard>
-          <CardContent sx={{ width: '100%'}}>
+          <CardContent >
         <Box sx={{ flex: 1, p: 2, borderRadius: 1 }}>
           <Typography variant="h5" gutterBottom>
             {t('searchArtist')}
@@ -720,7 +720,7 @@ function SearchPage() {
 
         {/* ÁLBUMES */}
           <CustomCard >
-            <CardContent sx={{ width: '100%'}}>
+            <CardContent >
               <Box sx={{ flex: 1, p: 2, borderRadius: 1 }}>
                 <Typography variant="h5" gutterBottom>
                   {t('searchAlbum')}
