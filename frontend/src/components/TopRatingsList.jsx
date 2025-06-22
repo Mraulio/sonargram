@@ -1,11 +1,21 @@
 // components/TopRatingsList.jsx
 import { useEffect, useState, useContext } from "react";
-import { Box, Typography, Divider, Card, CardContent, Accordion, AccordionSummary, AccordionDetails, styled } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Card,
+  CardContent,
+  styled,
+} from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../context/UserContext";
 import { getTopRatingsByType } from "../api/internal/ratingApi";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
+import ItemRow from "./ItemRow";
 
 const AccordionBox = styled(Box)`
   display: flex; 
@@ -17,7 +27,6 @@ const AccordionBox = styled(Box)`
     flex-direction: column; 
     gap: 20px;
   }
-
 `;
 
 const CustomAccordion = styled(Accordion)`
@@ -28,19 +37,27 @@ const CustomAccordion = styled(Accordion)`
   }
 `;
 
-function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
-  const { t } = useTranslation();  // Hook para obtener las traducciones
+function TopRatingsList({
+  limit = 5,
+  title = "Items con Mejor Rating",
+  setLoading,
+  ratingProps = {},
+  favoriteProps = {},
+  onAddClick = () => { },
+  onRatingsDataUpdate = () => { },
+}) {
+  const { t } = useTranslation();
   const { token } = useContext(UserContext);
-  const [topRatings, setTopRatings] = useState({
+  const [topRatingsByType, setTopRatingsByType] = useState({
     artist: [],
     album: [],
     song: [],
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchTopRatings() {
       try {
+        setLoading(true);
         const data = await getTopRatingsByType(limit, token);
         const formattedData = data.reduce(
           (acc, curr) => {
@@ -49,80 +66,83 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
           },
           { artist: [], album: [], song: [] }
         );
-
-        setTopRatings(formattedData);
+        setTopRatingsByType(formattedData);
+        onRatingsDataUpdate(formattedData);
+        console.log('FORMATTED DATA RATINGS', formattedData)
       } catch (error) {
-        console.error(t('errorFetchingTopRatings'), error);
+        console.error(t("errorFetchingTopRatings"), error);
       } finally {
         setLoading(false);
       }
     }
+    if (token) fetchTopRatings();
+  }, [token, limit, setLoading, t]);
 
-    fetchTopRatings();
-  }, [token, limit]);
-
-  function getItemName(item, type) {
-    switch (type) {
-      case "artist":
-        return t(item.title) || t(item.data?.name) || "Sin nombre";
-      case "album":
-        return t(item.title) || t(item.data?.title) || item.data?.name || "Sin nombre";
-      case "song":
-        return t(item.title) || t(item.data?.title) || "Sin nombre";
-      default:
-        return item.name || "Sin nombre";
-    }
-  }
-
-  if (loading) {
-    return <Typography>Cargando ratings más altos...</Typography>;
-  }
-
-   return (
+  return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", p: 2 }}>
       <Typography variant="h4" mb={2}>
         {title}
       </Typography>
       <AccordionBox>
+        {["artist", "album", "song"].map((type) => (
+          <CustomAccordion key={type}>
+            <AccordionSummary
+              expandIcon={<FontAwesomeIcon icon={faCaretDown} />}
+              sx={{ backgroundColor: "#d63b1f", color: "white", borderRadius: 2, height: "20px" }}
+            >
+              <Typography variant="h5" textTransform="capitalize">
+                {type === "song" ? t("songs") : `${type}s`} {t("bestRated")}
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Card sx={{ width: "100%" }}>
+                <CardContent>
+                  {topRatingsByType[type].length === 0 ? (
+                    <Typography>{t("noDataAvailable")}</Typography>
+                  ) : (
+                    topRatingsByType[type].map((item) => {
+                      const id = item.mbid || item._id;
+                      const itemData = {
+                        ...item,  // <-- aquí el objeto completo tal cual
+                        id: id,
+                        average: item.average,
+                        count: item.count,
+                      };
+                      return (
+                        <ItemRow
+                          key={id}
+                          item={itemData}
+                          type={type}
+                          ratingProps={{
+                            showRating: true,
+                            average: item.average,
+                            count: item.count,
+                            ...ratingProps,
+                          }}
+                          favoriteCounts={favoriteProps.favoriteCounts || {}}
+                          isFavorite={
+                            favoriteProps.isFavorite
+                              ? () => favoriteProps.isFavorite(itemData.id)
+                              : () => false
+                          }
+                          onToggleFavorite={
+                            favoriteProps.handleFavoriteToggle
+                              ? () => favoriteProps.handleFavoriteToggle(itemData.id, type, itemData)
+                              : () => { }
+                          }
+                          onAddClick={() => onAddClick(itemData)}
+                          compact={true}
+                          showAddButton={type === "song"}
+                        />
+                      );
+                    })
 
-      {["artist", "album", "song"].map((type) => (
-        <CustomAccordion key={type}>
-          <AccordionSummary expandIcon={<FontAwesomeIcon icon={faCaretDown} />} sx={{ backgroundColor: '#d63b1f', color: 'white', borderRadius: 2 }}>
-            <Typography variant="h5" textTransform="capitalize">
-              {type === "song" ? t("songs") : `${type}s`} {t("bestRated")}
-            </Typography>
-          </AccordionSummary>
-
-          <AccordionDetails>
-            <Card sx={{ width: "100%" }}>
-              <CardContent>
-                {topRatings[type].length === 0 ? (
-                  <Typography>{t("noDataAvailable")}</Typography>
-                ) : (
-                  topRatings[type].map((item) => (
-                    <Box
-                      key={item.mbid || item._id}
-                      mt={1}
-                      p={1}
-                      borderRadius={1}
-                      bgcolor="background.default"
-                    >
-                      <Typography fontWeight="bold">{getItemName(item, type)}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {t("averageRating")}: {item.average?.toFixed(2) ?? "N/A"}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" display="block">
-                        {t("votesNumber")}: {item.count ?? 0}
-                      </Typography>
-                      <Divider sx={{ mt: 1 }} />
-                    </Box>
-                  ))
-                )}
-              </CardContent>
-            </Card>
-          </AccordionDetails>
-        </CustomAccordion>
-      ))}
+                  )}
+                </CardContent>
+              </Card>
+            </AccordionDetails>
+          </CustomAccordion>
+        ))}
       </AccordionBox>
     </Box>
   );

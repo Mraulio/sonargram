@@ -20,7 +20,7 @@ import {
 import Menu from "../components/Menu.jsx";
 import TopRatingsList from "../components/TopRatingsList.jsx";
 import TopFavoritosList from "../components/TopFavoritosList.jsx";
-import TopFollowedLists from "../components/TopFollowedLists.jsx";
+// import TopFollowedLists from "../components/TopFollowedLists.jsx";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 
 import useFavorites from "../hooks/useFavorites.js";
@@ -30,12 +30,17 @@ import useList from "../hooks/useList.js";
 const TopBox = styled(Box)`
   display: flex;
   gap: 10px;
-  justify-content: center;
+  justify-content: space-between;  /* Cambiado a space-between para usar todo el ancho */
   width: 100%;
   @media (max-width: 920px) {
     flex-direction: column;
     gap: 20px;
   }
+`;
+
+const ChildBox = styled(Box)`
+  flex: 1;        /* Hace que cada hijo tome igual ancho */
+  min-width: 0;   /* Para evitar overflow en flex */
 `;
 
 function TopsPage() {
@@ -56,68 +61,94 @@ function TopsPage() {
     loading: listLoading,
   } = useList(token);
 
-  // Estado para guardar la data completa de favoritos cargada en TopFavoritosList
   const [topFavoritesData, setTopFavoritesData] = useState({
     artist: [],
     album: [],
     song: [],
   });
 
-  // Callback que pasa TopFavoritosList para subir la data al padre
+  const [topRatingsData, setTopRatingsData] = useState({
+    artist: [],
+    album: [],
+    song: [],
+  });
+
   const handleFavoritesDataUpdate = (data) => {
     setTopFavoritesData(data);
   };
 
+  const handleRatingsDataUpdate = (data) => {
+    setTopRatingsData(data);
+  };
+
   useEffect(() => {
-    try {
-      async function fetchCounts() {
-        if (!token) return;
+    async function fetchCounts() {
+      if (!token) return;
 
-        const allItems = [
-          ...topFavoritesData.artist,
-          ...topFavoritesData.album,
-          ...topFavoritesData.song,
-        ];
-        const ids = allItems
-          .map(item => item.mbid || item._id || (item.data && (item.data.mbid || item.data._id)))
-          .filter(Boolean);
+      const allItems = [
+        ...topFavoritesData.artist,
+        ...topFavoritesData.album,
+        ...topFavoritesData.song,
+        ...topRatingsData.artist,
+        ...topRatingsData.album,
+        ...topRatingsData.song,
+      ];
 
-        if (ids.length === 0) return;
+      const idsSet = new Set(
+        allItems
+          .map(
+            (item) =>
+              item.mbid || item._id || (item.data && (item.data.mbid || item.data._id))
+          )
+          .filter(Boolean)
+      );
 
-        const countsMap = {};
-        await Promise.all(
-          ids.map(async (id) => {
-            try {
-              const count = await favoriteProps.getFavoriteCount(id);
-              countsMap[id] = count || 0;
-            } catch {
-              countsMap[id] = 0;
-            }
-          })
-        );
+      if (idsSet.size === 0) return;
 
-        setFavoriteCounts(countsMap);
-      }
+      const countsMap = {};
+      await Promise.all(
+        Array.from(idsSet).map(async (id) => {
+          try {
+            const count = await favoriteProps.getFavoriteCount(id);
+            countsMap[id] = count || 0;
+          } catch {
+            countsMap[id] = 0;
+          }
+        })
+      );
 
-      fetchCounts();
-    } catch (err) { console.error(err) }
-  }, [topFavoritesData, token]);
+      setFavoriteCounts(countsMap);
+    }
 
-  // useEffect para ratings, suponiendo fetchMultipleItemRatings esté memoizado
+    fetchCounts();
+  }, [topFavoritesData, topRatingsData, token]);
+
   useEffect(() => {
     const allItems = [
       ...topFavoritesData.artist,
       ...topFavoritesData.album,
       ...topFavoritesData.song,
+      ...topRatingsData.artist,
+      ...topRatingsData.album,
+      ...topRatingsData.song,
     ];
-    const ids = allItems
-      .map(item => item.mbid || item._id || (item.data && (item.data.mbid || item.data._id)))
-      .filter(Boolean);
+
+    const ids = Array.from(
+      new Set(
+        allItems
+          .map(
+            (item) =>
+              item.mbid || item._id || (item.data && (item.data.mbid || item.data._id))
+          )
+          .filter(Boolean)
+      )
+    );
 
     if (ids.length > 0) {
       ratingProps.fetchMultipleItemRatings(ids);
     }
-  }, [topFavoritesData, ratingProps.fetchMultipleItemRatings]);
+  }, [topFavoritesData, topRatingsData, ratingProps.fetchMultipleItemRatings]);
+
   const handleFavoriteToggle = async (id, type, item) => {
     try {
       if (favoriteProps.isFavorite(id)) {
@@ -196,24 +227,41 @@ function TopsPage() {
       <Menu />
 
       <TopBox>
-        <TopRatingsList limit={5} title={t("topRated")} setLoading={setLoading} />
-        <TopFavoritosList
-          limit={5}
-          title={t("topLiked")}
-          setLoading={setLoading}
-          ratingProps={ratingProps}
-          favoriteProps={{
-            ...favoriteProps,
-            favoriteCounts,
-            setFavoriteCounts,
-            handleFavoriteToggle,
-          }}
-          onAddClick={handleAddClick}
-          onFavoritesDataUpdate={handleFavoritesDataUpdate} // <--- PASAMOS callback
-        />
+        <ChildBox>
+          <TopRatingsList
+            limit={5}
+            title={t("topRated")}
+            setLoading={setLoading}
+            ratingProps={ratingProps}
+            favoriteProps={{
+              ...favoriteProps,
+              favoriteCounts,
+              setFavoriteCounts,
+              handleFavoriteToggle,
+            }}
+            onAddClick={handleAddClick}
+            onRatingsDataUpdate={handleRatingsDataUpdate}
+          />
+        </ChildBox>
+        <ChildBox>
+          <TopFavoritosList
+            limit={5}
+            title={t("topLiked")}
+            setLoading={setLoading}
+            ratingProps={ratingProps}
+            favoriteProps={{
+              ...favoriteProps,
+              favoriteCounts,
+              setFavoriteCounts,
+              handleFavoriteToggle,
+            }}
+            onAddClick={handleAddClick}
+            onFavoritesDataUpdate={handleFavoritesDataUpdate}
+          />
+        </ChildBox>
       </TopBox>
 
-      <TopFollowedLists />
+      {/* <TopFollowedLists /> */}
       <LoadingScreen open={loading} />
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
@@ -225,10 +273,7 @@ function TopsPage() {
             <List>
               {userLists.map((list) => (
                 <ListItem key={list._id} disablePadding>
-                  <ListItemButton
-                    onClick={() => handleAddToList(list)}
-                    disabled={adding}
-                  >
+                  <ListItemButton onClick={() => handleAddToList(list)} disabled={adding}>
                     <ListItemText primary={list.name} />
                   </ListItemButton>
                 </ListItem>

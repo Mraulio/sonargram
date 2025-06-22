@@ -36,7 +36,7 @@ function TopFavoritosList({
   favoriteProps = {},
   ratingProps = {},
   onAddClick = () => { },
-  onFavoritesDataUpdate = () => { },  // <--- Aquí la prop callback
+  onFavoritesDataUpdate = () => { },
 
 }) {
   const { t } = useTranslation();
@@ -79,7 +79,7 @@ function TopFavoritosList({
           <CustomAccordion key={type}>
             <AccordionSummary
               expandIcon={<FontAwesomeIcon icon={faCaretDown} />}
-              sx={{ backgroundColor: "#d63b1f", color: "white", borderRadius: 2 }}
+              sx={{ backgroundColor: "#d63b1f", color: "white", borderRadius: 2, height: "20px" }}
             >
               <Typography variant="h5" textTransform="capitalize">
                 {type === "song" ? t("songs") : `${type}s`} {t("mostLiked") || "más populares"}

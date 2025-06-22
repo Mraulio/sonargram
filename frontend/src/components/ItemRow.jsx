@@ -8,8 +8,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
 import { faSpotify, faYoutube } from "@fortawesome/free-brands-svg-icons";
-import {faXmark} from "@fortawesome/free-solid-svg-icons";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useEffect } from "react";
+
 function formatDuration(ms) {
   if (!ms) return "";
   const totalSeconds = Math.floor(ms / 1000);
@@ -32,7 +33,6 @@ const ItemRow = ({
   compact = false,
   onDeleteFromList
 }) => {
-  console.log('ITEM ROW', item)
   const showCover = type === "album" && item.coverUrl;
 
   const { openMedia } = useMediaPlayer();
@@ -53,8 +53,12 @@ const ItemRow = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        borderBottom: compact ? "none" : "1px solid #ddd",
-        padding: compact ? "0" : "6px 0",
+        backgroundColor: "#f5f5f5", // gris claro
+        borderRadius: 8,           // bordes redondeados
+        margin: "8px 0",           // margen arriba y abajo
+        padding: "10px 15px",      // padding para espacio interno
+        boxShadow: "0 1px 3px rgba(0,0,0,0.1)", // sombra sutil para profundidad
+        border: "1px solid #ddd",  // borde suave
       }}
     >
       {showCover && (
@@ -178,21 +182,22 @@ const ItemRow = ({
         {favoriteCounts[item.id || item.musicbrainzId] || 0}
       </Typography>
       {onDeleteFromList && (
-      <IconButton
-      
-        onClick={() => {
-      console.log("🔴 Eliminar de lista → item.id:", item.musicbrainzId);
-      console.log("🔴 Eliminar de lista → list:", list);
-      onDeleteFromList(list, item.musicbrainzId );}}
-       
-        size="small"
-        title="Eliminar de la lista"
-        sx={{ color: 'gray', ml: 1 }}
-      >
-        <FontAwesomeIcon icon={faXmark} />
-      </IconButton>
-    )}
-      {}
+        <IconButton
+
+          onClick={() => {
+            console.log("🔴 Eliminar de lista → item.id:", item.musicbrainzId);
+            console.log("🔴 Eliminar de lista → list:", list);
+            onDeleteFromList(list, item.musicbrainzId);
+          }}
+
+          size="small"
+          title="Eliminar de la lista"
+          sx={{ color: 'gray', ml: 1 }}
+        >
+          <FontAwesomeIcon icon={faXmark} />
+        </IconButton>
+      )}
+      { }
 
     </div>
   );
