@@ -24,21 +24,21 @@ const RatingDisplay = ({
   const userRating = getRatingFor(mbid, type);
 
   const handleChange = (_, newValue) => {
-  if (newValue !== null) {
-    rateItem(
-      mbid,
-      type,
-      newValue,
-      title,
-      artistName,
-      coverUrl,
-      releaseDate,
-      duration,
-      spotifyUrl || "",
-      youtubeUrl || ""
-    );
-  }
-};
+    if (newValue !== null) {
+      rateItem(
+        mbid,
+        type,
+        newValue,
+        title,
+        artistName,
+        coverUrl,
+        releaseDate,
+        duration,
+        spotifyUrl || "",
+        youtubeUrl || ""
+      );
+    }
+  };
 
 
   const handleDelete = () => {
@@ -60,17 +60,17 @@ const RatingDisplay = ({
   });
 
   const getIconByType = (type) => {
-  switch (type) {
-    case "artist":
-      return faUser;
-    case "album":
-      return faRecordVinyl;
-    case "song":
-      return faMusic;
-    default:
-      return faRecordVinyl;
-  }
-};
+    switch (type) {
+      case "artist":
+        return faUser;
+      case "album":
+        return faRecordVinyl;
+      case "song":
+        return faMusic;
+      default:
+        return faRecordVinyl;
+    }
+  };
 
 
   return (

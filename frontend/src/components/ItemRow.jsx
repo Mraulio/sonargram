@@ -46,11 +46,6 @@ const ItemRow = ({
     if (url) openMedia("spotify", url, item.title);
   };
 
-  useEffect(() => {
-    console.log('ITEM ROW RENDERED', item);
-    console.log('ITEM ROW TYPE', type);
-  }, [item]);
-
   return (
     <div
       style={{
