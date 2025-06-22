@@ -140,7 +140,10 @@
     "errorArtistAlbums": "Error fetching artist's albums",
     "errorAlbumSongs": "Error fetching album's songs",
     "errorFetchingAlbum": "Error fetching albums",
-    "errorFetchingSongs": "Error fetching songs"
+    "errorFetchingSongs": "Error fetching songs",
+    "listFollowed": "List Followed",
+    "errorUnfollowingList": "Error Unfollowing list",
+    "errorFollowingList": "Error Following list"
     
 
   

@@ -141,7 +141,10 @@
     "errorArtistAlbums": "Error al obtener álbumes del artista",
     "errorAlbumSongs": "Error al obtener canciones del álbum",
     "errorFetchingAlbum": "Error al buscar álbumes",
-    "errorFetchingSongs": "Error al buscar canciones"
+    "errorFetchingSongs": "Error al buscar canciones",
+    "listFollowed": "Has comenzado a seguir la lista",
+    "errorUnfollowingList": "Error al dejar de seguir la lista",
+    "errorFollowingList": "Error al seguir la lista"
 
 
     

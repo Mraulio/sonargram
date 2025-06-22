@@ -8,6 +8,7 @@ import useRatings from "../hooks/useRatings";
 import useFavorites from "../hooks/useFavorites";
 import { useTranslation } from 'react-i18next';
 import LoadingScreen from "../components/LoadingScreen.jsx";
+import { showToast } from '../utils/toast';
 
 const Timeline = () => {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -77,7 +78,7 @@ const Timeline = () => {
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
-    <Box sx={{ width: '90%'}}>
+    <Box sx={{ width: '100%'}}>
       {activities.length === 0 ? (
         <Typography variant="h4">{t('noactivities')}</Typography>
       ) : (

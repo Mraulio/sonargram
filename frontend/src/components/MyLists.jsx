@@ -22,6 +22,7 @@ const MyListsBox = styled(Card)`
   gap: 3; 
   margin-left: 5px;
   min-height: 100vh;
+  overflow-y: auto;
   @media (max-width: 960px) {
     width: 90%;
   }
@@ -155,6 +156,18 @@ function MyLists() {
       showToast(t('errorUnfollowingList'), 'error');
     }
   };
+
+  const handlefollowList = async (listId) => {
+        try {
+          await followL(listId);
+          if (!user || !user.userId) return;
+          await fetchFollowedLists(user.userId);      
+          showToast(t('listFollowed'), 'success');
+        } catch (err) {
+          console.error('Error following list:', err);
+          showToast(t('errorFollowingList'), 'error');
+        }
+      };
 
   const handleDeleteSongList = async (listId, musicbrainzId) => {
     try {
@@ -377,6 +390,7 @@ function MyLists() {
             handleFavoriteToggle,
           }}
           handleUnfollowList={handleUnfollowList} // ✅ Se pasa como prop
+          handlefollowList={handlefollowList}
         />
       </CardContent>
     </MyListsBox>

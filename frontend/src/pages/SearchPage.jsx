@@ -43,10 +43,12 @@ import LoadingScreen from "../components/LoadingScreen.jsx";
 
 const ResultBox = styled(Box)`
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-around;
     align-items: start;
-    width: 100%;
+    width: 100vw;
+    gap: 10px;
+    align-items:center;
   
     @media (max-width: 960px) {
         flex-direction: column;
@@ -119,7 +121,7 @@ const ResultBoxUL = styled(Box)`
   }
   `;
   const CustomCard = styled(Card)`
-  width: 33vw;
+  width: 41vw;
   display: flex;  
   align-items: center;
   @media (max-width: 960px) {
@@ -150,7 +152,7 @@ function SearchPage() {
   const [searchTermUser, setSearchTermUser] = useState("");
   const [selectedListId, setSelectedListId] = useState("");
   const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
-  const { followers, followersCount, followedLists, followL, unfollowList, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
+  const { followers, followersCount, followedLists, followL, unfollowList, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists, unfollow } = useListFollowers(token);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [artistResults, setArtistResults] = useState([]);
@@ -495,6 +497,19 @@ function SearchPage() {
       showToast(t('errorFollowingList'), 'error')
     }
   };
+  const handleUnfollowList = async (listId) => {
+    try {
+      await unfollow(listId);
+      if (!user || !user.userId) return;
+      await fetchFollowedLists(user.userId);
+      setFollowedLists(prev => prev.filter(list => list._id !== listId));
+      showToast(t('listUnfollowed'), 'success');
+    } catch (err) {
+      console.error('Error unfollowing list:', err);
+      showToast(t('errorUnfollowingList'), 'error');
+    }
+  };
+  
 
   const handleOpenListModal = async (song) => {
     await fetchListsByUser(user.userId);
@@ -818,7 +833,10 @@ function SearchPage() {
                   {t('foundLists')}
                 </Typography>)}
               {searchResults.map(l => (
-                <ListCard key={l._id} >
+                <ListCard key={l._id} onClick={() => {
+                        setModalData({ type: 'list', data: l });
+                        setInfoModalOpen(true);
+                      }}  sx={{ mb: 1, cursor: 'pointer' }}>
                   <ListCardContent>
                     <Typography
                       variant="h5"
@@ -855,7 +873,7 @@ function SearchPage() {
                         </ButtonBox>
                       ) : (
                         <ButtonBox>
-                          <Button onClick={() => handlefollowList(l._id)} variant='contained'>
+                          <Button onClick={(e) => {handlefollowList(l._id); e.stopPropagation()}} variant='contained'>
                             {t('follow')}
                           </Button>
                         </ButtonBox>
@@ -956,7 +974,8 @@ function SearchPage() {
           setFavoriteCounts,
           handleFavoriteToggle,
         }}
-
+          handleUnfollowList={handleUnfollowList} // ✅ Se pasa como prop
+          handlefollowList={handlefollowList}
       />
       <LoadingScreen open={loadScreen} />
     </Box>

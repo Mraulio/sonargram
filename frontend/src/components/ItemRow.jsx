@@ -59,7 +59,7 @@ const ItemRow = ({
         padding: "10px 15px",      // padding para espacio interno
         boxShadow: "0 1px 3px rgba(0,0,0,0.1)", // sombra sutil para profundidad
         border: "1px solid #ddd",  // borde suave
-        width: { xs: '150vw', md: '100%' }
+        width: { xs: '150vw', md: '35vw' }
       }}
     >
       {showCover && (

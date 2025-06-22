@@ -15,7 +15,7 @@ import useRatings from '../hooks/useRatings';
 import { showToast } from '../utils/toast';
 
 const ListCard= styled(Card)`
-  width: 45vw;
+  width: 30vw;
   height: 200px; 
   display: flex;  
   align-items: center;
@@ -312,12 +312,12 @@ function ListPage() {
 
 
  return (
-  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100%", minHeight:'100vh', backgroundColor: theme.palette.background.secondary }}>
+  <Box sx={{ display: 'flex', flexDirection: 'column', width: "100%", minHeight:'100vh',  }}>
     <Menu /> 
-        <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4, flexWrap:'wrap', width:'95vw' }}>
+        <Box sx={{  display: 'flex',  justifyContent: 'start', flexDirection: 'column', p: 4, flexWrap:'wrap', width:'100%', backgroundColor: theme.palette.background.secondary }}>
           <Typography variant="h4" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
-              <ListCard>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '100%' }}>
+              <ListCard >
                 <ListCardContent >
                   <Typography variant="h5">{t('createList')}</Typography>
                   <CustomTextField  label={t('listName')} value={listName} onChange={e => setListName(e.target.value)} margin="normal" />
@@ -327,15 +327,14 @@ function ListPage() {
               {userLists.map(l => {
               handleGetCreatorName(l.creator);
               return (
-                <ListCard key={l._id}>
+                <ListCard key={l._id} sx={{cursor: 'pointer' }} onClick={(e) => {
+                          setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
+                          setInfoModalOpen(true);
+                        }}>
                   <ListCardContent>
                     <Typography
                         variant="h6"
-                        sx={{ mb: 1, cursor: 'pointer' }}
-                       onClick={() => {
-                          setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
-                          setInfoModalOpen(true);
-                        }}
+                        
                       >
                         {l.name}
                       </Typography>
@@ -365,12 +364,12 @@ function ListPage() {
                         variant="contained"
                         color="warning"
                         size="small"
-                        onClick={() => handleOpenListModal(l)}
+                        onClick={(e ) => {handleOpenListModal(l);  e.stopPropagation();}}
                       >
                         {t('edit')}
                       </Button>
                       <Button
-                        onClick={() => handleDeleteList(l._id)}
+                        onClick={(e) => {handleDeleteList(l._id);  e.stopPropagation();}}
                         color="error"
                         variant="contained"
                       >
@@ -385,16 +384,19 @@ function ListPage() {
             </Box>
         </Box>            
                 
-        <Box sx={{  display: 'flex',  flexDirection: 'column', p: 4, width:'95vw' }}>
+        <Box sx={{  display: 'flex',  flexDirection: 'column', p: 4, width:'100%', backgroundColor: theme.palette.background.tertiary }}>
           <Typography variant="h4" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
-          <Box sx={{ display: 'flex', gap: 2, width: '95vw', flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', gap: 2, width: '100%', flexWrap: 'wrap' }}>
             {followedLists.map(l => {
               handleGetCreatorName(l.creator);
               return (
-                <ListCard key={l._id}>
+                <ListCard key={l._id} sx={{cursor: 'pointer' }} onClick={(e) => { e.stopPropagation();
+                          setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
+                          setInfoModalOpen(true);
+                        }}>
                 <ListCardContent>
                   <Typography
-                      variant="h5"
+                      variant="h6"
                       sx={{ mb: 1, cursor: 'pointer' }}
                       onClick={() => {
                         setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
@@ -419,7 +421,7 @@ function ListPage() {
                              
                   
                     <ButtonBox>
-                      <Button onClick={() => (handleUnfollowList(l._id))} variant= "contained" color="error">{t('unfollow')}</Button>
+                      <Button onClick={(e) => {(handleUnfollowList(l._id));  e.stopPropagation();}} variant= "contained" color="error">{t('unfollow')}</Button>
                     </ButtonBox>
                
                 </ListCardContent>
@@ -429,17 +431,20 @@ function ListPage() {
           </Box>
         </Box>     
 
-        <Box sx={{ display: 'flex',  flexDirection: 'column', p: 4, width:'95vw' }}>
+        <Box sx={{ display: 'flex',  flexDirection: 'column', p: 4, width:'100%', backgroundColor: theme.palette.background.secondary }}>
           <Typography variant="h4" sx={{ mb: 2 }}>{t('allLists')}</Typography>              
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '100%' }}>
             {lists && lists.length > 0 ? (
               lists
                 .filter(l => l.creator && user && l.creator._id !== user.userId) // <-- Filtra las listas que no son tuyas
                 .map(l => (
-                  <ListCard key={l._id}>
+                  <ListCard key={l._id} sx={{cursor: 'pointer' }} onClick={(e) => { e.stopPropagation();
+                          setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
+                          setInfoModalOpen(true);
+                        }}>
                     <ListCardContent>
                       <Typography
-                        variant="h5"
+                        variant="h6"
                         sx={{ mb: 1, cursor: 'pointer' }}
                         onClick={() => {
                           setModalData({ type: 'list', data: { ...l } }); // fuerza nueva referencia
@@ -469,7 +474,7 @@ function ListPage() {
                           
                         ) : (
                           <ButtonBox>
-                            <Button onClick={() => handlefollowList(l._id)} sx={{backgroundColor: '#d63b1f', color: 'white'}}>{t('follow')}</Button>
+                            <Button onClick={(e) => {handlefollowList(l._id);  e.stopPropagation();}} sx={{backgroundColor: '#d63b1f', color: 'white'}}>{t('follow')}</Button>
                           </ButtonBox>
                         )}
                       </Box>
@@ -554,7 +559,10 @@ function ListPage() {
             favoriteCounts,
             setFavoriteCounts,
             handleFavoriteToggle,
+            
           }}
+           handleUnfollowList={handleUnfollowList} // ✅ Se pasa como prop
+           handlefollowList={handlefollowList}
         />
       </Box>
 
