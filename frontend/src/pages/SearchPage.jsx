@@ -644,11 +644,11 @@ function SearchPage() {
 
   return (
     <Box
-      sx={{ minHeight: "100vh", width: "100%",backgroundColor: theme.palette.background.secondary }}
+      sx={{ minHeight: "100vh", width: "100%"  }}
     >
       <Menu />
 
-      <ResultBox sx={{marginTop:2}}>
+      <ResultBox sx={{ backgroundColor: theme.palette.background.secondary}}>
         {/* ARTISTAS */}
         <CustomCard>
           <CardContent  sx={{width:'100%'}} >
@@ -809,7 +809,7 @@ function SearchPage() {
         </CustomCard>
 
       </ResultBox>
-      <ResultBox sx={{marginTop: 5}}>
+      <ResultBox sx={{marginTop: 5, backgroundColor: theme.palette.background.tertiary }}>
         {/* COLUMNA LISTAS */}
         <CustomCard>
           <CardContent sx={{width: '100%'}}>
