@@ -9,6 +9,7 @@ import useFollow from '../hooks/useFollow.js';
 import baseUrl from '../config.js';
 import TopRatingsList from '../components/TopRatingsList.jsx';
 import TopFavoritosList from '../components/TopFavoritosList.jsx'
+import LoadingScreen from "../components/LoadingScreen.jsx";
 
 const TopBox= styled(Box)`
    display: flex; 
@@ -25,7 +26,7 @@ function TopsPage() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const [userUsername, setUserUsername] = useState('');
   const { token, role, logout, user} = useContext(UserContext);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { followers, follow, following, fetchFollowing, fetchFollowers, unfollow } = useFollow(token);
   const { users, fetchAllUsers, getCurrentUser } = useUser(token);
@@ -98,16 +99,16 @@ function TopsPage() {
         }
     } 
 
-
-
   return (
 
       <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0, gap: 2, minHeight:'100vh', width: '100%', backgroundColor: theme.palette.background.secondary }}>
         <Menu />
         <TopBox>    
-          <TopRatingsList limit={5} title={t('topRated')} />        
-          <TopFavoritosList limit={5} title={t('topLiked')}/>        
-        </TopBox> 
+          <TopRatingsList limit={5} title={t('topRated')} setLoading={setLoading}/>        
+          <TopFavoritosList limit={5} title={t('topLiked')} setLoading={setLoading}/>        
+        </TopBox>
+        <LoadingScreen open={loading} />
+
       </Box>
   );
 }

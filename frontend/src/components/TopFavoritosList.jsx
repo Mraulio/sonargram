@@ -44,11 +44,10 @@ const CustomAccordion = styled(Accordion)`
   }
 `;
 
-function TopRatingsList({ limit = 5, title = "Items con Más Likes" }) {
+function TopRatingsList({ limit = 5, title = "Items con Más Likes", setLoading}) {
   const { t } = useTranslation();
   const { token } = useContext(UserContext);
   const [topRatings, setTopRatings] = useState({ artist: [], album: [], song: [] });
-  const [loading, setLoading] = useState(true);
   const { getFavoriteCount, favoriteCounts } = useFavorites(token);
   const [favorites, setFavorites] = useState([]);
 
@@ -85,14 +84,6 @@ function TopRatingsList({ limit = 5, title = "Items con Más Likes" }) {
     );
   }
 
-  if (loading) {
-    return (
-      <Box p={4} display="flex" justifyContent="center">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   return (
     <Box
       sx={{
@@ -121,11 +112,11 @@ function TopRatingsList({ limit = 5, title = "Items con Más Likes" }) {
             <AccordionDetails>
               <Card sx={{ width: "100%" }}>
                 <CardContent>
-                  {favorites[type].length === 0 ? (
+                  {favorites[type]?.length === 0 ? (
                     <Typography>{t("noDataAvailable")}</Typography>
                   ) : (
                     <List dense>
-                      {favorites[type].map((item, index) => {
+                      {favorites[type]?.map((item, index) => {
                 const id = item.favoriteId || item._id || item.data?.mbid || item.data?._id || index;
                 const name = getItemName(item, type);
                 const likes = item.count ?? 0;

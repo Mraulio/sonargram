@@ -7,6 +7,7 @@ import { Typography, Box } from "@mui/material";
 import useRatings from "../hooks/useRatings";
 import useFavorites from "../hooks/useFavorites";
 import { useTranslation } from 'react-i18next';
+import LoadingScreen from "../components/LoadingScreen.jsx";
 
 const Timeline = () => {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -73,8 +74,6 @@ const Timeline = () => {
     }
   };
 
-
-  if (loading) return <Typography>Cargando actividades...</Typography>;
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
@@ -101,6 +100,7 @@ const Timeline = () => {
           ))}
         </>
       )}
+      <LoadingScreen open={loading} />
     </Box>
   );
 };

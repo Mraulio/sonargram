@@ -28,7 +28,7 @@ const CustomAccordion = styled(Accordion)`
   }
 `;
 
-function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
+function TopRatingsList({ limit = 5, title = "Items con Mejor Rating", setLoading }) {
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const { token } = useContext(UserContext);
   const [topRatings, setTopRatings] = useState({
@@ -36,7 +36,6 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
     album: [],
     song: [],
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchTopRatings() {
@@ -72,10 +71,6 @@ function TopRatingsList({ limit = 5, title = "Items con Mejor Rating" }) {
       default:
         return item.name || "Sin nombre";
     }
-  }
-
-  if (loading) {
-    return <Typography>Cargando ratings más altos...</Typography>;
   }
 
    return (
