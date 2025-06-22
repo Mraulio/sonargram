@@ -78,7 +78,7 @@ const getListsByUser = async (req, res) => {
     const songFavorites = allFavorites.filter(fav => fav.favoriteType === 'song');
 
     // 3. Enriquecer solo las canciones
-    const enrichedFavorites = await Promise.all(
+    let enrichedFavorites = await Promise.all(
       songFavorites.map(async (fav) => {
         const cache = await MBIDCache.findOne({ mbid: fav.favoriteId });
         return {
@@ -93,6 +93,9 @@ const getListsByUser = async (req, res) => {
         };
       })
     );
+
+    // Ordena del más reciente al más antiguo
+    enrichedFavorites = enrichedFavorites.reverse();
 
     // 4. Lista virtual de favoritos (solo canciones)
     const listaFavoritos = {

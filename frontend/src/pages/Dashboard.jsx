@@ -83,11 +83,8 @@ function Dashboard() {
   const [userUsername, setUserUsername] = useState('');
   const theme = useTheme();
   const { token, role, logout, user} = useContext(UserContext);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { follower, follow, following, fetchFollowing } = useFollow(token);
   const { users, fetchAllUsers, getCurrentUser } = useUser(token);
-  const [searches, setSearches] = useState([]);
    
 
   // Estados centrales para favoritos y listas
@@ -131,40 +128,6 @@ function Dashboard() {
       console.error("Error updating favorite count", err);
     }
   };
-
-  const handleSearchUser = async () => {
-    try {
-      const user = await getCurrentUser();
-      await fetchFollowing(user._id);
-      if (users.length > 0) {
-      const filtered = users
-        .filter(u => u._id !== user._id)
-        .filter(u => u.username.toLowerCase().includes(userUsername.toLowerCase()));
-        setSearches(filtered);
-      };
-    } catch (err) {
-      setError(err.message || 'Error fetching users');
-    }
-  };
-
-  const isFollowing = useCallback((userId) => {
-    return following.some(f => f.followed && f.followed._id === userId);
-  }, [following]);
-  
- 
-
-  const handleFollow = async (followedId) => {
-    try {
-      await follow(followedId); // Llama a la función follow
-      const user = await getCurrentUser()
-      await fetchFollowing(user._id);
-      showToast (t('userFollowed'), 'success');
-    } catch (err) {
-      console.error('Error following user:', err);
-      showToast(t('errorFollowingUser'), 'error');
-    }
-  };
-
 
   return (
     <Box sx={{width:'100%', display: 'flex', flexDirection:'column', minHeight: '100vh', backgroundColor: theme.palette.background.secondary}}>
