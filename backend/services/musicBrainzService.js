@@ -45,6 +45,8 @@ async function lookupByMBID(type, mbid) {
       coverUrl: cached.coverUrl,
       releaseDate: cached.releaseDate,
       duration: cached.duration,
+      spotifyUrl: cached.spotifyUrl,
+      youtubeUrl: cached.youtubeUrl, 
     };
   }
   // 2. Buscar en MusicBrainz con el tipo real

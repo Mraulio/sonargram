@@ -32,6 +32,7 @@ const ItemRow = ({
   compact = false,
   onDeleteFromList
 }) => {
+  console.log('ITEM ROW', item)
   const showCover = type === "album" && item.coverUrl;
 
   const { openMedia } = useMediaPlayer();
