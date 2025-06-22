@@ -88,8 +88,6 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                   position: "absolute",
                   bottom: -4,
                   right: -4,
-                  bgcolor: "#fff",
-                  borderRadius: "50%",
                   p: "2px",
                 }}
               >
