@@ -47,7 +47,7 @@ const ResultBox = styled(Box)`
     justify-content: space-around;
     
     width: 100vw;
-    gap: 10px;
+    gap: 30px;
     align-items:center;
   
     @media (max-width: 960px) {
@@ -59,7 +59,7 @@ const ResultBox = styled(Box)`
 
 const ListCard = styled(Card)`
   width: 100%;
-  height: 200px; 
+
   display: flex;  
   align-items: center;
   @media (max-width: 960px) {
@@ -89,7 +89,7 @@ const FollowBoxContent = styled(Box)`
 
 `;
 const FollowCard = styled(Card)`
-    width: 100% 
+    width: 80% 
     padding: 15px; 
     display: flex; 
     justify-content: space-around;
@@ -121,7 +121,7 @@ const ResultBoxUL = styled(Box)`
   }
   `;
   const CustomCard = styled(Card)`
-  width: 41vw;
+  width: 45vw;
   display: flex;  
   align-items: center;
   @media (max-width: 960px) {
@@ -651,7 +651,7 @@ function SearchPage() {
       <ResultBox sx={{marginTop:2}}>
         {/* ARTISTAS */}
         <CustomCard>
-          <CardContent >
+          <CardContent  sx={{width:'100%'}} >
         <Box sx={{ flex: 1, p: 2, borderRadius: 1 }}>
           <Typography variant="h5" gutterBottom>
             {t('searchArtist')}
@@ -720,7 +720,7 @@ function SearchPage() {
 
         {/* ÁLBUMES */}
           <CustomCard >
-            <CardContent >
+            <CardContent sx={{width:'100%'}} >
               <Box sx={{ flex: 1, p: 2, borderRadius: 1 }}>
                 <Typography variant="h5" gutterBottom>
                   {t('searchAlbum')}
@@ -825,7 +825,7 @@ function SearchPage() {
                 onKeyDown={(e) => e.key === "Enter" && handleSearchListByName(searchTermList)}
                 margin="normal"
               />
-              <Button variant="contained" onClick={() => handleSearchListByName(searchTermList)} sx={{ mt: 2, width: '20%', backgroundColor: '#d63b1f', color: 'white' }} >
+              <Button variant="contained"   onClick={() => handleSearchListByName(searchTermList)} sx={{ mt: 2, backgroundColor: '#d63b1f', color: 'white', width:'100px' }} >
                 {t('search')}
               </Button>
               {searchResults.length > 0 && (
@@ -873,7 +873,7 @@ function SearchPage() {
                         </ButtonBox>
                       ) : (
                         <ButtonBox>
-                          <Button onClick={(e) => {handlefollowList(l._id); e.stopPropagation()}} variant='contained'>
+                          <Button  onClick={(e) => {handlefollowList(l._id); e.stopPropagation()}} variant='contained'>
                             {t('follow')}
                           </Button>
                         </ButtonBox>
@@ -900,7 +900,7 @@ function SearchPage() {
                 onKeyDown={(e) => e.key === "Enter" && handleSearchUser(searchTermUser)}
                 margin="normal"
               />
-              <Button variant="contained" onClick={() => handleSearchUser(searchTermUser)} sx={{ mt: 2, width: '20%', backgroundColor: '#d63b1f', color: 'white' }}>
+              <Button variant="contained" onClick={() => handleSearchUser(searchTermUser)} sx={{ mt: 2, backgroundColor: '#d63b1f', color: 'white', width:'100px' }}>
                 {t('search')}
               </Button>
               {searches.length > 0 && (
@@ -917,7 +917,7 @@ function SearchPage() {
                     alt={user.name}
                     sx={{ width: 60, height: 60, mr: 2 }}
                   />
-                  <CardContent sx={{ width: '100%' }}>
+                  <CardContent sx={{width:'80%'}}>
                     <Typography
                       variant="h5"
                       component={Link}
@@ -932,7 +932,7 @@ function SearchPage() {
                       {user.name}
                     </Typography>
                     <Divider />
-                    <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent: 'space-between'}}>
                       <Box >
                         <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(user.createdAt).toLocaleDateString()}</Typography>
                         <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>

@@ -16,7 +16,7 @@ import { showToast } from '../utils/toast';
 
 const ListCard= styled(Card)`
   width: 30vw;
-  height: 200px; 
+
   display: flex;  
   align-items: center;
   @media (max-width: 960px) {
@@ -474,7 +474,7 @@ function ListPage() {
                           
                         ) : (
                           <ButtonBox>
-                            <Button onClick={(e) => {handlefollowList(l._id);  e.stopPropagation();}} sx={{backgroundColor: '#d63b1f', color: 'white'}}>{t('follow')}</Button>
+                            <Button variant='contained' onClick={(e) => {handlefollowList(l._id);  e.stopPropagation();}} >{t('follow')}</Button>
                           </ButtonBox>
                         )}
                       </Box>

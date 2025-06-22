@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import useActivity from "../hooks/useActivity";
 import ActivityCard from "./ActivityCard";
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, Card, CardContent, Divider } from "@mui/material";
 import useRatings from "../hooks/useRatings";
 import useFavorites from "../hooks/useFavorites";
 import { useTranslation } from 'react-i18next';
@@ -80,7 +80,15 @@ const Timeline = () => {
   return (
     <Box sx={{ width: '100%'}}>
       {activities.length === 0 ? (
-        <Typography variant="h4">{t('noactivities')}</Typography>
+       
+        <Card sx={{width:'100%', display: 'flex', justifyContent:'center',  height: '70vw'}}>
+          <Divider/>
+          <CardContent sx={{ display:'flex', flexDirection:'column', gap: 4}}>
+            <Typography variant='h4'>{t('welcome')}</Typography>
+            <Typography variant= 'h5'>{t('message')}</Typography>
+          </CardContent>
+          <Divider/>
+        </Card>
       ) : (
         <>
           <Typography variant="h4" gutterBottom>

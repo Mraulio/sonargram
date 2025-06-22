@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom'; 
 import { useTranslation } from 'react-i18next';
 import { registerUser, getAllUsers } from '../api/internal/userApi'
-
+import { showToast } from '../utils/toast';
 
 function RegisterPage() {
     const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -38,7 +38,7 @@ function RegisterPage() {
           const token = await loginUser(userEmail, userPassword); // Llamamos a la función loginUser
           const decodedToken = jwtDecode(token); // Decodificamos el token
           login(token, decodedToken.role, decodedToken); // Guardamos el token y los datos en el contexto
-
+          showToast(t("welcomeToSonargram"), 'success')
           // Redirigir al usuario a la página principal o dashboard
           navigate('/dashboard');
         } catch (err) {

@@ -271,6 +271,7 @@ function UserPage() {
         </Button>
         <CustomTextField
           fullWidth
+          multiline
           label={t('name')}
           value={userName}
           onChange={(e) => setUserName(e.target.value)}

@@ -144,7 +144,10 @@
     "errorFetchingSongs": "Error al buscar canciones",
     "listFollowed": "Has comenzado a seguir la lista",
     "errorUnfollowingList": "Error al dejar de seguir la lista",
-    "errorFollowingList": "Error al seguir la lista"
+    "errorFollowingList": "Error al seguir la lista",
+    "welcomeToSonargram": "Bienvenido a Sonargram",
+    "welcome": "¡Te damos la Bienvenida!",
+    "message": "Busca a tus amigos, descubre música, crea tus listas y mira que se cuece en los tops de la comunidad"
 
 
     
