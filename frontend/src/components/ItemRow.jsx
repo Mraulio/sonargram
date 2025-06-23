@@ -1,5 +1,5 @@
 import { useMediaPlayer } from "../context/MediaPlayerContext";
-import { Typography, IconButton } from "@mui/material";
+import { Typography, IconButton, useTheme, Box } from "@mui/material";
 import RatingDisplay from "./RatingDisplay";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -34,7 +34,7 @@ const ItemRow = ({
   onDeleteFromList
 }) => {
   const showCover = type === "album" && item.coverUrl;
-
+  const theme = useTheme();
   const { openMedia } = useMediaPlayer();
 
   const handleYouTubeClick = () => {
@@ -48,17 +48,18 @@ const ItemRow = ({
   };
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        backgroundColor: "#f5f5f5", // gris claro
-        borderRadius: 8,           // bordes redondeados
+        backgroundColor: theme.palette.background.secondary, // gris claro
+        borderRadius: 2,           // bordes redondeados
         margin: "8px 0",           // margen arriba y abajo
         padding: "10px 15px",      // padding para espacio interno
         boxShadow: "0 1px 3px rgba(0,0,0,0.1)", // sombra sutil para profundidad
         border: "1px solid #ddd",  // borde suave
+        width: { xs: '150vw', md: 'auto' }
       }}
     >
       {showCover && (
@@ -105,7 +106,7 @@ const ItemRow = ({
 
       <Typography
         variant="body2"
-        sx={{ mr: 2, minWidth: 60, textAlign: "right" }}
+        sx={{ mr: 1, minWidth: 60, textAlign: "right" }}
       >
         {type === "song"
           ? formatDuration(item.duration)
@@ -199,7 +200,7 @@ const ItemRow = ({
       )}
       { }
 
-    </div>
+    </Box>
   );
 };
 

@@ -43,10 +43,12 @@ import LoadingScreen from "../components/LoadingScreen.jsx";
 
 const ResultBox = styled(Box)`
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-around;
-    align-items: start;
-    width: 100%;
+    
+    width: 100vw;
+    gap: 30px;
+    align-items:center;
   
     @media (max-width: 960px) {
         flex-direction: column;
@@ -57,7 +59,7 @@ const ResultBox = styled(Box)`
 
 const ListCard = styled(Card)`
   width: 100%;
-  height: 200px; 
+
   display: flex;  
   align-items: center;
   @media (max-width: 960px) {
@@ -87,7 +89,7 @@ const FollowBoxContent = styled(Box)`
 
 `;
 const FollowCard = styled(Card)`
-    width: 100% 
+    width: 80% 
     padding: 15px; 
     display: flex; 
     justify-content: space-around;
@@ -119,7 +121,7 @@ const ResultBoxUL = styled(Box)`
   }
   `;
   const CustomCard = styled(Card)`
-  width: 33vw;
+  width: 45vw;
   display: flex;  
   align-items: center;
   @media (max-width: 960px) {
@@ -150,7 +152,7 @@ function SearchPage() {
   const [searchTermUser, setSearchTermUser] = useState("");
   const [selectedListId, setSelectedListId] = useState("");
   const [searchResults, setSearchResults] = useState([]); // Resultados de búsqueda
-  const { followers, followersCount, followedLists, followL, unfollowList, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
+  const { followers, followersCount, followedLists, followL, unfollowList, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists, unfollow } = useListFollowers(token);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [artistResults, setArtistResults] = useState([]);
@@ -495,6 +497,19 @@ function SearchPage() {
       showToast(t('errorFollowingList'), 'error')
     }
   };
+  const handleUnfollowList = async (listId) => {
+    try {
+      await unfollow(listId);
+      if (!user || !user.userId) return;
+      await fetchFollowedLists(user.userId);
+      setFollowedLists(prev => prev.filter(list => list._id !== listId));
+      showToast(t('listUnfollowed'), 'success');
+    } catch (err) {
+      console.error('Error unfollowing list:', err);
+      showToast(t('errorUnfollowingList'), 'error');
+    }
+  };
+  
 
   const handleOpenListModal = async (song) => {
     await fetchListsByUser(user.userId);
@@ -629,14 +644,14 @@ function SearchPage() {
 
   return (
     <Box
-      sx={{ minHeight: "100vh", width: "100%",backgroundColor: theme.palette.background.secondary }}
+      sx={{ minHeight: "100vh", width: "100%"  }}
     >
       <Menu />
 
-      <ResultBox sx={{marginTop:2}}>
+      <ResultBox sx={{ backgroundColor: theme.palette.background.secondary}}>
         {/* ARTISTAS */}
         <CustomCard>
-          <CardContent sx={{ width: '100%'}}>
+          <CardContent  sx={{width:'100%'}} >
         <Box sx={{ flex: 1, p: 2, borderRadius: 1 }}>
           <Typography variant="h5" gutterBottom>
             {t('searchArtist')}
@@ -705,7 +720,7 @@ function SearchPage() {
 
         {/* ÁLBUMES */}
           <CustomCard >
-            <CardContent sx={{ width: '100%'}}>
+            <CardContent sx={{width:'100%'}} >
               <Box sx={{ flex: 1, p: 2, borderRadius: 1 }}>
                 <Typography variant="h5" gutterBottom>
                   {t('searchAlbum')}
@@ -794,7 +809,7 @@ function SearchPage() {
         </CustomCard>
 
       </ResultBox>
-      <ResultBox sx={{marginTop: 5}}>
+      <ResultBox sx={{marginTop: 5, backgroundColor: theme.palette.background.tertiary }}>
         {/* COLUMNA LISTAS */}
         <CustomCard>
           <CardContent sx={{width: '100%'}}>
@@ -810,7 +825,7 @@ function SearchPage() {
                 onKeyDown={(e) => e.key === "Enter" && handleSearchListByName(searchTermList)}
                 margin="normal"
               />
-              <Button variant="contained" onClick={() => handleSearchListByName(searchTermList)} sx={{ mt: 2, width: '20%', backgroundColor: '#d63b1f', color: 'white' }} >
+              <Button variant="contained"   onClick={() => handleSearchListByName(searchTermList)} sx={{ mt: 2, backgroundColor: '#d63b1f', color: 'white', width:'100px' }} >
                 {t('search')}
               </Button>
               {searchResults.length > 0 && (
@@ -818,7 +833,10 @@ function SearchPage() {
                   {t('foundLists')}
                 </Typography>)}
               {searchResults.map(l => (
-                <ListCard key={l._id} >
+                <ListCard key={l._id} onClick={() => {
+                        setModalData({ type: 'list', data: l });
+                        setInfoModalOpen(true);
+                      }}  sx={{ mb: 1, cursor: 'pointer' }}>
                   <ListCardContent>
                     <Typography
                       variant="h5"
@@ -855,7 +873,7 @@ function SearchPage() {
                         </ButtonBox>
                       ) : (
                         <ButtonBox>
-                          <Button onClick={() => handlefollowList(l._id)} variant='contained'>
+                          <Button  onClick={(e) => {handlefollowList(l._id); e.stopPropagation()}} variant='contained'>
                             {t('follow')}
                           </Button>
                         </ButtonBox>
@@ -882,7 +900,7 @@ function SearchPage() {
                 onKeyDown={(e) => e.key === "Enter" && handleSearchUser(searchTermUser)}
                 margin="normal"
               />
-              <Button variant="contained" onClick={() => handleSearchUser(searchTermUser)} sx={{ mt: 2, width: '20%', backgroundColor: '#d63b1f', color: 'white' }}>
+              <Button variant="contained" onClick={() => handleSearchUser(searchTermUser)} sx={{ mt: 2, backgroundColor: '#d63b1f', color: 'white', width:'100px' }}>
                 {t('search')}
               </Button>
               {searches.length > 0 && (
@@ -899,7 +917,7 @@ function SearchPage() {
                     alt={user.name}
                     sx={{ width: 60, height: 60, mr: 2 }}
                   />
-                  <CardContent sx={{ width: '100%' }}>
+                  <CardContent sx={{width:'80%'}}>
                     <Typography
                       variant="h5"
                       component={Link}
@@ -914,7 +932,7 @@ function SearchPage() {
                       {user.name}
                     </Typography>
                     <Divider />
-                    <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', gap: 3, mt: 1, justifyContent: 'space-between'}}>
                       <Box >
                         <Typography variant="body2" color="text.secondary">{t('since')}: {new Date(user.createdAt).toLocaleDateString()}</Typography>
                         <Typography variant="body2" color="text.secondary">{t('bio')}: {user.bio || t('noBio')}</Typography>
@@ -956,7 +974,8 @@ function SearchPage() {
           setFavoriteCounts,
           handleFavoriteToggle,
         }}
-
+          handleUnfollowList={handleUnfollowList} // ✅ Se pasa como prop
+          handlefollowList={handlefollowList}
       />
       <LoadingScreen open={loadScreen} />
     </Box>

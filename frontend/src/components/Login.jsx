@@ -30,6 +30,9 @@ function Login() {
             margin="normal"
             value={loginEmail}
             onChange={(e) => setLoginEmail(e.target.value)}
+             onKeyDown={(e) => {
+              if (e.key === 'Enter') loginUserHandler();
+            }}
           />
           <TextField
             label={t('password')}
@@ -38,6 +41,9 @@ function Login() {
             margin="normal"
             value={loginPassword}
             onChange={(e) => setLoginPassword(e.target.value)}
+             onKeyDown={(e) => {
+                if (e.key === 'Enter') loginUserHandler();
+              }}
           />
           <Button
             variant="contained"

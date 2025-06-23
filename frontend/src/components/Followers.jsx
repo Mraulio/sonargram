@@ -44,7 +44,7 @@ const FollowCard = styled(Card)`
     align-items: center;
 
     @media (max-width: 960px) {
-    width: 95%
+    width: 100%
     }
 `;
 
@@ -181,7 +181,7 @@ function Followers({ userId: propUserId }) {
                                         </Button>
                                     ) : (
                                         <Button
-                                            sx={{ backgroundColor: '#d63b1f', color: 'white', width: '20%', fontSize: '0.6rem', height: '10%'}}
+                                            sx={{  height: '10%'}}
                                             variant="contained"
                                             onClick={() => handleFollow(f.follower._id)}
                                           

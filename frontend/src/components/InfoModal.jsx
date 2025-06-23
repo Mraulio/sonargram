@@ -21,15 +21,17 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: 550, bgcolor: 'background.paper',
   borderRadius: 2, boxShadow: 24,
-  p: 3, maxHeight: '100vh', overflowY: 'auto'
+  p: 3, maxHeight: '100vh', overflowY: 'auto',
+  width: { xs: '90vw', md: '40vw' }
 };
 
-const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps, handleUnfollowList }) => {
+const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps, handleUnfollowList, handlefollowList }) => {
   const [listItems, setListItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();  // Hook para obtener las traducciones
   const [ creatorList, setCreatorList ] = useState([]);
   const { token, user } = useContext(UserContext);
+  const [localFollowedLists, setLocalFollowedLists] = useState([]);
   const {
     fetchListsByUser,
     userLists,
@@ -222,22 +224,35 @@ const InfoModal = ({ open, onClose, type, data, ratingProps, favoriteProps, hand
       fetchListData();
     }
   }, [type, data?._id]);
-  const isFollowedByUser = (listId) => {
-  return followedLists.some(list => list._id === listId);
-};
+
+
 useEffect(() => {
   if (type === 'list' && user?.userId) {
-    fetchFollowedLists(user.userId);
+    fetchFollowedLists(user.userId).then(() => {
+      setLocalFollowedLists([...followedLists]);
+    });
   }
-}, [type, user?.userId, fetchFollowedLists]);
+}, [type, user?.userId, fetchFollowedLists, followedLists]);
 
+const isFollowedByUser = (listId) => {
+  return localFollowedLists.some(list => list._id === listId);
+};
+const isOwnedByUser = () => {
+  return creatorList === user?.userId;
+};
+
+useEffect(() => {
+  if (Array.isArray(followedLists)) {
+    setLocalFollowedLists(followedLists);
+  }
+}, [followedLists]);
   if (!open || !data) return null;
 
   
 
   return (
     <>
-      <Modal open={open} onClose={onClose}>
+      <Modal open={open} onClose={onClose} >
         <Paper sx={style}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">{t('detail')} {t(type)}</Typography>
@@ -269,16 +284,33 @@ useEffect(() => {
               <Typography variant="subtitle1" gutterBottom>
                 {t('list')}: {data.name}
               </Typography>
-              {isFollowedByUser(data._id) && (
-              <Button 
-                sx={{ fontSize: '0.6rem' }}
-                variant= 'contained'
-                onClick={() => handleUnfollowList(data._id)} 
-                color="error"
-              >
-                {t('unfollow')}
-              </Button>
-            )}
+              {isFollowedByUser(data._id) && !isOwnedByUser() && data.isFavoriteList !== true && data.isRatingList !== true && (
+                <Button 
+                  sx={{ fontSize: '0.6rem' }}
+                  variant="contained"
+                onClick={async () => {
+                  await handleUnfollowList(data._id);
+                  setLocalFollowedLists(prev => prev.filter(list => list._id !== data._id));
+                }}
+                  color="error"
+                >
+                  {t('unfollow')}
+                </Button>
+              )}
+
+              {!isFollowedByUser(data._id) && !isOwnedByUser() && data.isFavoriteList !== true && data.isRatingList !== true && (
+                <Button 
+                  sx={{ fontSize: '0.6rem', ml: 1 }}
+                  variant="contained"
+                 onClick={async () => {
+                  await handlefollowList(data._id);
+                  setLocalFollowedLists(prev => [...prev, { _id: data._id }]);
+                }}
+                  color="primary"
+                >
+                  {t('follow')}
+                </Button>
+              )}
             </Box>
               {loading ? (
                 <CircularProgress />

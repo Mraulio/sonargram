@@ -44,7 +44,6 @@ const CustomMenu = styled(Box)`
 
 const CustomMenuMobile = styled(Box)`
   display: none;
-
   @media (max-width: 960px) {
     display: flex;
     justify-content: space-between;
@@ -141,7 +140,7 @@ function Menu() {
     <Box>
       <CustomMenu>
         <MenuLogo onClick={() => navigate('/dashboard')}>
-          <img src="assets/images/logo.svg" alt="Logo" />
+          <img src="/assets/images/logo.svg" alt="Logo" />
           <Typography
             sx={{
               fontFamily: "'Manrope', sans-serif",

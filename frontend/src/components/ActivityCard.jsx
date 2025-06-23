@@ -1,5 +1,5 @@
 /* src/components/ActivityCard.js */
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Card,
   CardContent,
@@ -24,8 +24,12 @@ import {
 } from "../utils/activityHelpers";
 import { useNavigate } from "react-router-dom";
 import baseUrl from "../config.js";
-
+import useList from '../hooks/useList';
 import { useTranslation } from 'react-i18next';
+import { UserContext } from '../context/UserContext';
+import useListFollowers from '../hooks/useListFollowers';
+import { showToast } from '../utils/toast';
+
 const iconMap = {
   favorite: faHeart,
   rate: faStar,
@@ -50,9 +54,11 @@ const iconColors = {
 
 const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
   const { t } = useTranslation();  // Hook para obtener las traducciones
+  const { token, user: currentUser } = useContext(UserContext);
   const { user, action, createdAt } = activity;
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState({ type: null, data: null });
+  
   //console.log('favorite props card', favoriteProps);
   const openDetail = (type, data) => {
     setModalData({ type, data });
@@ -63,6 +69,33 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
   const icon = iconMap[action];
   const iconColor = iconColors[action] || "#666";
   const related = getRelatedContent(action, activity, t);
+  const { followers, followersCount, followedLists, followL, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
+  const { lists, userLists, addSong, setUserLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong, fetchListById } = useList(token);
+
+  const handleUnfollowList = async (listId) => {
+      try {
+        await unfollow(listId);
+        if (!currentUser || !currentUser.userId) return;
+        await fetchFollowedLists(user.userId);
+        setFollowedLists(prev => prev.filter(list => list._id !== listId));
+        showToast(t('listUnfollowed'), 'success');
+      } catch (err) {
+        console.error('Error unfollowing list:', err);
+        showToast(t('errorUnfollowingList'), 'error');
+      }
+    };
+    
+    const handlefollowList = async (listId) => {
+          try {
+            await followL(listId);
+            if (!currentUser || !currentUser.userId) return;
+            await fetchFollowedLists(user.userId);      
+            showToast(t('listFollowed'), 'success');
+          } catch (err) {
+            console.error('Error following list:', err);
+            showToast(t('errorFollowingList'), 'error');
+          }
+        };
 
   return (
     <>
@@ -143,7 +176,7 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
                     component="span"
                     onClick={() =>
                       action === "followUser"
-                        ? navigate(`/userresult/${user._id}`)
+                        ? navigate(`/userresult/${related.data?._id}`)
                         : openDetail(related.type, {
                           ...related.data,
                           id:
@@ -177,6 +210,8 @@ const ActivityCard = ({ activity, ratingProps, favoriteProps }) => {
         data={modalData.data}
         ratingProps={ratingProps}
         favoriteProps={favoriteProps}
+        handleUnfollowList={handleUnfollowList} // ✅ Se pasa como prop
+           handlefollowList={handlefollowList}
       />
     </>
   );
