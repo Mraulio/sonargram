@@ -230,9 +230,9 @@ function UserPage() {
 
 
  return (
-  <Box style={{ width: '100%',display: 'flex', flexDirection: 'column', backgroundColor: theme.palette.background.secondary }}>
+  <Box style={{ width: '100%',display: 'flex', flexDirection: 'column' }}>
     <Menu />
-    <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100%'}}>
+    <Box sx={{ display: 'flex', flexDirection:'column', alignItems:'center',minHeight: '100vh', width: '100%', backgroundColor: theme.palette.background.secondary}}>
       <Card sx={{ display: 'flex', flexDirection:'column', alignItems:'center', width: '400px', marginBottom: '50px', marginTop: '50px',padding: 10}}>
         <Typography variant="h5" gutterBottom>
           {t('dataUser')}
@@ -271,6 +271,7 @@ function UserPage() {
         </Button>
         <CustomTextField
           fullWidth
+          multiline
           label={t('name')}
           value={userName}
           onChange={(e) => setUserName(e.target.value)}

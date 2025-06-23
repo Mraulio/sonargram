@@ -1,7 +1,7 @@
 import { jwtDecode } from 'jwt-decode';
 import { createContext, useState, useEffect } from 'react';
 import { getCurrentUser } from '../api/internal/userApi';
-
+import { useMediaPlayer } from './MediaPlayerContext';
 // Crear el contexto
 export const UserContext = createContext();
 
@@ -12,12 +12,12 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null); // Estado para guardar los datos del usuario
   const [isLoading, setIsLoading] = useState(true);
   const [profilePic, setProfilePic] = useState(null);
+  const { closeMedia } = useMediaPlayer();
 
   // Verificar si hay token en el localStorage al cargar la página
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedRole = localStorage.getItem('role');
-
     if (savedToken) {
       try {
         const decoded = jwtDecode(savedToken);
@@ -71,6 +71,7 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     setToken(null);
     setRole(null);
+    closeMedia();
     localStorage.removeItem('token');
     localStorage.removeItem('role');
   };

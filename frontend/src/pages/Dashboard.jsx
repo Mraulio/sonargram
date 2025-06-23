@@ -33,26 +33,27 @@ const MenuBox= styled(Box)`
 
 const ListsBox= styled(Box)`
 width: 25vw; 
-min-height: 100vh;
+height: 100vh;
 padding-left:2px; 
 overflow-x: hidden;
+overflow-y: auto;
+margin-top:5px;
 @media (max-width: 960px) {
-    width: 100vw;
+    width: 99vw;
     border-right: 0px;
     display:flex;
     justify-content:center;
     min-height:0vh;
+    overflow-y: auto;
   }
 `;
 
 const TimeLineBox= styled(Box)`
 display: flex; 
 
-width: 60vw; 
-height: 100vh; 
+width: 60%; 
+height: 100vh;
 overflow-y: auto;
-overflow-x: hidden;
-margin-top: 15px;
 @media (max-width: 960px) {
     width: 90vw;
     justify-content:center;
@@ -62,21 +63,19 @@ margin-top: 15px;
 
 `;
 
-const DashBoardBox= styled(Box)`
- display: flex;
- margin-right: 15px; 
- align-items:center; 
- width:95vw; 
- gap:15px;
+const DashBoardBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  marginRight: '15px',
+  backgroundColor: theme.palette.background.secondary,
+  width: '95vw',
+  gap: '15px',
 
-@media (max-width: 960px) {
-  width: 95vw;
-  flex-direction: column;
-  justify-content:start;
-  align-items:center;
-  }
-
-`;
+  [`@media (max-width: 960px)`]: {
+    flexDirection: 'column',
+    justifyContent: 'start',
+    alignItems: 'center',
+  },
+}));
 
 function Dashboard() {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -130,7 +129,7 @@ function Dashboard() {
   };
 
   return (
-    <Box sx={{width:'100%', display: 'flex', flexDirection:'column', minHeight: '100vh', backgroundColor: theme.palette.background.secondary}}>
+    <Box sx={{width:'100%', display: 'flex', flexDirection:'column', minHeight: '100vh', }}>
       <Menu/>
       <DashBoardBox>
         <ListsBox>

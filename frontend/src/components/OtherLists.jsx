@@ -6,9 +6,11 @@ import useList from '../hooks/useList';
 import InfoModal from '../components/InfoModal';
 import useFavorites from '../hooks/useFavorites';
 import useRatings from '../hooks/useRatings';
+import useListFollowers from '../hooks/useListFollowers'
+import { showToast } from '../utils/toast';
 
 const ListCard= styled(Card)`
-  width: 45vw;
+  width: 30vw;
   height: 200px; 
   display: flex;  
   align-items: center;
@@ -26,11 +28,13 @@ const ListCardContent= styled(CardContent)`
 
 function OtherLists({ userId }) {
   const { t } = useTranslation();
-  const { token } = useContext(UserContext);
-  const { userLists, fetchListsByUser, loading } = useList(token);
+  const { token, user } = useContext(UserContext);
+
   const [modalData, setModalData] = useState({ type: '', data: null });
   const [infoModalOpen, setInfoModalOpen] = useState(false);
   // Estado para el modal de canciones
+  const { followers, followersCount, followedLists, followL, unfollow, fetchFollowers, fetchFollowersCount, fetchFollowedLists, setFollowedLists } = useListFollowers(token);
+  const { lists, userLists, addSong, setUserLists, fetchAllLists, createNewList, removeList, renameList, fetchListsByUser, removeSong, fetchListById, loading } = useList(token);
   const [openSongsModal, setOpenSongsModal] = useState(false);
   const [selectedListSongs, setSelectedListSongs] = useState([]);
   const [selectedListName, setSelectedListName] = useState('');
@@ -74,6 +78,31 @@ function OtherLists({ userId }) {
     }
   }, [userId, fetchListsByUser]);
 
+   const handleUnfollowList = async (listId) => {
+        try {
+          await unfollow(listId);
+          if (!user || !user.userId) return;
+          await fetchFollowedLists(user.userId);
+          setFollowedLists(prev => prev.filter(list => list._id !== listId));
+          showToast(t('listUnfollowed'), 'success');
+        } catch (err) {
+          console.error('Error unfollowing list:', err);
+          showToast(t('errorUnfollowingList'), 'error');
+        }
+      };
+      
+      const handlefollowList = async (listId) => {
+            try {
+              await followL(listId);
+              if (!user || !user.userId) return;
+              await fetchFollowedLists(user.userId);      
+              showToast(t('listFollowed'), 'success');
+            } catch (err) {
+              console.error('Error following list:', err);
+              showToast(t('errorFollowingList'), 'error');
+            }
+          };
+
   if (loading) {
     return (
       <Box sx={{ mt: 2, textAlign: 'center' }}>
@@ -95,7 +124,10 @@ function OtherLists({ userId }) {
       <Typography variant="h4" sx={{ mb: 2 }}>{t('userLists')}</Typography>
        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, width: '95vw' }}>
       {userLists.map(list => (
-        <ListCard key={list._id} >
+        <ListCard key={list._id} onClick={() => {
+                  setModalData({ type: 'list', data: list });
+                  setInfoModalOpen(true);
+                }} sx={{ cursor: 'pointer'}}>
           <ListCardContent>
             <Typography
               variant="h5"
@@ -153,6 +185,8 @@ function OtherLists({ userId }) {
         setFavoriteCounts,
         handleFavoriteToggle,
       }}
+      handleUnfollowList={handleUnfollowList} // ✅ Se pasa como prop
+           handlefollowList={handlefollowList}
     />
     </Box>
   );

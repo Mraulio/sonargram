@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserContext } from '../context/UserContext';
-import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions, styled } from '@mui/material';
+import { Box, Typography, Card, CardContent, Button, TextField, Divider, Dialog, DialogTitle, DialogContent, DialogActions, styled, useTheme } from '@mui/material';
 import Menu2 from './Menu';
 import useList from '../hooks/useList';
 import useUser from '../hooks/useUser';
@@ -22,6 +22,7 @@ const MyListsBox = styled(Card)`
   gap: 3; 
   margin-left: 5px;
   min-height: 100vh;
+  overflow-y: auto;
   @media (max-width: 960px) {
     width: 90%;
   }
@@ -53,6 +54,7 @@ function MyLists() {
   const favoriteProps = useFavorites(token);
   const ratingProps = useRatings(token);
   const { getUserById } = useUser(token);
+  const theme = useTheme();
   const [favoriteCounts, setFavoriteCounts] = useState({
     artists: {},
     albums: {},
@@ -155,6 +157,18 @@ function MyLists() {
     }
   };
 
+  const handlefollowList = async (listId) => {
+        try {
+          await followL(listId);
+          if (!user || !user.userId) return;
+          await fetchFollowedLists(user.userId);      
+          showToast(t('listFollowed'), 'success');
+        } catch (err) {
+          console.error('Error following list:', err);
+          showToast(t('errorFollowingList'), 'error');
+        }
+      };
+
   const handleDeleteSongList = async (listId, musicbrainzId) => {
     try {
       await removeSong(listId, musicbrainzId);
@@ -205,84 +219,106 @@ function MyLists() {
 
   return (
     <MyListsBox >
-      <CardContent sx={{ width: '100%', marginTop: 3 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>{t('yourLists')}</Typography>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
+      <CardContent sx={{ width: '100%', marginTop: 3, display: 'flex', gap: 3, flexDirection:'column' }}>
+        <Typography variant="h5">{t('yourLists')}</Typography>
+         <Divider  sx={{ mb: 2 }} />
           {userLists.map(l => {
             handleGetCreatorName(l.creator);
             return (
-              <li key={l._id} style={{ minHeight: '80px' }}>
-                <Typography
-                  variant="h6"
-                  sx={{ mb: 1, cursor: 'pointer' }}
-                  onClick={() => {
+              <Card key={l._id} sx={{ cursor: 'pointer', backgroundColor: theme.palette.background.tertiary }} onClick={() => {
                     console.log('Abriendo modal con lista:', l);
                     setModalData({ type: 'list', data: l });
                     setInfoModalOpen(true);
-                  }}
+                  }}>
+                <CardContent>
+                <Typography
+                  variant="h6" 
                 >
                   {l.name}
                 </Typography>
-
-                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', m: 3 }}>
+                 <Divider  />
+                <Box sx={{ display: 'flex', flexDirection: 'column', m: 3 }}>
+                
+                 <Typography variant="body2" color="text.secondary">
+                        {t('numberSongs')}: {l.songs.length} {t('songs')}
+                      </Typography>
 
                   {l.isFavoriteList !== true && l.isRatingList !== true && (
                     <>
                       <Typography variant="body2" color="text.secondary">
                         {t('creatorOfList')}: {creatorNames[l.creator] || l.creator || t('unknown')}
                       </Typography>
-                      <Button
+                      <Typography variant="body2" color="text.secondary">
+                                               {t('dateofcreation')}: {l.createdAt.slice(0, 10)}
+                                            </Typography>
+                      
+                      <Box>
+                        <Button
 
-                        color="warning"
-                        sx={{ fontSize: '0.7rem' }}
-                        onClick={() => handleOpenListModal(l)}
-                      >
-                        {t('edit')}
-                      </Button>
-                      <Button
-
-                        sx={{ fontSize: '0.7rem' }}
-                        onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
-                      </Button>
+                          color="warning"
+                          sx={{ fontSize: '0.7rem' }}
+                          size='x-small'
+                          onClick={(e) => {e.stopPropagation(); handleOpenListModal(l);}}
+                        >
+                          {t('edit')}
+                        </Button>
+                        <Button
+                        size='x-small'
+                          sx={{ fontSize: '0.7rem' }}
+                          onClick={() => (handleDeleteList(l._id))} color="error">{t('delete')}
+                        </Button>
+                        </Box>
                     </>
                   )}
                 </Box>
-                <Divider />
-              </li>
+               
+                </CardContent>
+              </Card>
             );
           })}
-        </ul>
-        <Typography variant="h5" sx={{ mb: 2 }}>{t('listfollowed')}</Typography>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
+    
+        <Typography variant="h5" sx={{ mb: 2, mt: 2 }}>{t('listfollowed')}</Typography>
           {followedLists.map(l => {
             handleGetCreatorName(l.creator);
             return (
-              <li key={l._id}>
-                <Typography
-                  variant="h6"
-                  sx={{ mb: 1, cursor: 'pointer' }}
-                  onClick={() => {
+              <Card key={l._id} sx={{ cursor: 'pointer', backgroundColor: theme.palette.background.tertiary }} onClick={() => {
+                    console.log('Abriendo modal con lista:', l);
                     setModalData({ type: 'list', data: l });
                     setInfoModalOpen(true);
                   }}
-                >
+                  >
+                <CardContent>
+                <Typography
+                  variant="h6">
                   {l.name}
                 </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                 <Divider  sx={{ mb: 2 }} />
+                <Box sx={{ display: 'flex', flexDirection: 'column', m: 3 }}>
                   <Typography variant="body2" color="text.secondary">
-                    {t('Creador de la lista')}: {creatorNames[l.creator] || l.creator || t('unknown')}
+                        {t('numberSongs')}: {l.songs.length} {t('songs')}
+                      </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('creatorOfList')}: {creatorNames[l.creator] || l.creator || t('unknown')}
                   </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                                               {t('dateofcreation')}: {l.createdAt.slice(0, 10)}
+                                            </Typography>
                   <Button
-                    sx={{ fontSize: '0.6rem' }}
-                    onClick={() => handleUnfollowList(l._id)} color="error">
+                  size='x-small'
+                    sx={{ fontSize: '0.6rem', width: '50%' }}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Evita que se dispare el onClick del Card
+                      handleUnfollowList(l._id);
+                    }} color="error">
                     {t('unfollow')}
                   </Button>
-                  <Divider />
+           
                 </Box>
-              </li>
+                </CardContent>
+              </Card>
             );
           })}
-        </ul>
+    
         {/* Modal para mostrar canciones de la lista */}
         <Dialog open={openSongsModal} onClose={() => setOpenSongsModal(false)}>
           <DialogTitle>{t('songs')}</DialogTitle>
@@ -354,6 +390,7 @@ function MyLists() {
             handleFavoriteToggle,
           }}
           handleUnfollowList={handleUnfollowList} // ✅ Se pasa como prop
+          handlefollowList={handlefollowList}
         />
       </CardContent>
     </MyListsBox>

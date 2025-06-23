@@ -27,16 +27,18 @@ import useFavorites from "../hooks/useFavorites.js";
 import useRatings from "../hooks/useRatings.js";
 import useList from "../hooks/useList.js";
 
-const TopBox = styled(Box)`
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;  /* Cambiado a space-between para usar todo el ancho */
-  width: 100%;
-  @media (max-width: 920px) {
-    flex-direction: column;
-    gap: 20px;
-  }
-`;
+const TopBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '10px',
+  justifyContent: 'space-between',
+  width: '100%',
+  minHeight: '100vh',
+  backgroundColor: theme.palette.background.secondary,
+  '@media (max-width: 920px)': {
+    flexDirection: 'column',
+    gap: '20px',
+  },
+}));
 
 const ChildBox = styled(Box)`
   flex: 1;        /* Hace que cada hijo tome igual ancho */
@@ -217,11 +219,10 @@ function TopsPage() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        padding: 0,
         gap: 2,
         minHeight: "100vh",
         width: "100%",
-        backgroundColor: theme.palette.background.secondary,
+  
       }}
     >
       <Menu />
@@ -271,7 +272,10 @@ function TopsPage() {
             <CircularProgress />
           ) : (
             <List>
-              {userLists.map((list) => (
+              {userLists
+                .filter(list => 
+                  !list.isFavoriteList &&
+                  !list.isRatingList).map((list) => (
                 <ListItem key={list._id} disablePadding>
                   <ListItemButton onClick={() => handleAddToList(list)} disabled={adding}>
                     <ListItemText primary={list.name} />
