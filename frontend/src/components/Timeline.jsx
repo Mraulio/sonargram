@@ -9,6 +9,16 @@ import useFavorites from "../hooks/useFavorites";
 import { useTranslation } from 'react-i18next';
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import { showToast } from '../utils/toast';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faListUl,
+  faHeart,
+  faMedal,
+  faMoon,
+  faSun,
+  faXmark,
+  faMagnifyingGlass
+} from '@fortawesome/free-solid-svg-icons';
 
 const Timeline = () => {
   const { t } = useTranslation();  // Hook para obtener las traducciones
@@ -78,14 +88,20 @@ const Timeline = () => {
   if (error) return <Typography color="error">Error: {error}</Typography>;
 
   return (
-    <Box sx={{ width: '100%'}}>
+    <Box sx={{ width: '100%', marginTop:'5px'}}>
       {activities.length === 0 ? (
        
-        <Card sx={{width:'100%', display: 'flex', justifyContent:'center',  height: '70vw'}}>
+        <Card sx={{width:'100%', display: 'flex', justifyContent:'center', p:4, marginTop: '5px'}}>
           <Divider/>
           <CardContent sx={{ display:'flex', flexDirection:'column', gap: 4}}>
-            <Typography variant='h4'>{t('welcome')}</Typography>
-            <Typography variant= 'h5'>{t('message')}</Typography>
+            <Typography variant='h5'>{t('welcomeToSonargram')}</Typography>
+            <Typography>{t('message')}</Typography>
+            <Typography>{t('message2')} <FontAwesomeIcon style={{ fontSize: 20, color:'#d63b1f'  }} icon={faMagnifyingGlass} /></Typography>
+            <Typography>{t('message3')}</Typography>
+            <Typography>{t('message4')} <FontAwesomeIcon style={{ fontSize: 20, color:'#d63b1f'  }} icon={faListUl} /></Typography>
+            <Typography>{t('message5')}</Typography>
+            <Typography>{t('message6')} <FontAwesomeIcon style={{ fontSize: 20, color:'#d63b1f'  }} icon={faMedal} /></Typography>
+            <Typography>{t('endMessage')}</Typography>
           </CardContent>
           <Divider/>
         </Card>

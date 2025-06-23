@@ -147,12 +147,20 @@
     "errorFollowingList": "Error al seguir la lista",
     "welcomeToSonargram": "Bienvenido a Sonargram",
     "welcome": "¡Te damos la Bienvenida!",
-    "message": "Busca a tus amigos, descubre música, crea tus listas y mira que se cuece en los tops de la comunidad",
+    "message": "Tu nueva forma de vivir la música y conectarte con quienes comparten tu pasión. Aquí puedes: ",
+    "message2": "Buscar a tus amigos y seguir lo que están escuchando.",
+    "message3": "Descubrir música y artistas que te encantarán.", 
+    "message4": "Crear listas personalizadas y añadir tus canciones favoritas.",
+    "message5": "Escuchar tu música sin salir de la app.",
+    "message6": "Explorar los Tops de la comunidad y lo más escuchado por todos.",
+    "endMessage": "¡Empieza a crear tu mundo musical ahora mismo! ",
     "songDeletedFromList": "Canción borrada de la lista",
     "save": "Guardar",
     "cancel": "Cancelar",
     "confirmDeleteList": "Confirma para borrar la lista",
-    "deletedList": "Lista eliminada"
+    "deletedList": "Lista eliminada",
+    "noDataAvailable": "Sin datos"
+
 
 
     
